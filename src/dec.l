@@ -218,20 +218,14 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (var OrgTermio i8 0)
 (var Termio i8* null)
 
-(de T void stopTerm ())
 (de void setRaw () null)
 (de void setCooked () null)
-(de T i1 reopenTty (i8*))
 
 # System
 (local) (getUsec getMsec getDate getGmDate getTime getGmTime fileInfo)
 
 (de i64 getUsec   (i1) 0)
 (de i64 getMsec   () 0)
-(de i64 getDate   () 0)
-(de i64 getGmDate () 0)
-(de i64 getTime   () 0)
-(de i64 getGmTime () 0)
 (de i64 fileInfo  (i1 i8* i64*) 0)
 
 # Polling
@@ -259,24 +253,10 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (var QuitRst i8 0)
 
 # Native lib.c
-(local) (dlOpen ffiPrep ffiCall boxFloat boxDouble)
 
-(de T i8* dlOpen (i8*))
-(de T i8* ffiPrep (i8* i8* i64))
-(de T i64 ffiCall (i8* i64))
-(de T i64 boxFloat (i32 i64))
-(de T i64 boxDouble (i64 i64))
-(de T void bufFloat (i64 i64 i8*))
-(de T void bufDouble (i64 i64 i8*))
 
 # Case mappings lib.c
-(local) (isLowc isUppc isLetterOrDigit toUpperCase toLowerCase)
 
-(de T i1 isLowc (i32))
-(de T i1 isUppc (i32))
-(de T i1 isLetterOrDigit (i32))
-(de T i32 toUpperCase (i32))
-(de T i32 toLowerCase (i32))
 
 ### Forward references ###
 
