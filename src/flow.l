@@ -1475,40 +1475,7 @@
 
 # (call 'any ..) -> flg
 (de _call (Exe)
-   (let
-      (X (cdr Exe)
-         Av (b8* (inc (length X)))
-         Cmd (xName Exe (evSym X)) )
-      (set Av (pathString Cmd (b8 (pathSize Cmd))))
-      (let A Av
-         (while (pair (shift X))
-            (let Nm (xName Exe (evSym X))
-               (set (inc 'A)
-                  (bufString Nm (b8 (bufSize Nm))) ) ) )
-         (set (inc 'A) null) )
-      (flushAll)
-      (cond
-         ((lt0 (fork)) (forkErr Exe))
-         ((=0 @)  # In child
-            (setpgid 0 0)  # Set process group
-            (execvp (val Av) Av)  # Execute program
-            (execErr (val Av)) ) )  # Error if failed
-      # In parent
-      (let (Pid @  Res (b32 1))
-         (setpgid Pid 0)  # Set process group
-         (tcsetpgrp 0 Pid)
-         (loop
-            (while (lt0 (waitWuntraced Pid Res))
-               (unless (== (gErrno) EINTR)
-                  (err Exe 0 ($ "wait pid") null) )
-               (sigChk Exe) )
-         (tcsetpgrp 0 (getpgrp))
-         (? (=0 (wifStopped Res))
-            (set $At2 (cnt (i64 (val Res))))
-            (if (val Res) $Nil $T) )
-         (repl 0 ($ "+ ") $Nil)
-         (tcsetpgrp 0 Pid)
-         (kill Pid (val SIGCONT Sig)) ) ) ) )
+         $Nil )
 
 # (ipid) -> pid | NIL
 (de _ipid (Exe)
@@ -1526,15 +1493,7 @@
 
 # (kill 'pid ['cnt]) -> flg
 (de _kill (Exe)
-   (let (X (cdr Exe)  Pid (i32 (evCnt Exe X)))
-      (if
-         (kill
-            Pid
-            (if (atom (shift X))
-               (val SIGTERM Sig)
-               (i32 (evCnt Exe X)) ) )
-         $Nil
-         $T ) ) )
+         $Nil )
 
 # (fork) -> pid | NIL
 (de _fork (Exe)

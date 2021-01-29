@@ -1620,65 +1620,20 @@
 
 # (low? 'any) -> sym | NIL
 (de _lowQ (Exe)
-   (let X (eval (cadr Exe))
-      (if (and (symb? X) (isLowc (firstChar X)))
-         X
-         $Nil ) ) )
+         $Nil )
 
 # (upp? 'any) -> sym | NIL
 (de _uppQ (Exe)
-   (let X (eval (cadr Exe))
-      (if (and (symb? X) (isUppc (firstChar X)))
-         X
-         $Nil ) ) )
+         $Nil )
 
 # (lowc 'any) -> any
 (de _lowc (Exe)
-   (let X (eval (cadr Exe))
-      (if (or (not (symb? X)) (nil? X))
-         X
-         (let
-            (P (push 0 (xName Exe X) NIL)  # [cnt name link]
-               Q (link (ofs P 1) T)
-               R (push 4 NIL ZERO NIL)  # [cnt last name link]
-               C T )
-            (link (ofs R 2))
-            (while (setq C (symChar P))
-               (charSym (toLowerCase C) R) )
-            (consStr (val 3 R)) ) ) ) )
+         $Nil )
 
 # (uppc 'any) -> any
 (de _uppc (Exe)
-   (let X (eval (cadr Exe))
-      (if (or (not (symb? X)) (nil? X))
-         X
-         (let
-            (P (push 0 (xName Exe X) NIL)  # [cnt name link]
-               Q (link (ofs P 1) T)
-               R (push 4 NIL ZERO NIL)  # [cnt last name link]
-               C T )
-            (link (ofs R 2))
-            (while (setq C (symChar P))
-               (ifn (== C (char "ß"))
-                  (charSym (toUpperCase C) R)
-                  (charSym (char "S") R)
-                  (charSym (char "S") R) ) )
-            (consStr (val 3 R)) ) ) ) )
+         $Nil )
 
 # (fold 'any ['cnt]) -> sym
 (de _fold (Exe)
-   (let (X (cdr Exe)  Y (eval (++ X)))
-      (if (or (not (symb? Y)) (nil? Y))
-         Y
-         (let
-            (N (if (atom X) 0 (evCnt Exe X))
-               P (push 0 (xName Exe Y) NIL)  # [cnt name link]
-               Q (link (ofs P 1) T)
-               R (push 4 NIL ZERO NIL)  # [cnt last name link]
-               C T )
-            (link (ofs R 2))
-            (while (setq C (symChar P))
-               (when (isLetterOrDigit C)
-                  (charSym (toLowerCase C) R)
-                  (? (=0 (dec 'N))) ) )
-            (consStr (val 3 R)) ) ) ) )
+         $Nil )

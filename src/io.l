@@ -888,25 +888,7 @@ selectErr)
 
 # (sync) -> flg
 (de _sync (Exe)
-   (cond
-      ((or (=0 (val $Mic)) (=0 (val $Hear)))
          $Nil )
-      ((val $Sync) $T)
-      (T
-         (let (Mic (val $Mic)  P (i8* $Slot)  Cnt 4)
-            (loop
-               (let N (write Mic P Cnt)
-                  (cond
-                     ((ge0 N)
-                        (? (=0 (dec 'Cnt N)))
-                        (setq P (ofs P N)) )
-                     ((== (gErrno) EINTR) (sigChk Exe))
-                     (T (writeErr ($ "sync write: %s"))) ) ) ) )
-         (set $Sync NO)
-         (loop
-            (waitFd Exe -1 292MY)
-            (? (val $Sync)) )
-         $T ) ) )
 
 # (hear 'cnt) -> cnt
 (de _hear (Exe)
@@ -929,48 +911,11 @@ selectErr)
 
 # (tell ['cnt] 'sym ['any ..]) -> any
 (de _tell (Exe)
-   (cond
-      ((and (=0 (val $Tell)) (=0 (val $Children)))
          $Nil )
-      ((atom (cdr Exe))
-         (unsync)
-         $Nil )
-      (T
-         (let (X @  Y (eval (car X))  Pid (i32 0))
-            (when (cnt? Y)
-               (setq
-                  Pid (i32 (int @))
-                  Y (eval (car (shift X))) ) )
-            (let (TellBuf (val $TellBuf)  Ptr (val $Ptr)  End (val $End))
-               (tellBeg (b8 (val PipeBufSize)))
-               (stkChk Exe)
-               (loop
-                  (prTell Y)
-                  (? (atom (shift X)))
-                  (setq Y (eval (car X))) )
-               (tellEnd Pid)
-               (set $TellBuf TellBuf  $Ptr Ptr  $End End)
-               Y ) ) ) ) )
 
 # (poll 'cnt) -> cnt | NIL
 (de _poll (Exe)
-   (let
-      (C (eval (cadr Exe))
-         Fd (i32 (xCnt Exe C)) )
-      (when (or (lt0 Fd) (>= Fd (val $InFDs)))
-         (badFd Exe C) )
-      (let In: (inFile (val (ofs (val $InFiles) Fd)))
-         (ifn (and (In:) (ge0 (In: fd)))
-            $Nil
-            (let Poll (b64 1)
-               (pollIn Fd Poll)
-               (loop
-                  (? (> (In: cnt) (In: ix)) C)
-                  (while (lt0 (gPoll Poll 1 0))
-                     (unless (== (gErrno) EINTR)
-                        (selectErr Exe) ) )
-                  (? (not (readyIn Poll)) $Nil)
-                  (? (ge0 (slowNb (In:))) C) ) ) ) ) ) )
+         $Nil )
 
 (local) (rdOpen wrOpen erOpen ctOpen)
 
@@ -1608,36 +1553,7 @@ selectErr)
 
 # (key ['cnt]) -> sym
 (de _key (Exe)
-   (flushAll)
-   (let Term (val Termio)
-      (prog2
-         (unless Term
-            (setRaw) )
-         (if
-            (waitFd Exe 0
-               (if (nil? (eval (cadr Exe)))
-                  292MY
-                  (xCnt Exe @) ) )
-            (let C (stdinByte)
-               (mkChar
-                  (cond
-                     ((>= 127 C) C)  # Single byte
-                     ((== C (hex "FF")) (i32 TOP))  # Infinite
-                     (T
-                        (let B
-                           (ifn (& C (hex "20"))  # Two bytes
-                              (& C (hex "1F"))  # First byte 110xxxxx
-                              (let A
-                                 (ifn (& C (hex "10"))  # Three bytes
-                                    (& C (hex "0F"))  # First byte 1110xxxx
-                                    (|  # Four bytes
-                                       (shl (& C 7) 6)  # First byte 11110xxx
-                                       (& (stdinByte) (hex "3F")) ) )  # 10xxxxxx
-                                 (| (shl A 6) (& (stdinByte) (hex "3F"))) ) )
-                           (| (shl B 6) (& (stdinByte) (hex "3F"))) ) ) ) ) )
-            $Nil )
-         (unless Term
-            (setCooked) ) ) ) )
+         $Nil )
 
 # (peek) -> sym
 (de _peek (Exe)
@@ -1886,11 +1802,7 @@ selectErr)
 
 # (ctl 'sym . prg) -> any
 (de _ctl (Exe)
-   (let X (cdr Exe)
-      (ctOpen Exe (eval (++ X)) (b8 (ctFrame T)))
-      (prog1
-         (run X)
-         (popCtlFiles) ) ) )
+         $Nil )
 
 # (fd) -> cnt
 (de _fd (Exe)
@@ -2008,47 +1920,7 @@ selectErr)
 # (pipe exe) -> cnt
 # (pipe exe . prg) -> any
 (de _pipe (Exe)
-   (let
-      (X (cdr Exe)
-         E (++ X)
-         Pfd (b32 2)
-         Io: (ioFrame (b8 (ioFrame T))) )
-      (when (lt0 (if (pair X) (pipe Pfd) (socketPair Pfd)))
-         (pipeErr Exe) )
-      (when (< (val 2 Pfd) 2)  # pfd[1]
-         (pipeErr Exe) )
-      (if (forkLisp Exe)
-         (let Pid @  # In parent
-            (close (val 2 Pfd))  # Close write end
-            (let Fd (val Pfd)  # Read end
-               (closeOnExec Exe Fd)
-               (cond
-                  ((atom X)  # No 'prg'
-                     (initInFile Fd null)
-                     (initOutFile Fd)
-                     (cnt (i64 Fd)) )
-                  (T
-                     (setpgid Pid 0)  # Set process group
-                     (pushInFile (Io:) (initInFile Fd null) Pid)
-                     (prog1
-                        (run X)
-                        (popInFiles)
-                        (tosInFile) ) ) ) ) )
-         # In child
-         (close (val Pfd))  # Close read end
-         (let Fd (val 2 Pfd)  # Write end
-            (if (pair X)  # 'prg'
-               (setpgid 0 0)  # Set process group
-               (dup2 Fd 0) )  # Dup write pipe to STDIN_FILENO
-            (dup2 Fd 1)  # Dup write pipe to STDOUT_FILENO
-            (close Fd) )
-         (signal (val SIGPIPE Sig) (val SigDfl))  # Default SIGPIPE
-         ((outFile (val $OutFile)) tty NO)  # Clear 'tty'
-         (pushOutFile (Io:) (val 2 (val $OutFiles)) 0)  # Stdout
-         (set $LinePtr null)  # Switch off line editor
-         (when (pair E)  # Evaluate 'exe'
-            (evList E) )
-         (bye 0) ) ) )
+         $Nil )
 
 # (open 'any ['flg]) -> cnt | NIL
 (de _open (Exe)

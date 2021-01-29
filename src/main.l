@@ -445,24 +445,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (tty . prg) -> any
 (de _tty (Exe)
-   (let (Out (val $OutFile)  Put (val (i8** $Put)))
-      (set
-         $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putStdout) )
-      (rlHide)
-      (prog1
-         (run (cdr Exe))
-         (rlShow)
-         (set (i8** $Put) Put  $OutFile Out) ) ) )
+         $Nil )
 
 # (raw ['flg]) -> flg
 (de _raw (Exe)
-   (let X (cdr Exe)
-      (cond
-         ((atom X)
-            (if (val Termio) $T $Nil) )
-         ((nil? (eval (car X))) (setCooked) @)
-         (T (setRaw) @) ) ) )
+         $Nil )
 
 # (alarm 'cnt . prg) -> cnt
 (de _alarm (Exe)
@@ -473,10 +460,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (sigio 'cnt . prg) -> cnt
 (de _sigio (Exe)
-   (let (X (cdr Exe)  Fd (evCnt Exe X))
-      (set $Sigio (cdr X))
-      (fcntlSetOwn (i32 Fd) (i32 (int (val $Pid))))
-      (cnt Fd) ) )
+         $Nil )
 
 # (kids) -> lst
 (de _kids (Exe)
@@ -579,92 +563,18 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 # (date 'y 'm 'd) -> dat | NIL
 # (date '(y m d)) -> dat | NIL
 (de _date (Exe)
-   (let X (cdr Exe)
-      (cond
-         ((atom X)
-            (let N (getDate)
-               (tmDate
-                  (& N (hex "FFFF"))
-                  (& (shr N 16) (hex "FF"))
-                  (& (shr N 24) (hex "FF")) ) ) )
-         ((t? (eval (car X)))
-            (let N (getGmDate)
-               (tmDate
-                  (& N (hex "FFFF"))
-                  (& (shr N 16) (hex "FF"))
-                  (& (shr N 24) (hex "FF")) ) ) )
-         ((nil? @) @)
-         ((pair @)
-            (let L @
-               (tmDate
-                  (xCnt Exe (++ L))
-                  (xCnt Exe (++ L))
-                  (xCnt Exe (car L)) ) ) )
-         (T
-            (let N @
-               (cond
-                  ((pair (shift X))
-                     (tmDate
-                        (xCnt Exe N)
-                        (evCnt Exe X)
-                        (evCnt Exe (cdr X)) ) )
-                  ((lt0 (setq N (xCnt Exe N))) $Nil)
-                  (T
-                     (let Y (/ (- (* N 100) 20) 3652425)
-                        (setq
-                           N (+ N (- Y (/ Y 4)))
-                           Y (/ (- (* N 100) 20) 36525)
-                           N (* (- N (/ (* Y 36525) 100)) 10) )
-                        (let
-                           (M (/ (- N 5) 306)
-                              D (/ (+ N (* M -306) 5) 10) )
-                           (if (> 10 M)
-                              (inc 'M 3)
-                              (inc 'Y)
-                              (dec 'M 9) )
-                           (cons (cnt Y)
-                              (cons (cnt M)
-                                 (cons (cnt D) $Nil) ) ) ) ) ) ) ) ) ) ) )
+         $Nil )
 
 # (time ['T]) -> tim
 # (time 'tim) -> (h m s)
 # (time 'h 'm ['s]) -> tim | NIL
 # (time '(h m [s])) -> tim | NIL
 (de _time (Exe)
-   (let X (cdr Exe)
-      (cond
-         ((atom X) (cnt (getTime)))
-         ((t? (eval (car X)))
-            (if (lt0 (getGmTime)) $Nil (cnt @)) )
-         ((nil? @) @)
-         ((pair @)
-            (let L @
-               (tmTime
-                  (xCnt Exe (++ L))
-                  (xCnt Exe (++ L))
-                  (if (pair L)
-                     (xCnt Exe (car L))
-                     0 ) ) ) )
-         (T
-            (let N @
-               (cond
-                  ((pair (shift X))
-                     (tmTime
-                        (xCnt Exe N)
-                        (evCnt Exe X)
-                        (if (pair (shift X)) (evCnt Exe X) 0) ) )
-                  ((lt0 (setq N (xCnt Exe N))) $Nil)
-                  (T
-                     (cons (cnt (/ N 3600))
-                        (cons (cnt (% (/ N 60) 60))
-                           (cons (cnt (% N 60)) $Nil) ) ) ) ) ) ) ) ) )
+         $Nil )
 
 # (usec ['flg]) -> num
 (de _usec (Exe)
-   (cnt
-      (if (nil? (eval (cadr Exe)))
-         (- (getUsec YES) (val $USec))
-         (getUsec NO) ) ) )
+         $Nil )
 
 # Try to load dynamic library
 (local) sharedLib
@@ -1000,26 +910,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (ctty 'sym|NIL|pid) -> flg
 (de _ctty (Exe)
-   (let X (eval (cadr Exe))
-      (cond
-         ((cnt? X)
-            (set $TtyPid (i32 (int @)))
-            $T )
-         ((nil? X) $T)
-         (T
-            (let Nm (xName Exe (xSym X))
-               (if (reopenTty (bufString Nm (b8 (bufSize Nm))))
-                  (let
-                     (In: (inFile (val (val $InFiles)))  # Stdin
-                        Out: (outFile (val 2 (val $OutFiles))) )  # Stdout
-                     (In: ix (In: cnt 0))
-                     (In: chr 0)
-                     (set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
-                     (Out: ix 0)
-                     (Out: tty YES)
-                     ((outFile (val 3 (val $OutFiles))) tty YES)  # Stderr
-                     $T )
-                  $Nil ) ) ) ) ) )
+         $Nil )
 
 # (cmd ['any]) -> sym
 (de _cmd (Exe)
@@ -1030,64 +921,15 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (dir ['any] ['flg]) -> lst
 (de _dir (Exe)
-   (let X (cdr Exe)
-      (if
-         (getDir
-            (if (nil? (evSym X))
-               ($ ".")
-               (let Nm (xName Exe @)
-                  (pathString Nm (b8 (pathSize Nm))) ) ) )
-         (let (P @  F (eval (car (shift X))))
-            (when (nil? F)
-               (while (== (val P) (char "."))
-                  (unless (setq P (getDir null))
-                     (ret $Nil) ) ) )
-            (let (Y (cons (mkStr P) $Nil)  R (save Y))
-               (while (setq P (getDir null))
-                  (unless (and (nil? F) (== (val P) (char ".")))
-                     (setq Y (set 2 Y (cons (mkStr P) $Nil))) ) )
-               R ) )
-         $Nil ) ) )
+         $Nil )
 
 # (info 'any ['flg]) -> (cnt|flg dat . tim)
 (de _info (Exe)
-   (let
-      (X (cdr Exe)
-         Nm (xName Exe (set $At2 (evSym X)))
-         Size (b64 1) )
-      (if
-         (lt0
-            (fileInfo
-               (nil? (eval (car (shift X))))
-               (pathString Nm (b8 (pathSize Nm)))
-               Size ) )
-         $Nil
-         (let N @
-            (cons
-               (case (& N 3)
-                  (1 $T)
-                  (2 $Nil)
-                  (T (box64 (val Size))) )
-               (cons
-                  (tmDate
-                     (& (setq N (shr N 2)) (hex "FFFF"))
-                     (& (setq N (shr N 16)) (hex "FF"))
-                     (& (setq N (shr N 8)) (hex "FF")) )
-                  (cnt (shr N 8)) ) ) ) ) ) )
+         $Nil )
 
 # (file) -> (sym1 sym2 . num) | NIL
 (de _file (Exe)
-   (let In: (inFile (val $InFile))
-      (ifn (and (In:) (In: name))
-         $Nil
-         (let
-            (N (cnt (i64 (In: src)))
-               S (In: name)
-               P (strrchr S (char "/")) )
-            (if P
-               (let X (save (mkStrE S (inc 'P)))
-                  (cons X (cons (mkStr P) N)) )
-               (cons $Nil (cons (mkStr S) N)) ) ) ) ) )
+         $Nil )
 
 # (argv [var ..] [. sym]) -> lst|sym
 (de _argv (Exe)
@@ -1138,7 +980,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (errno) -> cnt
 (de _errno (Exe)
-   (cnt (i64 (nErrno))) )
+         $Nil )
 
 # Native calls
 (local) (fetchChar natBuf natErr natRetBuf ffi)
@@ -1363,30 +1205,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (native 'cnt1|sym1 'cnt2|sym2 'any 'any ..) -> any
 (de _native (Exe)
-   (let
-      (X (cdr Exe)
-         Y (eval (++ X))  # Eval library 'cnt1|sym1'
-         Lib
-         (cond
-            ((cnt? Y) (i8* (int Y)))
-            ((big? Y) (i8* (val (dig Y))))
-            ((pair Y) (argErr Exe Y))
-            ((== (xName Exe Y) (| 2 (>> -4 (char "@"))))
-               (set Y ZERO)
-               null )  # RTLD_DEFAULT
-            (T
-               (unless (dlOpen (pathString @ (b8 (pathSize @))))
-                  (err Exe Y ($ "[DLL] %s") (dlerror)) )
-               (set Y (box64 (i64 @)))
-               @ ) )
-         Fun (save (eval (++ X)))  # Eval function 'cnt2|sym2'
-         Args (save (cons (eval (++ X)) $Nil))
-         L Args )  # [ret args]
-      (while (pair X)
-         (let Z (push (save (eval (++ X))) $Nil)  # [argN next]
-            (set 2 L Z)
-            (setq L Z) ) )
-      (tailcall (ffi Exe Lib Fun Args)) ) )
+         $Nil )
 
 # (struct 'num 'any 'any ..) -> any
 (de _struct (Exe)
@@ -1666,26 +1485,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (history ['lst]) -> lst
 (de _history (Exe)
-   (let X (cdr Exe)
-      (if (atom X)
-         (let P (history_list)
-            (if (and P (val P))
-               (let
-                  (Y (cons (mkStr (val (val P))) $Nil)
-                     R (save Y)
-                     I 0 )
-                  (while (val (ofs P (inc 'I)))
-                     (setq Y
-                        (set 2 Y (cons (mkStr (val @)) $Nil)) ) )
-                  R )
-               $Nil ) )
-         (clear_history)
-         (let (Y (needLst Exe (eval (car X)))  Z Y)
-            (while (pair Z)
-               (let (Nm (xName Exe (xSym (++ Z)))  Stk (stack))
-                  (add_history (bufString Nm (b8 (bufSize Nm))) )
-                  (stack Stk) ) )
-            Y ) ) ) )
+         $Nil )
 
 # (version ['flg]) -> lst
 (de _version (Exe)
