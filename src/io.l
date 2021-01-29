@@ -2409,84 +2409,81 @@ selectErr)
 (de repl (Exe (i8* . Prmt) X)
    (when (num? X)
       (argErr Exe X) )
-   (if (and (sym? X) (== (firstByte X) (char "-")))
-      (let E (save (parse (xName Exe X) YES (hex "5D0A") 0))  # '\n', ']', EOF
-         (evList E) )
-      (when (and (nil? X) (not (val $Repl)))
-         (set $Repl YES)
-         (iSignal (val SIGINT Sig) (fun sig)) )
-      (let
-         (Int (save (val $Intern))
-            Pr1 (save (val $PrivT))
-            Pr2 (save (val 2 $PrivT))
-            Tr1 (save (val $Transient))
-            Tr2 (save (val 2 $Transient))
-            V (link (push -ZERO NIL))
-            At (link (push -ZERO NIL)) )
-         (rdOpen Exe X (b8 (ioFrame T)))
-         (set $PrivT (set 2 $PrivT $Nil))
-         (set $Transient (set 2 $Transient $Nil))
-         (setq X $Nil)
-         (loop
-            (let Y
-               (ifn (== (val $InFile) (val (val $InFiles)))  # Stdin
-                  (read1 0)
-                  (set $LinePrmt
-                     (if
-                        (or
-                           (nil? (runAt (val $Prompt)))
-                           (not (symb? @)) )
-                        Prmt
-                        (let
-                           (Nm (name (val (tail @)))
-                              N (bufSize Nm)
-                              P
-                              (set $ReplPrmt
-                                 (alloc (val $ReplPrmt) (+ N (strlen Prmt))) ) )
-                           (bufString Nm P)
-                           (strcpy (ofs P (dec N)) Prmt)
-                           P ) ) )
-                  (prog2
-                     (set $ContPrmt ($ "   "))
-                     (read1
-                        (if (isatty 0)
-                           (char "\n")
-                           (i32 0) ) )
-                     (set $LinePrmt (set $ContPrmt null))
-                     (while (gt0 (val $Chr))
-                        (? (== (val $Chr) (char "\n"))
-                           (set $Chr 0) )
-                        (if (== (val $Chr) (char "#"))
-                           (comment)
-                           (? (> (val $Chr) (char " ")))
-                           (call $Get) ) ) ) )
-               (? (nil? Y))
-               (set V Y)
-               (if
-                  (or
-                     (<> (val $InFile) (val (val $InFiles)))  # Stdin
-                     (val $Chr)
-                     (=0 Prmt) )
+   (when (and (nil? X) (not (val $Repl)))
+      (set $Repl YES)
+      (iSignal (val SIGINT Sig) (fun sig)) )
+   (let
+      (Int (save (val $Intern))
+         Pr1 (save (val $PrivT))
+         Pr2 (save (val 2 $PrivT))
+         Tr1 (save (val $Transient))
+         Tr2 (save (val 2 $Transient))
+         V (link (push -ZERO NIL))
+         At (link (push -ZERO NIL)) )
+      (rdOpen Exe X (b8 (ioFrame T)))
+      (set $PrivT (set 2 $PrivT $Nil))
+      (set $Transient (set 2 $Transient $Nil))
+      (setq X $Nil)
+      (loop
+         (let Y
+            (ifn (== (val $InFile) (val (val $InFiles)))  # Stdin
+               (read1 0)
+               (set $LinePrmt
+                  (if
+                     (or
+                        (nil? (runAt (val $Prompt)))
+                        (not (symb? @)) )
+                     Prmt
+                     (let
+                        (Nm (name (val (tail @)))
+                           N (bufSize Nm)
+                           P
+                           (set $ReplPrmt
+                              (alloc (val $ReplPrmt) (+ N (strlen Prmt))) ) )
+                        (bufString Nm P)
+                        (strcpy (ofs P (dec N)) Prmt)
+                        P ) ) )
+               (prog2
+                  (set $ContPrmt ($ "   "))
+                  (read1
+                     (if (isatty 0)
+                        (char "\n")
+                        (i32 0) ) )
+                  (set $LinePrmt (set $ContPrmt null))
+                  (while (gt0 (val $Chr))
+                     (? (== (val $Chr) (char "\n"))
+                        (set $Chr 0) )
+                     (if (== (val $Chr) (char "#"))
+                        (comment)
+                        (? (> (val $Chr) (char " ")))
+                        (call $Get) ) ) ) )
+            (? (nil? Y))
+            (set V Y)
+            (if
+               (or
+                  (<> (val $InFile) (val (val $InFiles)))  # Stdin
+                  (val $Chr)
+                  (=0 Prmt) )
+               (setq X (eval Y))
+               (flushAll)
+               (let A (set At (val $At))
                   (setq X (eval Y))
-                  (flushAll)
-                  (let A (set At (val $At))
-                     (setq X (eval Y))
-                     (set
-                        $At3 (val $At2)
-                        $At2 A
-                        $At X ) )
-                  (outString ($ "-> "))
-                  (flushAll)
-                  (print X)
-                  (newline) ) ) )
-         (popInFiles)
-         (tosInFile)
-         (set 2 $Transient Tr2)
-         (set $Transient Tr1)
-         (set 2 $PrivT Pr2)
-         (set $PrivT Pr1)
-         (set $Intern Int)
-         X ) ) )
+                  (set
+                     $At3 (val $At2)
+                     $At2 A
+                     $At X ) )
+               (outString ($ "-> "))
+               (flushAll)
+               (print X)
+               (newline) ) ) )
+      (popInFiles)
+      (tosInFile)
+      (set 2 $Transient Tr2)
+      (set $Transient Tr1)
+      (set 2 $PrivT Pr2)
+      (set $PrivT Pr1)
+      (set $Intern Int)
+      X ) )
 
 (de loadAll (Exe)
    (let X $Nil
