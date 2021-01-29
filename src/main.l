@@ -1256,26 +1256,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (de i32 main ((i32 . Ac) (i8** . Av))
    (set $AV0 (val Av))  # Save command
    (set $AV (setq Av (ofs Av 1)))  # and argument vector
-   # Check debug mode
-   (let P (ofs Av (- Ac 2))
-      (unless (strcmp (val P) ($ "+"))
-         (set $Dbg $T  P null) ) )
-   # Locate home directory
-   (let P (val Av)  # First argument
-      (when (and P (<> (val P) (char "-")))
-         (let Q (strrchr P (char "/"))
-            (unless
-               (or
-                  (=0 Q)
-                  (and
-                     (== Q (+ P 1))
-                     (== (val P) (char ".")) ) )
-               (let (N (+ (- Q P) 1)  H (malloc (+ N 1)))
-                  (set $PilHome H  $PilLen N)
-                  (memcpy H P N)
-                  (set (ofs H N) 0) ) ) ) ) )
-   (when (getenv ($ "HOME"))
-      (set $UsrHome @  $UsrLen (strlen @)) )
+
    (heapAlloc)
    (let P $Nil  # Init internal symbols
       (loop
@@ -1305,24 +1286,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       0 )
    (set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
    (sigUnblock 0)  # Set all signals to unblocked
-   (iSignal (val SIGHUP Sig) (fun sig))
-   (iSignal (val SIGUSR1 Sig) (fun sig))
-   (iSignal (val SIGUSR2 Sig) (fun sig))
-   (iSignal (val SIGALRM Sig) (fun sig))
-   (iSignal (val SIGTERM Sig) (fun sig))
-   (iSignal (val SIGWINCH Sig) (fun sig))
-   (iSignal (val SIGIO Sig) (fun sig))
-   (when (== (signal (val SIGTSTP Sig) (val SigIgn)) (val SigDfl))
-      (iSignal (val SIGTSTP Sig) (fun sig)) )
-   (iSignal (val SIGINT Sig) (fun sigTerm))
-   (signal (val SIGCHLD Sig) (fun sigChld))
-   (signal (val SIGPIPE Sig) (val SigIgn))
-   (signal (val SIGTTIN Sig) (val SigIgn))
-   (signal (val SIGTTOU Sig) (val SigIgn))
-   (set $USec (getUsec YES))
-   #(initReadline)
-   (unless (setjmp QuitRst)
-      (loadAll 0) )  # Load arguments
+
+   #(set $USec (getUsec YES))
+
+   #(unless (setjmp QuitRst)
+   #   (loadAll 0) )  # Load arguments
    (loop
       (repl 0 ($ ": ") $Nil) ) )
 
