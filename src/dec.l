@@ -145,118 +145,118 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 # libreadline
 (local) (readline add_history history_list clear_history)
 
-(de T i8* readline (i8*))
-(de T void add_history (i8*))
-(de T i8*** history_list ())
-(de T void clear_history ())
+(de i8* readline       () null)
+(de void add_history   () null)
+(de i8*** history_list () null)
+(de void clear_history () null)
 
 # Glue lib.c
 (local) (TgOS TgCPU PipeBufSize)
 
-(var TgOS i8 NIL)  # Target OS
-(var TgCPU i8 NIL)  # Target CPU
-(var PipeBufSize i32 NIL)  # PIPE_BUF
+(var TgOS i8 0)  # Target OS
+(var TgCPU i8 0)  # Target CPU
+(var PipeBufSize i32 0)  # PIPE_BUF
 
 (local) (stderrMsg gPrintf strErrno openRd openWr openRdWr openRdWrExcl
 openRdWrCreate openRdWrAppend openWrAppend fseekOfs fseek0 seek0 truncate0
 socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 
-(de T i8* stderrMsg (i8* i8*))
-(de T i32 gPrintf (i8* i32 i8* i8*))
-(de T i8* strErrno ())
-(de T i32 openRd (i8*))
-(de T i32 openWr (i8*))
-(de T i32 openRdWr (i8*))
-(de T i32 openRdWrExcl (i8*))
-(de T i32 openRdWrCreate (i8*))
-(de T i32 openRdWrAppend (i8*))
-(de T i32 openWrAppend (i8*))
-(de T i1 fseekOfs (i8* i32))
-(de T i1 fseek0 (i8*))
-(de T i1 seek0 (i32))
-(de T i1 truncate0 (i32))
-(de T i32 socketPair (i32*))
-(de T i32 fcntlCloExec (i32))
-(de T void fcntlSetFl (i32 i32))
-(de T i32 nonBlocking (i32))
-(de T void fcntlSetOwn(i32 i32))
-(de T i8* getDir (i8*))
+(de i8* stderrMsg () null)
+(de i32 gPrintf () 0)
+(de i8* strErrno () null)
+(de i32 openRd () 0)
+(de i32 openWr () 0)
+(de i32 openRdWr () 0)
+(de i32 openRdWrExcl () 0)
+(de i32 openRdWrCreate () 0)
+(de i32 openRdWrAppend () 0)
+(de i32 openWrAppend () 0)
+(de i1 fseekOfs () 0)
+(de i1 fseek0 () 0)
+(de i1 seek0 () 0)
+(de i1 truncate0 () 0)
+(de i32 socketPair () 0)
+(de i32 fcntlCloExec () 0)
+(de void fcntlSetFl () null)
+(de i32 nonBlocking () 0)
+(de void fcntlSetOwn() null)
+(de i8* getDir () null)
 
 (local) (initReadline rlHide rlShow rlSigBeg rlSigEnd currentLine)
 
-(de T void initReadline ())
-(de T void rlHide ())
-(de T void rlShow ())
-(de T void rlSigBeg ())
-(de T void rlSigEnd ())
-(de T i8* currentLine ())
+(de void initReadline () null)
+(de void rlHide       () null)
+(de void rlShow       () null)
+(de void rlSigBeg     () null)
+(de void rlSigEnd     () null)
+(de i8* currentLine   () null)
 
 # Signals
 (local) (Sig SigDfl SigIgn)
 
-(var Sig i32 NIL)
-(var SigDfl i8* NIL)
-(var SigIgn i8* NIL)
+(var Sig i32 0)
+(var SigDfl i8* null)
+(var SigIgn i8* null)
 
 (local) (gSignal sigUnblock iSignal sigChld waitWuntraced wifStopped)
 
-(de T i32 gSignal (i32))
-(de T void sigUnblock (i32))
-(de T void iSignal (i32 i8*))
-(de T void sigChld (i32))
-(de T i32 waitWuntraced (i32 i32*))
-(de T i32 wifStopped (i32*))
+(de i32 gSignal () (i32 0))
+(de void sigUnblock () null)
+(de void iSignal () null)
+(de void sigChld (i32) null)
+(de i32 waitWuntraced () (i32 0))
+(de i32 wifStopped () (i32 0))
 
 (local) (nErrno gErrno)
-(de T i32 nErrno ())
-(de T i32 gErrno ())
+(de i32 nErrno () 0)
+(de i32 gErrno () 0)
 
 # Terminal
 (local) (Tio OrgTermio Termio setRaw setCooked reopenTty)
 
-(var Tio i1 NIL)
-(var OrgTermio i8 NIL)
-(var Termio i8* NIL)
+(var Tio i1 0)
+(var OrgTermio i8 0)
+(var Termio i8* null)
 
 (de T void stopTerm ())
-(de T void setRaw ())
-(de T void setCooked ())
+(de void setRaw () null)
+(de void setCooked () null)
 (de T i1 reopenTty (i8*))
 
 # System
 (local) (getUsec getMsec getDate getGmDate getTime getGmTime fileInfo)
 
-(de T i64 getUsec (i1))
-(de T i64 getMsec ())
-(de T i64 getDate ())
-(de T i64 getGmDate ())
-(de T i64 getTime ())
-(de T i64 getGmTime ())
-(de T i64 fileInfo (i1 i8* i64*))
+(de i64 getUsec   (i1) 0)
+(de i64 getMsec   () 0)
+(de i64 getDate   () 0)
+(de i64 getGmDate () 0)
+(de i64 getTime   () 0)
+(de i64 getGmTime () 0)
+(de i64 fileInfo  (i1 i8* i64*) 0)
 
 # Polling
 (local) (pollIn pollOut pollIgn gPoll readyIn readyOut)
 
-(de T void pollIn (i32 i64*))
-(de T void pollOut (i32 i64*))
-(de T void pollIgn (i64*))
-(de T i32 gPoll (i64* i32 i64))
-(de T i1 readyIn (i64*))
-(de T i1 readyOut (i64*))
+(de void pollIn  () null)
+(de void pollOut () null)
+(de void pollIgn () null)
+(de i32 gPoll () 0)
+(de i1 readyIn () 0)
+(de i1 readyOut () 0)
 
 # Locking
 (local) (rdLock wrLock unLock getLock)
 
-(de T i32 rdLock (i32 i64 i64 i1))
-(de T i32 wrLock (i32 i64 i64 i1))
-(de T i32 unLock (i32 i64 i64))
-(de T i32 getLock (i32 i64 i64))
+(de i32 rdLock () 0)
+(de i32 wrLock () 0)
+(de i32 unLock () 0)
+(de i32 getLock () 0)
 
 # Catch and Throw
 (local) (JmpBufSize QuitRst)
 
-(var JmpBufSize i64 NIL)  # sizeof(jmp_buf)
-(var QuitRst i8 NIL)
+(var JmpBufSize i64 0)  # sizeof(jmp_buf)
+(var QuitRst i8 0)
 
 # Native lib.c
 (local) (dlOpen ffiPrep ffiCall boxFloat boxDouble)

@@ -166,71 +166,7 @@
          (set P (+ (val P) 1)) ) ) )
 
 (de void sighandler (Exe)
-   (unless (val $Protect)
-      (set $Protect 1)
-      (let P T
-         (loop
-            (cond
-               ((val (setq P (ofs $Signal SIGIO)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Sigio)) )
-               ((val (setq P (ofs $Signal SIGUSR1)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Sig1)) )
-               ((val (setq P (ofs $Signal SIGUSR2)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Sig2)) )
-               ((val (setq P (ofs $Signal SIGALRM)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Alarm)) )
-               ((val (setq P (ofs $Signal SIGHUP)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Hup)) )
-               ((val (setq P (ofs $Signal SIGINT)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (unless (val $PRepl)  # Not child of REPL process?
-                     (wrnl)
-                     (rlSigBeg)
-                     (brkLoad (if Exe @ $Nil))
-                     (rlSigEnd) ) )
-               ((val (setq P (ofs $Signal SIGWINCH)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (execAt (val $Winch)) )
-               ((val (setq P (ofs $Signal SIGTSTP)))
-                  (set P (dec @))
-                  (set $Signal (dec (val $Signal)))
-                  (rlSigBeg)
-                  (execAt (val $TStp1))  # Run 'TStp1'
-                  (stopTerm)  # Stop
-                  (iSignal (val SIGTSTP Sig) (fun sig))  # Set signal again
-                  (execAt (val $TStp2))  # Run 'TStp2'
-                  (rlSigEnd) )
-               ((val (setq P (ofs $Signal SIGTERM)))
-                  (let
-                     (Cld (val $Child)  # Iterate children
-                        <Cld (ofs Cld (* (val $Children) (child T)))
-                        Flg NO )
-                     (until (== Cld <Cld)
-                        (let Cld: (child Cld)
-                           (when
-                              (and
-                                 (Cld: pid)
-                                 (=0 (kill @ (val SIGTERM Sig))) )
-                              (setq Flg YES) ) )
-                        (setq Cld (ofs Cld (child T))) )
-                     (? Flg)
-                     (set $Signal 0)
-                     (rlSigBeg)
-                     (bye 0) ) ) )
-            (? (=0 (val $Signal))) ) )
-      (set $Protect 0) ) )
+   null )
 
 # Error handling
 (local) (pushOutFile err stkErr argErr cntErr numErr symErr extErr nameErr
@@ -580,31 +516,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (local) sharedLib
 
 (de i1 sharedLib (Sym)
-   (let
-      (Nm (xName 0 Sym)
-         S (bufString Nm (b8 (bufSize Nm)))
-         P (strchr S (char ":")) )
-      (and
-         P
-         (<> P S)
-         (val 2 P)
-         (let N (val $PilLen)
-            (set P 0)
-            (let (Len (strlen S)  Q (b8 (+ N Len (+ 4 3 1))))
-               (if (strchr S (char "/"))
-                  (strcpy Q S)
-                  (when N
-                     (memcpy Q (val $PilHome) N) )
-                  (strcpy (ofs Q N) ($ "lib/"))
-                  (strcpy (ofs Q (+ N 4)) S)
-                  (setq Len (+ Len N 4)) )
-               (strcpy (ofs Q Len) ($ ".so"))
-               (and
-                  (dlOpen Q)
-                  (dlsym @ (inc P))
-                  (prog
-                     (set Sym (| (i64 @) 2))
-                     YES ) ) ) ) ) ) )
+   0 )
 
 (load "gc.l" "big.l" "sym.l")
 
@@ -1017,178 +929,16 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (set Ptr P) ) ) )
 
 (de i64 natBuf (Val (i8* . Ptr))
-   (if (atom Val)  # Byte or unsigned
-      (if (sign? Val)  # Unsigned 32 bit
-         (let P (i32* Ptr)
-            (set P (i32 (int Val)))
-            4 )
-         (set Ptr (i8 (int Val)))
-         1 )
-      (let X (++ Val)  # 'num', 'sym' or [-]1.0
-         (if (cnt? Val)  # 'cnt' or 'lst'
-            (let Siz (int Val)
-               (cond
-                  ((num? X)  # (num . cnt)
-                     (let N
-                        (if (cnt? X)
-                           (int @)
-                           (val (dig @)) )
-                        (when (sign? X)
-                           (setq N (- N)) )
-                        (case Siz
-                           (1 (set Ptr (i8 N)))
-                           (2 (set (i16* Ptr) (i16 N)))
-                           (4 (set (i32* Ptr) (i32 N)))
-                           (T (set (i64* Ptr) N)) ) ) )
-                  ((nil? X) (set Ptr (i8 0)))
-                  ((sym? X)  # (sym . cnt)
-                     (setq X (name (val (tail X))))
-                     (bufString X Ptr) ) )
-               Siz )
-            (let (N 0  Scl (int X))
-               (if (sign? X)  # ([-]1.0 . lst)
-                  (while (pair Val)
-                     (bufFloat (++ Val) Scl Ptr)
-                     (inc 'N 4)
-                     (setq Ptr (ofs Ptr 4)) )
-                  (while (pair Val)
-                     (bufDouble (++ Val) Scl Ptr)
-                     (inc 'N 8)
-                     (setq Ptr (ofs Ptr 8)) ) )
-               N ) ) ) ) )
+         $Nil )
 
 (de NIL natErr (Spec)
    (err 0 Spec ($ "Bad result spec") null) )
 
 (de natRetBuf (Spec (i8** . Ptr))
-   (cond
-      ((t? Spec)  # 'T' Direct Lisp value
-         (let P (i64* (val Ptr))
-            (set Ptr (i8* (inc P)))
-            (val P) ) )
-      ((== Spec $N)  # 'N' Number (signed 64 bit)
-         (let P (i64* (val Ptr))
-            (set Ptr (i8* (inc P)))
-            (box (val P)) ) )
-      ((== Spec $P)  # 'P' Pointer (unsigned 64 bit)
-         (let P (i64* (val Ptr))
-            (set Ptr (i8* (inc P)))
-            (box64 (val P)) ) )
-      ((== Spec $I)  # 'I' Integer (signed 32 bit)
-         (if
-            (ge0
-               (let P (i32* (val Ptr))
-                  (set Ptr (i8* (inc P)))
-                  (val P) ) )
-            (cnt (i64 @))
-            (sign (cnt (i64 (- @)))) ) )
-      ((== Spec $C)  # 'C' Character (UTF-8, 1-4 bytes)
-         (if (fetchChar Ptr) (mkChar @) $Nil) )
-      ((== Spec $W)  # 'W' Word (signed 16 bit)
-         (if
-            (ge0
-               (let P (i16* (val Ptr))
-                  (set Ptr (i8* (inc P)))
-                  (val P) ) )
-            (cnt (i64 @))
-            (sign (cnt (i64 (- @)))) ) )
-      ((== Spec $B)  # 'B' Byte (unsigned 8 bit)
-         (let P (val Ptr)
-            (set Ptr (inc P))
-            (cnt (i64 (val P))) ) )
-      ((== Spec $S)  # 'S' String (UTF-8)
-         (let P (i8** (val Ptr))
-            (set Ptr (i8* (inc P)))
-            (mkStr (val P)) ) )
-      ((cnt? Spec)  # [+-]1.0 Scaled fixpoint number
-         (if (sign? Spec)
-            (boxFloat
-               (let P (i32* (val Ptr))
-                  (set Ptr (i8* (inc P)))
-                  (val P) )
-               (int Spec) )
-            (boxDouble
-               (let P (i64* (val Ptr))
-                  (set Ptr (i8* (inc P)))
-                  (val P) )
-               (int Spec) ) ) )
-      ((pair Spec)  # Arrary or structure
-         (let (S (++ Spec)  R (natRetBuf S Ptr))
-            (unless (and (nil? R) (== S $C))
-               (let X (setq R (save (cons R $Nil)))
-                  (loop
-                     (? (cnt? Spec)  # (sym . cnt)
-                        (let C (int Spec)
-                           (while (dec 'C)
-                              (let Y (natRetBuf S Ptr)
-                                 (? (and (nil? Y) (== S $C)))
-                                 (setq X (set 2 X (cons Y $Nil))) ) ) ) )
-                     (? (atom Spec))
-                     (let Y (natRetBuf (setq S (++ Spec)) Ptr)
-                        (? (and (nil? Y) (== S $C)))
-                        (setq X (set 2 X (cons Y $Nil))) ) ) ) )
-            R ) )
-      (T (natErr Spec)) ) )
+         $Nil )
 
 (de ffi (Exe (i8* . Lib) Fun Args)
-   (let
-      (Spec (car Args)
-         Val
-         (ffiCall
-            (cond
-               ((cnt? Fun) (i8* (int Fun)))
-               ((big? Fun) (i8* (val (dig Fun))))
-               ((pair Fun) (argErr Exe Fun))
-               (T
-                  (let Nm (xName Exe Fun)
-                     (unless (ffiPrep Lib (bufString Nm (b8 (bufSize Nm))) Args)
-                        (err Exe 0 ($ "Bad ffi") null) )
-                     (set Fun (box64 (i64 @)))
-                     @ ) ) )
-            (cdr Args) ) )
-      (cond
-         ((nil? Spec) $Nil)
-         ((== Spec $T) Val)  # 'T' Direct Lisp value
-         ((== Spec $N) (box Val))  # 'N' Number (signed 64 bit)
-         ((== Spec $P) (box64 Val))  # 'P' Pointer (unsigned 64 bit)
-         ((== Spec $I)  # 'I' Integer (signed 32 bit)
-            (if (ge0 (i32 Val))
-               (cnt (i64 @))
-               (sign (cnt (i64 (- @)))) ) )
-         ((== Spec $C)  # 'C' Character (UTF-8, 1-4 bytes)
-            (if (i32 Val) (mkChar @) $Nil) )
-         ((== Spec $W)  # 'W' Word (signed 16 bit)
-            (if (ge0 (i16 Val))
-               (cnt (i64 @))
-               (sign (cnt (i64 (- @)))) ) )
-         ((== Spec $B)  # 'B' Byte (unsigned 8 bit)
-            (cnt (i64 (i8 Val))) )
-         ((== Spec $S)  # 'S' String (UTF-8)
-            (mkStr (i8* Val)) )
-         ((cnt? Spec)  # [+-]1.0 Scaled fixpoint number
-            (if (sign? Spec)
-               (boxFloat (i32 Val) (int Spec))
-               (boxDouble Val (int Spec)) ) )
-         ((and (pair Spec) Val)  # Arrary or structure
-            (let
-               (Ptr (i8** (push Val))
-                  S (++ Spec)
-                  R (natRetBuf S Ptr) )
-               (unless (and (nil? R) (== S $C))
-                  (let X (setq R (save (cons R $Nil)))
-                     (loop
-                        (? (cnt? Spec)  # (sym . cnt)
-                           (let C (int Spec)
-                              (while (dec 'C)
-                                 (let Y (natRetBuf S Ptr)
-                                    (? (and (nil? Y) (== S $C)))
-                                    (setq X (set 2 X (cons Y $Nil))) ) ) ) )
-                        (? (atom Spec))
-                        (let Y (natRetBuf (setq S (++ Spec)) Ptr)
-                           (? (and (nil? Y) (== S $C)))
-                           (setq X (set 2 X (cons Y $Nil))) ) ) ) )
-               R ) )
-         (T (natErr Spec)) ) ) )
+         $Nil )
 
 # (%@ 'cnt2|sym2 'any 'any ..) -> any
 (de _nat (Exe)
@@ -1570,7 +1320,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (signal (val SIGTTIN Sig) (val SigIgn))
    (signal (val SIGTTOU Sig) (val SigIgn))
    (set $USec (getUsec YES))
-   (initReadline)
+   #(initReadline)
    (unless (setjmp QuitRst)
       (loadAll 0) )  # Load arguments
    (loop
