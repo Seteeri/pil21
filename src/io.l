@@ -1460,7 +1460,7 @@ selectErr)
 
 (de read1 ((i32 . End))
    (unless (val $Chr)
-      (call $Get) )
+      (call $Get) )  
    (if (== End (val $Chr))
       $Nil
       (read0 YES) ) )
@@ -2426,8 +2426,7 @@ selectErr)
       (setq X $Nil)
       (loop
          (let Y
-            (ifn (== (val $InFile) (val (val $InFiles)))  # Stdin
-               (read1 0)
+            (prog
                (set $LinePrmt
                   (if
                      (or
@@ -2443,12 +2442,14 @@ selectErr)
                         (bufString Nm P)
                         (strcpy (ofs P (dec N)) Prmt)
                         P ) ) )
+               (outWord 2)
                (prog2
-                  (set $ContPrmt ($ "   "))
+                  (set $ContPrmt ($ "  "))
                   (read1
-                     (if (isatty 0)
-                        (char "\n")
-                        (i32 0) ) )
+                     #(if (isatty 0)
+                     #   (char "\n")
+                     #   (i32 0) ) 
+                     (char "\n"))
                   (set $LinePrmt (set $ContPrmt null))
                   (while (gt0 (val $Chr))
                      (? (== (val $Chr) (char "\n"))
@@ -2475,7 +2476,7 @@ selectErr)
                (outString ($ "-> "))
                (flushAll)
                (print X)
-               (newline) ) ) )
+               (newline) ) ) )             
       (popInFiles)
       (tosInFile)
       (set 2 $Transient Tr2)
