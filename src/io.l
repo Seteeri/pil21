@@ -1120,18 +1120,6 @@ selectErr)
       (set $Chr
          (cond
             ((lt0 (In: fd)) -1)  # EOF
-            ((or (In: fd) (=0 (isatty 0)))  # Not stdin
-               (if
-                  (and
-                     (== (In: ix) (In: cnt))
-                     (or (lt0 (In: ix)) (=0 (slow (In:)))) )
-                  -1
-                  (let I (In: ix)
-                     (prog1
-                        (i32 (val (ofs (In: (buf)) I)))
-                        (when (== @ (char "\n"))
-                           (In: line (+ (In: line) 1)) )
-                        (In: ix (+ I 1)) ) ) ) )
             (T
                (let P (val $LinePtr)
                   (unless P
@@ -1139,11 +1127,15 @@ selectErr)
                         (free @)
                         (set $LineBuf null) )
                      (flushAll)
+                     
+                     # get byte/line from ptr
+                     # put kernel on one line
                      (unless (setq P (set $LineBuf (readline (val $LinePrmt))))
                         (wrnl)
                         (when (or (val $Bind) (== (val $LinePrmt) (val $ContPrmt)))
                            (err 0 0 $Empty null) )  # quit
                         (bye 0) )
+                        
                      (set $LinePrmt (val $ContPrmt))
                      (unless
                         (or
