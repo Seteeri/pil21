@@ -5,8 +5,7 @@
 CC = clang
 PIL = pil  # pil
 ASM = opt -O3  # llvm-as
-#MAIN = -rdynamic -lc -lm
-MAIN = --target=aarch64-elf -Wall -O2 -ffreestanding -nostdinc -nostdlib -mcpu=cortex-a53+nosimd
+MAIN = -march=arm64 -mcpu=cortex-a72 -mattr=+a72
 OS = $(shell uname)
 CPU = $(shell uname -m)
 
@@ -19,10 +18,11 @@ SRC = main.l gc.l big.l sym.l io.l db.l apply.l flow.l subr.l
 all: $(BIN)/picolisp
 
 # llc -march=ARCH -mattr=help
+# -march=arm64 -mcpu=cortex-a72 -mattr=+a72
 
 # Base system
 $(BIN)/picolisp: picolisp.bc
-	llc -march=arm64 -mcpu=cortex-a72 -mattr=+a72 picolisp.bc -relocation-model=pic -o picolisp.s
+	llc -march=aarch64 picolisp.bc -relocation-model=pic -o picolisp.s
 
 picolisp.bc: base.bc
 	llvm-link -o picolisp.bc base.bc
