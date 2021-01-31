@@ -1253,9 +1253,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 # Main entry point
 (local) (main sigChld)
 
-(de i32 main ((i32 . Ac) (i8** . Av))
-   (set $AV0 (val Av))  # Save command
-   (set $AV (setq Av (ofs Av 1)))  # and argument vector
+(de main ()
 
    (heapAlloc)
    (let P $Nil  # Init internal symbols
