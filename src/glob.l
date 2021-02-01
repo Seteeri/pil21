@@ -14,7 +14,6 @@
 (var $ExtCnt i64 1)                    # External symbol count
 (var $ExtSkip i64 0)                   # External tree skip
 
-(var $Uart   1059147840)
 (var $Heap   0)                        # Heap start address
 (var $Limit  0)                        # Heap limit
 (var $Stack0 0)                        # Initial stack pointer

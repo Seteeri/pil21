@@ -1947,6 +1947,10 @@ selectErr)
                $Nil ) ) ) ) )
 
 (de void _putStdout ((i8 . B))
+  (while (n0 (& (i8 (any AUX-MU-LSR)) (hex "20"))) T)
+  (set (i8* (any AUX-MU-IO)) B))
+
+(de void _putStdoutOG ((i8 . B))
    (let Out: (outFile (val $OutFile))
       (when (Out:)
          (let I (Out: ix)

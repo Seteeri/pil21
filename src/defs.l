@@ -68,3 +68,34 @@ SIGSTOP SIGTSTP SIGTTIN SIGTTOU SIGWINCH SIGIO)
    EACCES     5      # Permission denied
    EPIPE      6      # Broken pipe
    ECONNRESET 7 )    # Connection reset by peer
+   
+   
+(local) 
+(MMIO-BASE     
+ AUX-ENABLE    
+ AUX-MU-IO     
+ AUX-MU-IER    
+ AUX-MU-IIR    
+ AUX-MU-LCR    
+ AUX-MU-MCR    
+ AUX-MU-LSR    
+ AUX-MU-MSR    
+ AUX-MU-SCRATCH
+ AUX-MU-CNTL   
+ AUX-MU-STAT   
+ AUX-MU-BAUD)
+
+(equ
+  MMIO-BASE      (hex "3F000000")
+  AUX-ENABLE     (+ MMIO-BASE (hex "00215004"))
+  AUX-MU-IO      (+ MMIO-BASE (hex "00215040"))
+  AUX-MU-IER     (+ MMIO-BASE (hex "00215044"))
+  AUX-MU-IIR     (+ MMIO-BASE (hex "00215048"))
+  AUX-MU-LCR     (+ MMIO-BASE (hex "0021504C"))
+  AUX-MU-MCR     (+ MMIO-BASE (hex "00215050"))
+  AUX-MU-LSR     (+ MMIO-BASE (hex "00215054"))
+  AUX-MU-MSR     (+ MMIO-BASE (hex "00215058"))
+  AUX-MU-SCRATCH (+ MMIO-BASE (hex "0021505C"))
+  AUX-MU-CNTL    (+ MMIO-BASE (hex "00215060"))
+  AUX-MU-STAT    (+ MMIO-BASE (hex "00215064"))
+  AUX-MU-BAUD    (+ MMIO-BASE (hex "00215068")))

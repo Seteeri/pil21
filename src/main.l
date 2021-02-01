@@ -1280,7 +1280,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 (de main ()
    (set 
-      $Heap  1048576
+      $Heap  1048576 # heap-start=base+32MB
       $Limit 1048576)
    (heapAlloc)
    (let P $Nil  # Init internal symbols
@@ -1300,6 +1300,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil) )  # External symbol tree root node
+  
+   #{
    (pushOutFile (b8 (ioFrame T)) (initOutFile 2) 0)  # Standard error
    (pushOutFile
       (set $Stdout (b8 (ioFrame T)))
@@ -1309,13 +1311,24 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (set $Stdin (b8 (ioFrame T)))
       (initInFile 0 null)  # Standard input
       0 )
-   (set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
-   (sigUnblock 0)  # Set all signals to unblocked
+   }#
+      
+   #(set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
+   #(sigUnblock 0)  # Set all signals to unblocked
 
    #(set $USec (getUsec YES))
 
    #(unless (setjmp QuitRst)
    #   (loadAll 0) )  # Load arguments
+   
+   (set $Put (fun (void i8) _putStdout))
+   (call $Put (char ":"))
+   
+   # Exec kernal
+   # mkStr from ptr
+   # str
+   # eval
+   
    (loop
       (repl 0 ($ ": ") $Nil) ) )
 
