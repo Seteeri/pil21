@@ -134,20 +134,45 @@
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
    (unless (realloc Ptr Siz)   # Reallocate pointer
+      (outWord 0)
       (giveup ($ "No memory") null) )
    @ )
 
-(de void heapAlloc ()
+(de void heapAlloc2 ()
    (let
+      # H is start of new heap
+      # P is end of new heap
+      # A is cur avail list   
       (H (any (alloc null (* 8 (inc HEAP))))
          P (ofs H HEAP)
          A (val $Avail) )
-      (set P (val $Heaps)  $Heaps H)
+      # Set P to cur heap (old heap)
+      # Set $Heaps to new heap
+      (set P (val $Heaps) $Heaps H)
       (loop
          (set (setq P (ofs P -2)) A)  # Link avail
          (? (== (setq A P) H)) )
       (set $Avail A) ) )
 
+      
+(de void heapAlloc ()
+   (let
+      # H is start of new heap
+      # P is end of new heap
+      # A is cur avail list   
+      (H (val $Limit)
+         P (ofs H HEAP)
+         A (val $Avail) )
+      (set $Limit (+ H (* 8 (inc HEAP))))
+      # Set P to cur heap (old heap)
+      # Set $Heaps to new heap
+      (set P (val $Heaps) $Heaps H)
+      (loop
+         (set (setq P (ofs P -2)) A)  # Link avail
+         (? (== (setq A P) H)) )
+      (set $Avail A) ) )
+      
+      
 # Signals
 (local) (sig sigTerm sighandler)
 
@@ -1254,7 +1279,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (local) (main sigChld)
 
 (de main ()
-
+   (set 
+      $Heap  1048576
+      $Limit 1048576)
    (heapAlloc)
    (let P $Nil  # Init internal symbols
       (loop

@@ -13,6 +13,14 @@
 (var $Extern 0)                        # External symbol tree
 (var $ExtCnt i64 1)                    # External symbol count
 (var $ExtSkip i64 0)                   # External tree skip
+
+(var $Uart   1059147840)
+(var $Heap   0)                        # Heap start address
+(var $Limit  0)                        # Heap limit
+(var $Stack0 0)                        # Initial stack pointer
+(var $Stack1 0)                        # Coroutine stack base
+(var $Stacks i64 0)                    # Coroutine stack segment count
+
 (var $StkSize i64 STACK)               # Coroutine stack segment size
 (var $StkLimit i8* null)               # Stack limit: StackN-Size+4096
 (var $Stdin i8* null)                  # Stdin frame
