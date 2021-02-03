@@ -230,7 +230,7 @@
                   (if Cnt
                      (setq Heap (val (setq H (ofs Heap HEAP))))  # Next heap
                      (setq Avail A  Heap (val (inc HEAP) Heap))  # Reset avail list
-                     (free (i8* (val H)))  # Free empty heap
+                     #(free (i8* (val H)))  # Free empty heap
                      (set H Heap) ) )  # Store next heap in list link
                (? (=0 Heap)) )
             (set $Avail Avail) )

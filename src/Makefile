@@ -4,7 +4,7 @@
 
 CC = clang
 PIL = pil  # pil
-ASM = opt -O3  # llvm-as
+ASM = opt -O3 # llvm-as
 MAIN = -march=arm64 #-mcpu=cortex-a72 -mattr=+a72
 OS = $(shell uname)
 CPU = $(shell uname -m)

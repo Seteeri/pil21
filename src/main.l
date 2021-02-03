@@ -134,26 +134,8 @@
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
    (unless (realloc Ptr Siz)   # Reallocate pointer
-      (outWord 0)
       (giveup ($ "No memory") null) )
    @ )
-
-(de void heapAlloc2 ()
-   (let
-      # H is start of new heap
-      # P is end of new heap
-      # A is cur avail list   
-      (H (any (alloc null (* 8 (inc HEAP))))
-         P (ofs H HEAP)
-         A (val $Avail) )
-      # Set P to cur heap (old heap)
-      # Set $Heaps to new heap
-      (set P (val $Heaps) $Heaps H)
-      (loop
-         (set (setq P (ofs P -2)) A)  # Link avail
-         (? (== (setq A P) H)) )
-      (set $Avail A) ) )
-
       
 (de void heapAlloc ()
    (let
@@ -164,8 +146,8 @@
          P (ofs H HEAP)
          A (val $Avail) )
       (set $Limit (+ H (* 8 (inc HEAP))))
-      # Set P to cur heap (old heap)
-      # Set $Heaps to new heap
+      # *P = old heap
+      # Heaps = H (new heap)
       (set P (val $Heaps) $Heaps H)
       (loop
          (set (setq P (ofs P -2)) A)  # Link avail
@@ -1280,8 +1262,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 (de main ()
    (set 
-      $Heap  1048576 # heap-start=base+32MB
-      $Limit 1048576)
+      $Heap  67108864 # heap-start=64mb
+      $Limit 67108864)
    (heapAlloc)
    (let P $Nil  # Init internal symbols
       (loop
@@ -1328,24 +1310,19 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    
    #(call $Put (char ":"))
    #(call $Put (val (i8* (any $Kern))))
-   #(prSym (mkStr $Kern))
-   #(outString $Kern)
-   
-  
-   # Load kernel
-   (let (X (mkStr ($ "(prinl \"HELLO\""))
-         Y (parse (name (val (tail X))) YES (hex "20") 1)
-         Z (eval Y))
-      (outString ($ "-> "))
-      (print (val X)) (newline)
-      (print (val Y)) (newline)
-      (print Z)
-      (newline))
+      
+  (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
+        Z Y)
+    (loop
+      (outString ($ ": "))  (print (car Z)) (newline)
+      (outString ($ "-> ")) (print (eval (car Z))) (newline)
+      (setq Z (cdr Z))
+      (? (nil? Z) 0))
+    (outString ($ "BYE\n")))
     
    #(out "file.plio" (pr *Kernel))
    #(eval (plio *Kern))
    
-   (loop
-      (repl 0 ($ ": ") $Nil) ) )
+   0)
 
 (end "base.map")

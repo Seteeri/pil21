@@ -153,6 +153,7 @@
    ($Fork "*Fork" $Nil)
    ($Bye "*Bye" $Nil)
    ($Dbg "*Dbg" $Nil)
+   ($Kern "*Kern" $Nil)
    ($Complete "complete" $Nil)
    # Garbage collection
    (NIL "gc" _gc)
@@ -674,4 +675,4 @@
 # Strings
 (str $Empty "")
 (str $Delim " \t\n\r\"'(),[]`{}~")
-(str $Kern "T")
+(str $Kerns "(println 1) (gc) (println 2) T")
