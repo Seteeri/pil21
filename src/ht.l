@@ -78,7 +78,7 @@ mkChar evCnt getChar)
 
 (de void htEncode ((i8 . B) (i64* . P))
    (while B
-      (if (strchr ($ " \"#%&:;<=>?\\_") (i32 B))
+      (if (strchr2 ($ " \"#%&:;<=>?\\_") (i32 B))
          (putHex B)
          (call $Put B)
          (when (& B (hex "80"))  # Multi-byte

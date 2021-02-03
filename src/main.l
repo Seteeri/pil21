@@ -1311,23 +1311,37 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (set $Stdin (b8 (ioFrame T)))
       (initInFile 0 null)  # Standard input
       0 )
-   }#
       
-   #(set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
-   #(sigUnblock 0)  # Set all signals to unblocked
+   (set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
+   (sigUnblock 0)  # Set all signals to unblocked
 
-   #(set $USec (getUsec YES))
+   (set $USec (getUsec YES))
 
-   #(unless (setjmp QuitRst)
-   #   (loadAll 0) )  # Load arguments
-   
+   (unless (setjmp QuitRst)
+      (loadAll 0) )  # Load arguments
+  }#
+  
+   (set $Stdout (b8 (ioFrame T)))
+   (set $Stdin (b8 (ioFrame T)))
    (set $Put (fun (void i8) _putStdout))
-   (call $Put (char ":"))
+   (set $Get (fun (i32) _getStdin))
    
-   # Exec kernal
-   # mkStr from ptr
-   # str
-   # eval
+   #(call $Put (char ":"))
+   #(call $Put (val (i8* (any $Kern))))
+   #(prSym (mkStr $Kern))
+   #(outString $Kern)
+   
+  (let (X (mkStr ($ "T"))
+        Y (parse (name (val (tail X))) YES (hex "20") 1)
+        Z (eval Y))
+    (outString ($ "-> "))
+    (print (val X)) (newline)
+    (print (val Y)) (newline)
+    (print Z)
+    (newline))
+    
+   #(out "file.plio" (pr *Kernel))
+   #(eval (plio *Kern))
    
    (loop
       (repl 0 ($ ": ") $Nil) ) )

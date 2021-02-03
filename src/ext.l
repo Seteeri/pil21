@@ -114,12 +114,12 @@
             (let C (val $Chr)
                (while (and (ge0 C) (>= (char " ") C))
                   (setq C (call $Get)) )
-               (if (strchr $Chr64 C)
+               (if (strchr2 $Chr64 C)
                   (let N (i32 (- @ $Chr64))  # Legal character
                      (setq C (call $Get))
                      (case (val $Stat64)  # Initial state
                         (0
-                           (unless (strchr $Chr64 C)
+                           (unless (strchr2 $Chr64 C)
                               (set $Stat64 0)
                               (ret $Nil) )
                            (set $Next64 (i32 (- @ $Chr64)))

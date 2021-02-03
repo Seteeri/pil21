@@ -674,3 +674,4 @@
 # Strings
 (str $Empty "")
 (str $Delim " \t\n\r\"'(),[]`{}~")
+(str $Kern "T")

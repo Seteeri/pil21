@@ -88,7 +88,7 @@
 (local) (malloc realloc free fork getenv setenv getpid getpgrp setsid alarm
 setpgid execvp isatty tcgetattr read write pread pwrite fread fwrite
 putc_unlocked getc_unlocked fopen fflush feof fclose fileno fsync pipe memcmp
-strlen strcpy strdup strcmp strchr strrchr dlsym dlerror dup dup2 close signal
+strlen strcpy strdup strcmp strchr2 strrchr dlsym dlerror dup dup2 close signal
 tcsetpgrp waitpid setjmp longjmp kill exit)
 
 (de i8* malloc () null)
@@ -127,7 +127,14 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 (de i8* strcpy () null)
 (de i8* strdup() null)
 (de i32 strcmp () 0)
-(de i8* strchr () null)
+
+(de i8* strchr2 ((i8* . Str) (i32 . Chr))
+   (let (X (i8* Str))
+      (while (val X)
+         (? (== @ (i8 Chr)) (ret X))
+         (inc 'X) )
+      null))
+      
 (de i8* strrchr () null)
 (de i8* dlsym () null)
 (de i8* dlerror () null)
@@ -140,7 +147,7 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 (de i32 setjmp () 0)
 (de NIL longjmp () 0)
 (de i32 kill () 0)
-(de NIL exit () 0)
+(de NIL exit () 0)  
 
 # libreadline
 (local) (readline add_history history_list clear_history)
@@ -396,8 +403,8 @@ box64 eval run)
       (loop
          (let X (++ Prg)
             (? (atom Prg) (eval X))
-            (and (pair X) (evList X)) ) ) ) )
-
+            (and (pair X) (evList X)) ) ) ) )    
+         
 # Runtime checks
 (local) (stkChk sigChk)
 

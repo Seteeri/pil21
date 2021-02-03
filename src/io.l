@@ -1120,6 +1120,18 @@ selectErr)
       (set $Chr
          (cond
             ((lt0 (In: fd)) -1)  # EOF
+            ((or (In: fd) (=0 (isatty 0)))  # Not stdin
+               (if
+                  (and
+                     (== (In: ix) (In: cnt))
+                     (or (lt0 (In: ix)) (=0 (slow (In:)))) )
+                  -1
+                  (let I (In: ix)
+                     (prog1
+                        (i32 (val (ofs (In: (buf)) I)))
+                        (when (== @ (char "\n"))
+                           (In: line (+ (In: line) 1)) )
+                        (In: ix (+ I 1)) ) ) ) )            
             (T
                (let P (val $LinePtr)
                   (unless P
@@ -1268,33 +1280,18 @@ selectErr)
                   (sym (shl N 4)) )  # Make symbol pointer
                (? (> (- @ (char "0")) 7) 0)
                (setq N (| (i64 @) (shl N 3))) ) ) ) ) )
-
+               
 (de rdAtom ((i32 . Chr))
    (let
       (Int (save (val $Intern))  # Current symbol namespaces
          P (push 4 NIL ZERO NIL)  # [cnt last name link]
-         C (val $Chr) )
-      (when
-         (and
-            (== Chr (char "%"))
-            (== C (char "~")) )
-         (when (nil? (cdr Int))
-            (symNspErr 0 $rem) )
-         (set $Intern @)
-         (setq Chr (call $Get)  C (call $Get)) )
+         C (val $Chr) )     
       (link (ofs P 2))
       (charSym Chr P)  # Pack first char
       (setq Chr C)
       (while (ge0 Chr)
-         (if (== Chr (char "~"))  # Namespace
-            (let S (requestSym (val 3 P))  # Find or create symbol
-               (needNsp 0 S)
-               (set (set $Intern (any $Cell)) S)  # Switch symbol namespace
-               (set P 4  3 P ZERO) )  # Build new name
-            (? (strchr $Delim Chr))
-            (when (== Chr (char "\\"))
-               (setq Chr (call $Get)) )
-            (charSym Chr P) )
+         (? (strchr2 $Delim Chr))
+         (charSym Chr P)
          (setq Chr (call $Get)) )
       (prog1
          (let (Nm (val 3 P)  L (val $Intern))
@@ -1306,7 +1303,8 @@ selectErr)
                ((anonymous Nm) @)
                ((and (== (car L) $priv) (nil? (cdr L)))
                   (intern (consSym Nm $Nil) 0 Nm $PrivT $Nil YES) )
-               (T (requestSym Nm)) ) )
+               (T
+                (requestSym Nm)) ) )
          (set $Intern Int) ) ) )
 
 (de void rdl (R P)
@@ -1316,7 +1314,7 @@ selectErr)
       (? (== @ (char "]")))
       (cond
          ((== @ (char "."))
-            (? (strchr $Delim (call $Get))
+            (? (strchr2 $Delim (call $Get))
                (setq P
                   (set 2 P
                      (if
@@ -1366,9 +1364,9 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
-      (when Top
-         (let In: (inFile (val $InFile))
-            (In: src (In: line)) ) )
+#      (when Top
+#         (let In: (inFile (val $InFile))
+#            (In: src (In: line)) ) )
       (cond
          ((lt0 C)
             (unless Top (eofErr))
@@ -1463,7 +1461,7 @@ selectErr)
          (== C (char "\\"))
          (and (>= (char "z") C) (>= C (char "a")))
          (and (>= (char "Z") C) (>= C (char "A")))
-         (strchr Set C) ) ) )
+         (strchr2 Set C) ) ) )
 
 (de token (Set (i32 . Cmt))
    (let C (val $Chr)
@@ -1655,7 +1653,7 @@ selectErr)
          S (bufString Nm (b8 (bufSize Nm))) )
       (let C (if (val $Chr) @ (call $Get))
          (cond
-            ((or (lt0 C) (strchr S C))
+            ((or (lt0 C) (strchr2 S C))
                $Nil )
             ((nil? (eval (cadr X)))
                (let
@@ -1664,7 +1662,7 @@ selectErr)
                   (until
                      (or
                         (le0 (setq C (call $Get)))
-                        (strchr S C) )
+                        (strchr2 S C) )
                      (setq Y
                         (set 2 Y (cons (mkChar C) $Nil)) ) )
                   R ) )
@@ -1675,7 +1673,7 @@ selectErr)
                   (loop
                      (charSym (getChar C) P)
                      (? (le0 (setq C (call $Get))))
-                     (? (strchr S C)) )
+                     (? (strchr2 S C)) )
                   (drop Q
                      (consStr (val 3 P)) ) ) ) ) ) ) )
 
@@ -2039,7 +2037,7 @@ selectErr)
             (when
                (or
                   (== B (char "\\"))
-                  (strchr $Delim (i32 B)) )
+                  (strchr2 $Delim (i32 B)) )
                (call $Put (char "\\")) )  # Escape backslash and delimiters
             (call $Put B)
             (? (=0 (setq B (symByte P))) ) ) )
@@ -2328,7 +2326,7 @@ selectErr)
          $Get (fun (i32) getParse)
          $Parser (push 0 (save Nm) Eof) )
       (when Skip
-         (getParse) )
+         (getParse) )   
       (prog1
          (cond
             ((=0 Set) (rdList))
