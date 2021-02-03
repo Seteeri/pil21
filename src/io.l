@@ -1285,13 +1285,28 @@ selectErr)
    (let
       (Int (save (val $Intern))  # Current symbol namespaces
          P (push 4 NIL ZERO NIL)  # [cnt last name link]
-         C (val $Chr) )     
+         C (val $Chr) )
+      (when
+         (and
+            (== Chr (char "%"))
+            (== C (char "~")) )
+         (when (nil? (cdr Int))
+            (symNspErr 0 $rem) )
+         (set $Intern @)
+         (setq Chr (call $Get)  C (call $Get)) )
       (link (ofs P 2))
       (charSym Chr P)  # Pack first char
       (setq Chr C)
       (while (ge0 Chr)
-         (? (strchr2 $Delim Chr))
-         (charSym Chr P)
+         (if (== Chr (char "~"))  # Namespace
+            (let S (requestSym (val 3 P))  # Find or create symbol
+               (needNsp 0 S)
+               (set (set $Intern (any $Cell)) S)  # Switch symbol namespace
+               (set P 4  3 P ZERO) )  # Build new name
+            (? (strchr2 $Delim Chr))
+            (when (== Chr (char "\\"))
+               (setq Chr (call $Get)) )
+            (charSym Chr P) )
          (setq Chr (call $Get)) )
       (prog1
          (let (Nm (val 3 P)  L (val $Intern))
@@ -1303,8 +1318,7 @@ selectErr)
                ((anonymous Nm) @)
                ((and (== (car L) $priv) (nil? (cdr L)))
                   (intern (consSym Nm $Nil) 0 Nm $PrivT $Nil YES) )
-               (T
-                (requestSym Nm)) ) )
+               (T (requestSym Nm)) ) )
          (set $Intern Int) ) ) )
 
 (de void rdl (R P)
@@ -1364,9 +1378,9 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
-#      (when Top
-#         (let In: (inFile (val $InFile))
-#            (In: src (In: line)) ) )
+      #(when Top
+      #   (let In: (inFile (val $InFile))
+      #      (In: src (In: line)) ) )
       (cond
          ((lt0 C)
             (unless Top (eofErr))
