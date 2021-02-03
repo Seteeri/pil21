@@ -2440,10 +2440,9 @@ selectErr)
                (prog2
                   (set $ContPrmt ($ "  "))
                   (read1
-                     #(if (isatty 0)
-                     #   (char "\n")
-                     #   (i32 0) ) 
-                     (char "\n"))
+                     (if (isatty 0)
+                        (char "\n")
+                        (i32 0) ))
                   (set $LinePrmt (set $ContPrmt null))
                   (while (gt0 (val $Chr))
                      (? (== (val $Chr) (char "\n"))

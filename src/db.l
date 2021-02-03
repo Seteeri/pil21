@@ -337,9 +337,7 @@
 (local) (ignLog transaction fsyncDB restore truncLog)
 
 (de void ignLog ()
-   #(stderrMsg ($ "Discarding incomplete transaction\n") null)
-   null
-   )
+   (stderrMsg ($ "Discarding incomplete transaction\n") null))
 
 # Test for existing transaction
 (de i1 transaction ()
@@ -370,7 +368,7 @@
          (setq Db (ofs Db (dbFile T))) ) ) )
 
 (de void restore (Exe)
-   #(stderrMsg ($ "Last transaction not completed: Rollback\n") null)
+   (stderrMsg ($ "Last transaction not completed: Rollback\n") null)
    (let Log (val $DbLog)
       (fseek0 Log)
       (let (Db (val $DbFiles)  C (val $DBs))  # Iterate DB files
