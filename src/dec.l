@@ -94,7 +94,7 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 (de void pr-libc ((i8* . Str))
    (while (val Str)
       (while (n0 (& (i8 (any AUX-MU-LSR)) (hex "20"))) T)
-      (set (i8* (any AUX-MU-IO)) (val Str))
+      (set (i8* (any AUX-MU-IO)) (char (val Str)))
       (inc 'Str) ))
 
 (de i8* malloc        () (pr-libc ($ "malloc       ")) null)

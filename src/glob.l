@@ -115,8 +115,6 @@
    ($priv "priv" $Priv)
    ($OS "*OS" 0)
    ($CPU "*CPU" 0)
-   ($Pid "*Pid" 0)
-   ($PPid "*PPid" $Nil)
    ($DB "*DB" 0)              # Database root constant
    ($Meth "meth" __meth)
    ($Quote "quote" _quote)

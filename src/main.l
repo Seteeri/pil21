@@ -1278,30 +1278,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (set
       $OS (mkStr TgOS)
       $CPU (mkStr TgCPU)
-      $Pid (cnt (i64 (getpid)))
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil) )  # External symbol tree root node
-  
-   #{
-   (pushOutFile (b8 (ioFrame T)) (initOutFile 2) 0)  # Standard error
-   (pushOutFile
-      (set $Stdout (b8 (ioFrame T)))
-      (initOutFile 1)  # Standard output
-      0 )
-   (pushInFile
-      (set $Stdin (b8 (ioFrame T)))
-      (initInFile 0 null)  # Standard input
-      0 )
-      
-   (set Tio (=0 (tcgetattr 0 OrgTermio)))  # Save terminal I/O
-   (sigUnblock 0)  # Set all signals to unblocked
-
-   (set $USec (getUsec YES))
-
-   (unless (setjmp QuitRst)
-      (loadAll 0) )  # Load arguments
-  }#
   
    (set $Stdout (b8 (ioFrame T)))
    (set $Stdin (b8 (ioFrame T)))

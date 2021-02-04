@@ -1503,21 +1503,7 @@
 
 # (detach) -> pid | NIL
 (de _detach (Exe)
-   (prog1
-      (val $PPid)
-      (unless (nil? @)
-         (set $PPid $Nil)
-         (close (val $Tell))
-         (set $Tell 0)
-         (let H (val $Hear)
-            (close H)
-            (closeInFile H)
-            (closeOutFile H) )
-         (set $Hear 0)
-         (close (val $Mic))
-         (set $Mic 0)
-         (set $Slot 0)
-         (setsid) ) ) )
+   $Nil)
 
 # (bye ['cnt])
 (de _bye (Exe)
