@@ -1258,7 +1258,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (main sigChld)
+(local) (main sigChld foobar)
+
+(de foobar () $Nil)
 
 (de main ()
    (set 
@@ -1284,21 +1286,19 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   
    (set $Stdout (b8 (ioFrame T)))
    (set $Stdin (b8 (ioFrame T)))
+   
    (set $Put (fun (void i8) _putStdout))
    (set $Get (fun (i32) _getStdin))
-   
-   #(call $Put (char ":"))
-   #(call $Put (val (i8* (any $Kern))))
+
+    (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
+          Z Y)
+      (loop
+        (outString ($ ": "))  (print (car Z)) (newline)
+        (outString ($ "-> ")) (print (eval (car Z))) (newline)
+        (setq Z (cdr Z))
+        (? (nil? Z) 0))
+      (outString ($ "BYE\n")))
       
-  (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
-        Z Y)
-    (loop
-      (outString ($ ": "))  (print (car Z)) (newline)
-      (outString ($ "-> ")) (print (eval (car Z))) (newline)
-      (setq Z (cdr Z))
-      (? (nil? Z) 0))
-    (outString ($ "BYE\n")))
-    
    #(out "file.plio" (pr *Kernel))
    #(eval (plio *Kern))
    

@@ -1116,52 +1116,12 @@ selectErr)
    (i32 (waitFd 0 0 60)) )
 
 (de i32 _getStdin ()
-   (let In: (inFile (val $InFile))
-      (set $Chr
-         (cond
-            ((lt0 (In: fd)) -1)  # EOF
-            ((or (In: fd) (=0 (isatty 0)))  # Not stdin
-               (if
-                  (and
-                     (== (In: ix) (In: cnt))
-                     (or (lt0 (In: ix)) (=0 (slow (In:)))) )
-                  -1
-                  (let I (In: ix)
-                     (prog1
-                        (i32 (val (ofs (In: (buf)) I)))
-                        (when (== @ (char "\n"))
-                           (In: line (+ (In: line) 1)) )
-                        (In: ix (+ I 1)) ) ) ) )            
-            (T
-               (let P (val $LinePtr)
-                  (unless P
-                     (when (val $LineBuf)
-                        (free @)
-                        (set $LineBuf null) )
-                     (flushAll)
-                     
-                     # get byte/line from ptr
-                     # put kernel on one line
-                     (unless (setq P (set $LineBuf (readline (val $LinePrmt))))
-                        (wrnl)
-                        (when (or (val $Bind) (== (val $LinePrmt) (val $ContPrmt)))
-                           (err 0 0 $Empty null) )  # quit
-                        (bye 0) )
-                        
-                     (set $LinePrmt (val $ContPrmt))
-                     (unless
-                        (or
-                           (=0 (val P))
-                           (== @ 32)
-                           (and (currentLine) (=0 (strcmp @ P))) )
-                        (add_history P) ) )
-                  (nond
-                     ((val P)
-                        (set $LinePtr null)
-                        (char "\n") )
-                     (NIL
-                        (set $LinePtr (inc P))
-                        (i32 @) ) ) ) ) ) ) ) )
+  (loop
+    (let X (val (i8* (any AUX-MU-LSR)))
+      (set $Nop (i64 X))
+      (? (n0 (& X (hex "01"))) 0)))
+   (set $Chr
+      (val (i32* (any AUX-MU-IO)))))
 
 (de i32 getChar ((i32 . C))
    (cond
@@ -1959,21 +1919,11 @@ selectErr)
                $Nil ) ) ) ) )
 
 (de void _putStdout ((i8 . B))
-  (while (n0 (& (i8 (any AUX-MU-LSR)) (hex "20"))) T)
+  (loop
+    (let X (val (i8* (any AUX-MU-LSR)))
+      (set $Nop (i64 X))
+      (? (n0 (& X (hex "20"))) 0)))
   (set (i8* (any AUX-MU-IO)) B))
-
-(de void _putStdoutOG ((i8 . B))
-   (let Out: (outFile (val $OutFile))
-      (when (Out:)
-         (let I (Out: ix)
-            (when (== I BUFSIZ)
-               (Out: ix (setq I 0))
-               (wrBytes (Out: fd) (Out: (buf)) BUFSIZ) )
-            (set (ofs (Out: (buf)) I) B)
-            (Out: ix (inc 'I))
-            (when (and (== B (char "\n")) (Out: tty))
-               (Out: ix 0)
-               (wrBytes (Out: fd) (Out: (buf)) I) ) ) ) ) )
 
 (local) (newline space)
 

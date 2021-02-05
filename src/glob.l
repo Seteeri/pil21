@@ -69,6 +69,8 @@
 (var $StrP i64* null)                  # String status
 (var $GcCount i64 CELLS)               # Collector count
 
+(var $Nop i64 0)
+
 # Database
 (var $DbFiles i8* null)                # DB files
 (var $DbFile i8* null)                 # DB file

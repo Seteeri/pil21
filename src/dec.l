@@ -270,7 +270,6 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 
 # Case mappings lib.c
 
-
 ### Forward references ###
 
 # main.l

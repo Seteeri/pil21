@@ -83,8 +83,18 @@ SIGSTOP SIGTSTP SIGTTIN SIGTTOU SIGWINCH SIGIO)
  AUX-MU-SCRATCH
  AUX-MU-CNTL   
  AUX-MU-STAT   
- AUX-MU-BAUD)
-
+ AUX-MU-BAUD
+ UART-DR 
+ UART-FR 
+ UART-TXE
+ UART-RXF
+ UART-TXF
+ UART-RXE
+ UART-BUS
+ UART-DCD
+ UART-DSR
+ UART-CTS)
+ 
 (equ
   MMIO-BASE      (hex "3F000000")
   AUX-ENABLE     (+ MMIO-BASE (hex "00215004"))
@@ -98,4 +108,15 @@ SIGSTOP SIGTSTP SIGTTIN SIGTTOU SIGWINCH SIGIO)
   AUX-MU-SCRATCH (+ MMIO-BASE (hex "0021505C"))
   AUX-MU-CNTL    (+ MMIO-BASE (hex "00215060"))
   AUX-MU-STAT    (+ MMIO-BASE (hex "00215064"))
-  AUX-MU-BAUD    (+ MMIO-BASE (hex "00215068")))
+  AUX-MU-BAUD    (+ MMIO-BASE (hex "00215068"))
+  
+  UART-DR        (hex "09000000")
+  UART-FR        (hex "09000018")
+  UART-TXE       (>> -7 1)
+  UART-RXF       (>> -6 1)
+  UART-TXF       (>> -5 1)
+  UART-RXE       (>> -4 1)
+  UART-BUS       (>> -3 1)
+  UART-DCD       (>> -2 1)
+  UART-DSR       (>> -1 1)
+  UART-CTS       (>> -0 1))
