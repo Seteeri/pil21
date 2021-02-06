@@ -16,9 +16,6 @@
 
 (var $Heap   0)                        # Heap start address
 (var $Limit  0)                        # Heap limit
-(var $Stack0 0)                        # Initial stack pointer
-(var $Stack1 0)                        # Coroutine stack base
-(var $Stacks i64 0)                    # Coroutine stack segment count
 
 (var $StkSize i64 STACK)               # Coroutine stack segment size
 (var $StkLimit i8* null)               # Stack limit: StackN-Size+4096
@@ -274,9 +271,9 @@
    #(NIL "rewind" _rewind)
    #(NIL "ext" _ext)
    (NIL "plio" _plio)
-   (NIL "rd" _rd)
-   (NIL "pr" _pr)
-   (NIL "wr" _wr)
+   #(NIL "rd" _rd)
+   #(NIL "pr" _pr)
+   #(NIL "wr" _wr)
    (NIL "any" _any)
    (NIL "sym" _sym)
    (NIL "str" _str)
@@ -675,4 +672,4 @@
 # Strings
 (str $Empty "")
 (str $Delim " \t\n\r\"'(),[]`{}~")
-(str $Kerns "(println 1) (gc) (println 2) T")
+(str $Kerns "(de main () (prinl \"Hello from PicoLisp land\")) (main)")

@@ -213,28 +213,7 @@ selectErr)
       (free (Cld: buf)) ) )
 
 (de void wrChild ((i8* . Cld)  (i8* . P) (i32 . Cnt))
-   (let (Cld: (child Cld)  C (Cld: cnt))
-      (unless C
-         (loop
-            (let N (i32 (write (Cld: tell) P (i64 Cnt)))
-               (if (lt0 N)
-                  (let E (gErrno)
-                     (? (== E EAGAIN))
-                     (when (or (== E EPIPE) (== E ECONNRESET))
-                        (clsChild Cld)
-                        (ret) )
-                     (unless (== E EINTR)
-                        (writeErr ($ "child write: %s")) ) )
-                  (unless (dec 'Cnt N)
-                     (ret) )
-                  (inc 'P N) ) ) ) )
-      (let Siz (+ C Cnt 4)  # New buffer size
-         (when (> Siz (hex "3FFFFFFF"))  # Allow max 1 GiB
-            (sizeErr 0) )
-         (let Q (ofs (Cld: buf (alloc (Cld: buf) (i64 Siz))) C)
-            (set (i32* Q) Cnt)
-            (memcpy (ofs Q 4) P (i64 Cnt))
-            (Cld: cnt Siz) ) ) ) )
+   null)
 
 (de i1 flush ((i8* . Out))
    (ifn Out
@@ -516,12 +495,7 @@ selectErr)
       $Extn 0 )
    (tailcall (binPrint X)) )
 
-(de void tellBeg ((i8* . P))
-   (set
-      $TellBuf P
-      $End (ofs P (dec (val PipeBufSize)))
-      (inc 'P 8) BEG  # 8 bytes space (PID and count)
-      $Ptr (inc P) ) )  # Begin a list
+(de void tellBeg ((i8* . P)) null)
 
 (de void tellEnd ((i32 . Pid))
    (let (P (val $Ptr)  Q (val $TellBuf))
@@ -712,160 +686,7 @@ selectErr)
                         (or Flg (ge0 (slowNb (In:)))) ) ) ) ) ) ) ) )
 
 (de i64 waitFd (Exe (i32 . Fd) (i64 . Ms))
-   (let
-      (Run (save (val $Run))
-         At (save (val $At))
-         Buf (b8 (val PipeBufSize))
-         Pn (b32 2)
-         Tim (getMsec) )
-      (stkChk Exe)
-      (loop
-         (let Dly Ms
-            (when (ge0 Fd)
-               (if (hasData Fd)
-                  (setq Dly 0)
-                  (pollIn Fd (pollfd Fd)) ) )
-            (let R Run  # '*Run' elements
-               (while (pair R)
-                  (let X (++ R)
-                     (cond
-                        ((sign? (car X))
-                           (let N (int (cadr X))
-                              (when (> Dly N)
-                                 (setq Dly N) ) ) )
-                        ((<> (i32 (int @)) Fd)
-                           (let N @
-                              (if (hasData N)
-                                 (setq Dly 0)
-                                 (pollIn N (pollfd N)) ) ) ) ) ) ) )
-            (when (and (val $Hear) (<> @ Fd))  # RPC listener
-               (let N @
-                  (if (hasData N)
-                     (setq Dly 0)
-                     (pollIn N (pollfd N)) ) ) )
-            (when (val $Spkr)  # RPC speaker
-               (pollIn @ (pollfd @))
-               (let
-                  (Cld (val $Child)  # Iterate children
-                     <Cld (ofs Cld (* (val $Children) (child T))) )
-                  (until (== Cld <Cld)
-                     (let Cld: (child Cld)
-                        (when (Cld: pid)
-                           (pollIn (Cld: hear) (pollfd (Cld: hear)))
-                           (when (Cld: cnt)
-                              (pollOut (Cld: tell) (pollfd (Cld: tell))) ) ) )
-                     (setq Cld (ofs Cld (child T))) ) ) )
-            (while (lt0 (gPoll (val $Poll) (val $Nfds) Dly))
-               (unless (== (gErrno) EINTR)
-                  (set $Run $Nil)
-                  (selectErr Exe) )
-               (sigChk Exe) ) )
-         (let (Now (getMsec)  Dif (- Now Tim))
-            (when (val $Spkr)  # RPC speaker
-               (set $Protect (inc (val $Protect)))
-               (let
-                  (Cld (val $Child)  # Iterate children
-                     <Cld (ofs Cld (* (val $Children) (child T))) )
-                  (until (== Cld <Cld)
-                     (let Cld: (child Cld)
-                        (when (Cld: pid)
-                           (when (readyIn (pollfd (Cld: hear)))
-                              (cond
-                                 ((=0 (rdBytesNb (Cld: hear) (i8* Pn) (* 2 4)))
-                                    (clsChild Cld)
-                                    (goto 1) )
-                                 ((gt0 @)
-                                    (cond
-                                       ((=0 (val (i64* Pn)))  # PID and size are zero
-                                          (when (== (Cld: pid) (val $Talking))
-                                             (set $Talking 0) ) )
-                                       ((> (val 2 Pn) (val PipeBufSize))
-                                          (sizeErr Exe) )
-                                       ((rdBytes (Cld: hear) Buf @)
-                                          (let
-                                             (Cld2 (val $Child)  # Iterate children
-                                                <Cld2 (ofs Cld2 (* (val $Children) (child T))) )
-                                             (until (== Cld2 <Cld2)
-                                                (let Cld2: (child Cld2)
-                                                   (when
-                                                      (and
-                                                         (<> Cld Cld2)
-                                                         (Cld2: pid)
-                                                         (or (=0 (val Pn)) (== @ (Cld2: pid))) )
-                                                      (wrChild Cld2 Buf (val 2 Pn)) ) )
-                                                (setq Cld2 (ofs Cld2 (child T))) ) ) )
-                                       (T
-                                          (clsChild Cld)
-                                          (goto 1) ) ) ) ) )
-                           (when (readyOut (pollfd (Cld: tell)))
-                              (let
-                                 (P (ofs (Cld: buf) (Cld: ofs))  # Buffer pointer plus offset
-                                    N (val (i32* P)) )  # Size
-                                 (ifn (wrBytes (Cld: tell) (ofs P 4) N)
-                                    (clsChild Cld)
-                                    (setq N (Cld: ofs (+ (Cld: ofs) N 4)))  # Add size plus size of size to buffer offset
-                                    (when (>= (* 2 N) (Cld: cnt))
-                                       (when (Cld: cnt (- (Cld: cnt) N))
-                                          (memcpy
-                                             (Cld: buf)
-                                             (ofs (Cld: buf) N)
-                                             (i64 (Cld: cnt)) )
-                                          (Cld: buf (alloc (Cld: buf) (i64 (Cld: cnt)))) )
-                                       (Cld: ofs 0) ) ) ) ) ) )
-                     (: 1
-                        (setq Cld (ofs Cld (child T))) ) ) )
-               (when
-                  (and
-                     (=0 (val $Talking))
-                     (readyIn (pollfd (val $Spkr)))
-                     (gt0 (rdBytesNb (val $Spkr) (i8* Pn) 4)) )  # Slot
-                  (let Cld (ofs (val $Child) (* (val Pn) (child T)))
-                     (when ((child Cld) pid)
-                        (set $Talking @)
-                        (wrChild Cld $TBuf 2) ) ) )
-               (set $Protect (dec (val $Protect))) )
-            (let N (val $Hear)  # RPC listener
-               (when (and N (<> N Fd) (inReady N NO))
-                  (let In (val $InFile)
-                     (set
-                        $InFile (val (ofs (val $InFiles) (val $Hear)))
-                        $GetBin (fun (i32) getBinary)
-                        $Extn 0 )
-                     (let E (binRead)
-                        (cond
-                           ((=0 E)
-                              (close N)
-                              (closeInFile N)
-                              (closeOutFile N)
-                              (set $Hear 0) )
-                           ((t? E) (set $Sync YES))
-                           (T (save E (evList E))) ) )
-                     (set $InFile In) ) ) )
-            (let R Run
-               (while (pair R)
-                  (let X (++ R)
-                     (cond
-                        ((sign? (car X))
-                           (let Y (cdr X)
-                              (if (gt0 (- (int (car Y)) Dif))  # Not yet timed out
-                                 (set Y (sign (cnt @)))   # Store short negative number
-                                 (let V (car X)  # Timeout value
-                                    (set Y (pos V)  $At V)
-                                    (run (cdr Y)) ) ) ) )  # Run body
-                        ((<> (i32 (int @)) Fd)
-                           (when (inReady @ NO)
-                              (set $At (car X))  # File descriptor
-                              (run (cdr X)) ) ) ) ) ) )  # Run body
-            (and
-               (gt0 Ms)
-               (lt0 (dec 'Ms Dif))
-               (setq Ms 0) )
-            (setq Tim Now) )
-         (sigChk Exe)
-         (? (or (=0 Ms) (lt0 Fd) (inReady Fd YES)))
-         (setq Run (safe (val $Run))) )
-      (set $At At)
-      Ms ) )
+   0)
 
 # (wait 'cnt|NIL . prg) -> any
 # (wait 'cnt|NIL T 'fd) -> fd|NIL
@@ -1117,11 +938,9 @@ selectErr)
 
 (de i32 _getStdin ()
   (loop
-    (let X (val (i8* (any AUX-MU-LSR)))
-      (set $Nop (i64 X))
-      (? (n0 (& X (hex "01"))) 0)))
-   (set $Chr
-      (val (i32* (any AUX-MU-IO)))))
+    (let X (val (i32* (any UART-FR)))
+      (? (=0 (& X (hex "10")))) @))
+  (val (i32* (any UART-DR))))
 
 (de i32 getChar ((i32 . C))
    (cond
@@ -1251,7 +1070,7 @@ selectErr)
             (== Chr (char "%"))
             (== C (char "~")) )
          (when (nil? (cdr Int))
-            (symNspErr 0 $rem) )
+            (symNspErr 0 $rem))
          (set $Intern @)
          (setq Chr (call $Get)  C (call $Get)) )
       (link (ofs P 2))
@@ -1338,6 +1157,7 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
+      #(outWord (i64 C)) (call $Put (char " "))
       #(when Top
       #   (let In: (inFile (val $InFile))
       #      (In: src (In: line)) ) )
@@ -1424,7 +1244,8 @@ selectErr)
 
 (de read1 ((i32 . End))
    (unless (val $Chr)
-      (call $Get) )  
+      (call $Get) )
+   #(outWord (i64 (val $Chr))) (call $Put (char " "))
    (if (== End (val $Chr))
       $Nil
       (read0 YES) ) )
@@ -1918,12 +1739,17 @@ selectErr)
                (drop P)
                $Nil ) ) ) ) )
 
+(de void _putStdout_uart ((i8 . B))
+  (loop
+    (let X (val (i32* (any UART-FR)))
+      (? (=0 (& X (hex "20")))) @))
+  (set (i32* (any UART-DR)) (i32 B)))
+               
 (de void _putStdout ((i8 . B))
   (loop
-    (let X (val (i8* (any AUX-MU-LSR)))
-      (set $Nop (i64 X))
-      (? (n0 (& X (hex "20"))) 0)))
-  (set (i8* (any AUX-MU-IO)) B))
+    (let X (val (i32* (any AUX-MU-LSR)))
+      (? (n0 (& X (hex "20")))) @))
+  (set (i32* (any AUX-MU-IO)) (i32 B)))
 
 (local) (newline space)
 

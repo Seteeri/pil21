@@ -91,11 +91,7 @@ putc_unlocked getc_unlocked fopen fflush feof fclose fileno fsync pipe memcmp
 strlen strcpy strdup strcmp strchr2 strrchr dlsym dlerror dup dup2 close signal
 tcsetpgrp waitpid setjmp longjmp kill exit)
 
-(de void pr-libc ((i8* . Str))
-   (while (val Str)
-      (while (n0 (& (i8 (any AUX-MU-LSR)) (hex "20"))) T)
-      (set (i8* (any AUX-MU-IO)) (char (val Str)))
-      (inc 'Str) ))
+(de void pr-libc ((i8* . Str)) 0)
 
 (de i8* malloc        () (pr-libc ($ "malloc       ")) null)
 (de i8* realloc       () (pr-libc ($ "realloc      ")) null)
@@ -164,11 +160,11 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 (de void  clear_history () (pr-libc ($ "clear_history")) null)
 
 # Glue lib.c
-(local) (TgOS TgCPU PipeBufSize)
+#(local) (TgOS TgCPU PipeBufSize)
 
-(var TgOS i8 0)  # Target OS
-(var TgCPU i8 0)  # Target CPU
-(var PipeBufSize i32 0)  # PIPE_BUF
+#(var TgOS i8 0)  # Target OS
+#(var TgCPU i8 0)  # Target CPU
+#(var PipeBufSize i32 0)  # PIPE_BUF
 
 (local) (stderrMsg gPrintf strErrno openRd openWr openRdWr openRdWrExcl
 openRdWrCreate openRdWrAppend openWrAppend fseekOfs fseek0 seek0 truncate0
@@ -225,11 +221,11 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (de i32 gErrno () (pr-libc ($ "gErrno")) 0)
 
 # Terminal
-(local) (Tio OrgTermio Termio setRaw setCooked reopenTty)
+(local) (setRaw setCooked reopenTty)
 
-(var Tio i1 0)
-(var OrgTermio i8 0)
-(var Termio i8* null)
+#(var Tio i1 0)
+#(var OrgTermio i8 0)
+#(var Termio i8* null)
 
 (de void setRaw    () (pr-libc ($ "setRaw   ")) null)
 (de void setCooked () (pr-libc ($ "setCooked")) null)

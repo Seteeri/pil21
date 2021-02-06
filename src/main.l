@@ -186,7 +186,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (when X
       (link (push X NIL)) )  # Save
    (let Msg (b8 240)
-      (gPrintf Msg 240 Fmt Arg)
+      #(gPrintf Msg 240 Fmt Arg)
+      (outString Fmt) (call $Put (char ":"))
       (when (val Msg)
          (set $Msg (mkStr Msg))
          (let Ca (val $Catch)
@@ -1258,15 +1259,71 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (main sigChld foobar)
+(local) (repl2 main sigChld)
 
-(de foobar () $Nil)
-
+# do repl from str sym
+(de repl2 ()
+  (set $Kern (mkStr $Kerns))
+  (let
+      (Int (save (val $Intern))
+        Pr1 (save (val $PrivT))
+        Pr2 (save (val 2 $PrivT))
+        Tr1 (save (val $Transient))
+        Tr2 (save (val 2 $Transient))
+        V (link (push -ZERO NIL))
+        At (link (push -ZERO NIL)) 
+        X $Nil )
+      #(rdOpen Exe X (b8 (ioFrame T)))
+      (set $PrivT (set 2 $PrivT $Nil))
+      (set $Transient (set 2 $Transient $Nil))
+      #(setq X $Nil)
+      
+      (let
+          (Nm (name (val (tail (val $Kern))))
+            Chr (val $Chr)
+            Get (val (i8** $Get))
+            Pars (val $Parser) )
+            
+          (set
+            $Get (fun (i32) getParse)
+            $Parser (push 0 (save Nm) (hex "5D0A")) )
+          
+          #(getParse)
+          
+          (loop
+            (let Y (read1 0)
+                (? (nil? Y))
+                (set V Y)
+                #(print Y) (newline)
+                (setq X (eval Y))))
+                
+          (outString ($ "DONE"))
+            
+          (set
+              $Parser Pars
+              (i8** $Get) Get
+              $Chr Chr ) )
+      
+      #(popInFiles)
+      #(tosInFile)
+      (set 2 $Transient Tr2)
+      (set $Transient Tr1)
+      (set 2 $PrivT Pr2)
+      (set $PrivT Pr1)
+      (set $Intern Int)
+      X ) )
+      
 (de main ()
+
+   (set $Put (fun (void i8) _putStdout))
+   (set $Get (fun (i32) _getStdin))
+
    (set 
-      $Heap  67108864 # heap-start=64mb
-      $Limit 67108864)
+      $Heap  (hex "1080000") # BASE+16MB, PG@8MB
+      $Limit (hex "1080000"))
+      
    (heapAlloc)
+   
    (let P $Nil  # Init internal symbols
       (loop
          (let Nm (val (tail P))
@@ -1276,20 +1333,16 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (when (big? Nm)  # Max 15 chars
                   (setq P (ofs P 2)) ) ) )
          (setq P (ofs P 2)) ) )
+         
    # Initialize globals
    (set
-      $OS (mkStr TgOS)
-      $CPU (mkStr TgCPU)
+      #$OS (mkStr TgOS)
+      #$CPU (mkStr TgCPU)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil) )  # External symbol tree root node
-  
-   (set $Stdout (b8 (ioFrame T)))
-   (set $Stdin (b8 (ioFrame T)))
    
-   (set $Put (fun (void i8) _putStdout))
-   (set $Get (fun (i32) _getStdin))
-
+   #{
     (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
           Z Y)
       (loop
@@ -1298,10 +1351,27 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
         (setq Z (cdr Z))
         (? (nil? Z) 0))
       (outString ($ "BYE\n")))
-      
+   
+    (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
+          Z Y
+          E $Nil)
+      (loop
+        (setq E (eval (car Z)))
+        (setq Z (cdr Z))
+        (? (nil? Z)
+           (outString ($ "-> "))
+           (print E)
+           (newline))))
+               
+   }#
+   
+   (call $Put (char ":"))
+    
+   (repl2)         
+    
    #(out "file.plio" (pr *Kernel))
    #(eval (plio *Kern))
    
    0)
-
+         
 (end "base.map")
