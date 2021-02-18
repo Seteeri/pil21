@@ -231,6 +231,7 @@
                      (setq Heap (val (setq H (ofs Heap HEAP))))  # Next heap
                      (setq Avail A  Heap (val (inc HEAP) Heap))  # Reset avail list
                      #(free (i8* (val H)))  # Free empty heap
+                     (outString ($ "call free\n"))
                      (set H Heap) ) )  # Store next heap in list link
                (? (=0 Heap)) )
             (set $Avail Avail) )
@@ -279,7 +280,7 @@
          (setq P (val $Avail)) )
       (set $Avail (car P))
       (set P Car)
-      (set 2 P Cdr)
+      (set 2 P Cdr)  
       P ) )
 
 (de cons3 (Car1 Cdr1 Car2 Cdr2)

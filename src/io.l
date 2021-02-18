@@ -203,32 +203,13 @@ selectErr)
             (? (=0 (dec 'Cnt N)) YES)
             (inc 'P N) ) ) ) )
 
-(de void clsChild ((i8* . Cld))
-   (let Cld: (child Cld)
-      (when (== (Cld: pid) (val $Talking))
-         (set $Talking 0) )
-      (Cld: pid 0)
-      (close (Cld: hear))
-      (close (Cld: tell))
-      (free (Cld: buf)) ) )
+(de void clsChild ((i8* . Cld)) (outString ($ "clsChild")) null)
 
-(de void wrChild ((i8* . Cld)  (i8* . P) (i32 . Cnt))
-   null)
+(de void wrChild ((i8* . Cld)  (i8* . P) (i32 . Cnt)) (outString ($ "wrChild")) null)
 
-(de i1 flush ((i8* . Out))
-   (ifn Out
-      YES
-      (let Out: (outFile Out)
-         (ifn (Out: ix)
-            YES
-            (Out: ix 0)
-            (wrBytes (Out: fd) (Out: (buf)) @) ) ) ) )
+(de i1 flush ((i8* . Out)) (outString ($ "flush")) 0)
 
-(de void flushAll ()
-   (let (A (val $OutFiles)  N (val $OutFDs)  I (i32 0))
-      (while (> N I)
-         (flush (val (ofs A I)))
-         (inc 'I) ) ) )
+(de void flushAll () (outString ($ "flushAll")) null)
 
 (local) (stdinByte getBinary binRead)
 
@@ -1070,7 +1051,7 @@ selectErr)
             (== Chr (char "%"))
             (== C (char "~")) )
          (when (nil? (cdr Int))
-            (symNspErr 0 $rem))
+            (symNspErr 0 $rem) )
          (set $Intern @)
          (setq Chr (call $Get)  C (call $Get)) )
       (link (ofs P 2))
@@ -1097,7 +1078,9 @@ selectErr)
                ((anonymous Nm) @)
                ((and (== (car L) $priv) (nil? (cdr L)))
                   (intern (consSym Nm $Nil) 0 Nm $PrivT $Nil YES) )
-               (T (requestSym Nm)) ) )
+               (T 
+                (prog1
+                  (requestSym Nm)) )))
          (set $Intern Int) ) ) )
 
 (de void rdl (R P)
@@ -1131,8 +1114,12 @@ selectErr)
             (while (pair (cdr P))
                (shift P) ) )
          (T
-            (setq P
-               (set 2 P (cons (read0 NO) $Nil)) ) ) ) ) )
+            (let (X (read0 NO)
+                  Y (cons X $Nil))
+              (prog1
+                (setq P
+                  (set 2 P Y) )))))))
+
 
 (de rdList ()
    (stkChk 0)
@@ -1145,9 +1132,10 @@ selectErr)
       (? (<> @ (char "~"))  # Read macro
          (let R (save (cons (read0 NO) $Nil))
             (rdl R R)
-            R ) )
+            R ) )        
       (call $Get)
-      (let R (let X (save (read0 NO)) (eval X))
+      (let R (let X (save (read0 NO)) 
+                (eval X))               
          (? (pair R)
             (let L (save R)
                (while (pair (cdr L))
@@ -1157,10 +1145,6 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
-      #(outWord (i64 C)) (call $Put (char " "))
-      #(when Top
-      #   (let In: (inFile (val $InFile))
-      #      (In: src (In: line)) ) )
       (cond
          ((lt0 C)
             (unless Top (eofErr))
@@ -1171,7 +1155,7 @@ selectErr)
                (and
                   Top
                   (== (val $Chr) (char "]"))
-                  (call $Get) ) ) )
+                  (call $Get))))
          ((== C (char "["))
             (let X (rdList)
                (unless (== (val $Chr) (char "]"))
@@ -1197,7 +1181,8 @@ selectErr)
                   (eval E) ) ) )
          ((== C (char "\""))
             (if (== (setq C (call $Get)) (char "\""))
-               (prog (call $Get) $Nil)  # Empty string
+               (prog 
+                (call $Get) $Nil)  # Empty string
                (unless (testEsc C) (eofErr))
                (let
                   (P (push 4 NIL ZERO NIL)  # [cnt last name link]
@@ -1206,9 +1191,8 @@ selectErr)
                      (charSym (val $Chr) P)
                      (? (== (setq C (call $Get)) (char "\"")))
                      (unless (testEsc C) (eofErr)) )
-                  (call $Get)  # Skip "\""
-                  (drop Q
-                     (intern 0 0 (val Q) $Transient $Nil NO) ) ) ) )
+                  (call $Get)  # Skip "\""     
+                  (drop Q (intern 0 0 (val Q) $Transient $Nil NO)))))
          ((== C (char "{"))
             (prog1
                (if (== (setq C (call $Get)) (char "}"))
@@ -1238,14 +1222,13 @@ selectErr)
                (call $Get) )
             (setq C (val $Chr))
             (call $Get)
-            (rdAtom C) ) ) ) )
+            (rdAtom C)))))
 
 (local) (read1 noToken token)
 
 (de read1 ((i32 . End))
    (unless (val $Chr)
       (call $Get) )
-   #(outWord (i64 (val $Chr))) (call $Put (char " "))
    (if (== End (val $Chr))
       $Nil
       (read0 YES) ) )
@@ -1740,12 +1723,15 @@ selectErr)
                $Nil ) ) ) ) )
 
 (de void _putStdout_uart ((i8 . B))
+  # pl011
   (loop
     (let X (val (i32* (any UART-FR)))
       (? (=0 (& X (hex "20")))) @))
   (set (i32* (any UART-DR)) (i32 B)))
                
 (de void _putStdout ((i8 . B))
+  # mini
+  # prefix \n with \r ?
   (loop
     (let X (val (i32* (any AUX-MU-LSR)))
       (? (n0 (& X (hex "20")))) @))

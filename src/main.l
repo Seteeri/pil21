@@ -133,28 +133,21 @@
 (local) (alloc heapAlloc)
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
-   (unless (realloc Ptr Siz)   # Reallocate pointer
-      (giveup ($ "No memory") null) )
-   @ )
+  (giveup ($ "No memory") null) )
       
 (de void heapAlloc ()
    (let
-      # H is start of new heap
-      # P is end of new heap
-      # A is cur avail list   
-      (H (val $Limit)
+      (H (val (any $Limit))
          P (ofs H HEAP)
          A (val $Avail) )
-      (set $Limit (+ H (* 8 (inc HEAP))))
-      # *P = old heap
-      # Heaps = H (new heap)
-      (set P (val $Heaps) $Heaps H)
+      (set $Limit (ofs P 2))
+      (set P (val $Heaps) 
+           $Heaps H)
       (loop
          (set (setq P (ofs P -2)) A)  # Link avail
          (? (== (setq A P) H)) )
-      (set $Avail A) ) )
-      
-      
+      (set $Avail A)))
+
 # Signals
 (local) (sig sigTerm sighandler)
 
@@ -187,7 +180,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (link (push X NIL)) )  # Save
    (let Msg (b8 240)
       #(gPrintf Msg 240 Fmt Arg)
-      (outString Fmt) (call $Put (char ":"))
+      (outString Fmt) #(call $Put (char ":"))
       (when (val Msg)
          (set $Msg (mkStr Msg))
          (let Ca (val $Catch)
@@ -756,7 +749,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (loop
                (sigChk Exe)
                (let V (val Fun)  # Get VAL
-                  (? (num? V) (subr V Exe Fun))
+                  (? (num? V)  (subr V Exe Fun))
                   (? (pair V) (evExpr V Exe))
                   (? (== V (val V))
                      (if (sharedLib Fun)
@@ -1263,20 +1256,17 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # do repl from str sym
 (de repl2 ()
-  (set $Kern (mkStr $Kerns))
+
   (let
       (Int (save (val $Intern))
         Pr1 (save (val $PrivT))
         Pr2 (save (val 2 $PrivT))
         Tr1 (save (val $Transient))
         Tr2 (save (val 2 $Transient))
-        V (link (push -ZERO NIL))
-        At (link (push -ZERO NIL)) 
-        X $Nil )
-      #(rdOpen Exe X (b8 (ioFrame T)))
+        V (link (push -ZERO NIL)) 
+        At (link (push -ZERO NIL)))
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
-      #(setq X $Nil)
       
       (let
           (Nm (name (val (tail (val $Kern))))
@@ -1292,26 +1282,22 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
           
           (loop
             (let Y (read1 0)
-                (? (nil? Y))
-                (set V Y)
-                #(print Y) (newline)
-                (setq X (eval Y))))
+              (? (nil? Y))
+              (set V Y) # store on stack to prevent GC
+              (eval Y)))
                 
-          (outString ($ "DONE"))
+          (outString ($ "pil21 bye"))
             
           (set
               $Parser Pars
               (i8** $Get) Get
               $Chr Chr ) )
       
-      #(popInFiles)
-      #(tosInFile)
       (set 2 $Transient Tr2)
       (set $Transient Tr1)
       (set 2 $PrivT Pr2)
       (set $PrivT Pr1)
-      (set $Intern Int)
-      X ) )
+      (set $Intern Int)))
       
 (de main ()
 
@@ -1320,11 +1306,17 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (set 
       $Heap  (hex "1080000") # BASE+16MB, PG@8MB
-      $Limit (hex "1080000"))
+      $Limit (hex "1080000"))   
+   
+   (call $Put (char "\n"))
+   (outString ($ "$Heap=$Limit=1080000\n"))
+   (outString ($ "Call heapAlloc...\n"))
       
    (heapAlloc)
    
-   (let P $Nil  # Init internal symbols
+   (outString ($ "Init internal symbols...\n"))
+   
+   (let P $Nil
       (loop
          (let Nm (val (tail P))
             (when (num? Nm)
@@ -1334,40 +1326,24 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (setq P (ofs P 2)) ) ) )
          (setq P (ofs P 2)) ) )
          
-   # Initialize globals
+   (outString ($ "Init internal globals...\n"))         
+
    (set
-      #$OS (mkStr TgOS)
-      #$CPU (mkStr TgCPU)
+      $Dbg $Nil
+      $OS $Nil #(mkStr TgOS)
+      $CPU $Nil #(mkStr TgCPU)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil) )  # External symbol tree root node
    
-   #{
-    (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
-          Z Y)
-      (loop
-        (outString ($ ": "))  (print (car Z)) (newline)
-        (outString ($ "-> ")) (print (eval (car Z))) (newline)
-        (setq Z (cdr Z))
-        (? (nil? Z) 0))
-      (outString ($ "BYE\n")))
+   (set $Kern (mkStr $Kerns))
+   (set $At $Nil  $At2 $Nil  $At3 $Nil)
    
-    (let (Y (set $Kern (parse (name (val (tail (mkStr $Kerns)))) NO (hex "5D0A") 0))
-          Z Y
-          E $Nil)
-      (loop
-        (setq E (eval (car Z)))
-        (setq Z (cdr Z))
-        (? (nil? Z)
-           (outString ($ "-> "))
-           (print E)
-           (newline))))
-               
-   }#
+   (outString ($ "Eval $Kerns...\n"))
    
-   (call $Put (char ":"))
-    
-   (repl2)         
+   # gc fine
+   
+   (repl2)
     
    #(out "file.plio" (pr *Kernel))
    #(eval (plio *Kern))

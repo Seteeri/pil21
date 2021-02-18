@@ -302,7 +302,7 @@
 (inline intern2 (Sym Val Name Node More)
    (if (isLstIntern Name More)
       @
-      (unless Sym  # New symbol
+      (unless Sym  # New symbol  
          (setq Sym (consSym Name Val)) )
       (set 2 Node (cons Sym $Nil))
       Sym ) )
@@ -374,7 +374,7 @@
 
 (de requestSym (Name)
    (if (isIntern Name $PrivT)
-      @
+        @
       (let L (val $Intern)
          (intern 0 $Nil Name
             (cdar (car L))

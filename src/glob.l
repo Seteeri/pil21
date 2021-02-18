@@ -2,6 +2,9 @@
 
 (symbols '(llvm))
 
+(var $Heap  i64 0)                        # Heap start address
+(var $Limit i64 0)                        # Heap limit
+
 (var $AV0 i8* null)                    # Command name
 (var $AV i8** null)                    # Command line argument vector
 (var $PilHome i8* null)                # Picolisp home directory
@@ -13,10 +16,6 @@
 (var $Extern 0)                        # External symbol tree
 (var $ExtCnt i64 1)                    # External symbol count
 (var $ExtSkip i64 0)                   # External tree skip
-
-(var $Heap   0)                        # Heap start address
-(var $Limit  0)                        # Heap limit
-
 (var $StkSize i64 STACK)               # Coroutine stack segment size
 (var $StkLimit i8* null)               # Stack limit: StackN-Size+4096
 (var $Stdin i8* null)                  # Stdin frame
@@ -65,8 +64,6 @@
 (var $Extn i32 0)
 (var $StrP i64* null)                  # String status
 (var $GcCount i64 CELLS)               # Collector count
-
-(var $Nop i64 0)
 
 # Database
 (var $DbFiles i8* null)                # DB files
@@ -672,4 +669,8 @@
 # Strings
 (str $Empty "")
 (str $Delim " \t\n\r\"'(),[]`{}~")
-(str $Kerns "(de main () (prinl \"Hello from PicoLisp land\")) (main)")
+(str $Kerns 
+"
+(gc)
+(prinl \"No Kernel\")
+")
