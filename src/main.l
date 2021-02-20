@@ -110,7 +110,7 @@
 (local) (finish giveup bye execErr)
 
 (de NIL finish ((i32 . N))
-   (setCooked)
+   #(setCooked)
    (exit N) )
 
 (de NIL giveup ((i8* . Fmt) (i8* . Msg))
@@ -122,7 +122,7 @@
       (set $InBye YES)
       (unwind null)
       (exec (val $Bye)) )
-   (flushAll)
+   #(flushAll)
    (finish N) )
 
 (de NIL execErr ((i8* . Cmd))
@@ -1140,8 +1140,44 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                N (int @) )
             (set P
                (i8 (if (sign? Y) (- N) N)) )
+            Y ) ) ) )        
+            
+# (ptr32 'num ['cnt]) -> cnt            
+(de _ptr32 (Exe)
+   (let
+      (X (cdr Exe)
+         P
+         (i32*
+            (if (cnt? (needNum Exe (eval (++ X))))
+               (int @)
+               (val (dig @)) ) ) )
+      (if (atom X)
+         (cnt (i64 (int (val P)))) # get val
+         (let # set/get val
+            (Y (needCnt Exe (eval (car X)))
+               N (int @) )
+            (set P
+               (i32 (if (sign? Y) (- N) N)) )
             Y ) ) ) )
 
+# (ptr64 'num ['cnt]) -> cnt            
+(de _ptr64 (Exe)
+   (let
+      (X (cdr Exe)
+         P
+         (any
+            (if (cnt? (needNum Exe (eval (++ X))))
+               (int @)
+               (val (dig @)) ) ) )
+      (if (atom X)
+         (cnt (i64 (val P))) # get val
+         (let # set/get val
+            (Y (needCnt Exe (eval (car X)))
+               N (int @) )
+            (set P
+               (any (if (sign? Y) (- N) N)))
+            Y ) ) ) )            
+            
 # (env ['lst] | ['sym 'val] ..) -> lst
 (de _env (Exe)
    (let (X (cdr Exe)  R (save $Nil))
@@ -1301,12 +1337,16 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       
 (de main ()
 
-   (set $Put (fun (void i8) _putStdout))
-   (set $Get (fun (i32) _getStdin))
+   # Base = 0x80000 + 16MB (interpreter + kern)
+   # Mbox = Base + 4*36 bytes (must be alilgned to 16 bytes)
+   # Heap Start = Base + Mbox
 
-   (set 
-      $Heap  (hex "1080000") # BASE+16MB, PG@8MB
-      $Limit (hex "1080000"))   
+   (set
+      $Mbox  (box64 (+ (hex "1080000") 0))
+      $Heap  (hex "1080090") # +144 bytes
+      $Limit (hex "1080090")
+      $Put (fun (void i8) _putStdout)
+      $Get (fun (i32) _getStdin))
    
    (call $Put (char "\n"))
    (outString ($ "$Heap=$Limit=1080000\n"))

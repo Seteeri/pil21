@@ -148,6 +148,7 @@
    ($Bye "*Bye" $Nil)
    ($Dbg "*Dbg" $Nil)
    ($Kern "*Kern" $Nil)
+   ($Mbox "*MBox" $Nil)
    ($Complete "complete" $Nil)
    # Garbage collection
    (NIL "gc" _gc)
@@ -502,6 +503,8 @@
    (NIL "heap" _heap)
    (NIL "stack" _stack)
    (NIL "byte" _byte)
+   (NIL "ptr32" _ptr32)
+   (NIL "ptr64" _ptr64)   
    #(NIL "env" _env)
    #(NIL "date" _date)
    #(NIL "time" _time)

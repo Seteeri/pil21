@@ -214,18 +214,8 @@ selectErr)
 (local) (stdinByte getBinary binRead)
 
 (de i32 stdinByte ()
-   (let In: (inFile (val (val $InFiles)))  # Stdin
-      (cond
-         ((and
-               (ge0 (In: fd))
-               (or
-                  (<> (In: ix) (In: cnt))
-                  (and (ge0 @) (slow (In:))) ) )
-            (let I (In: ix)
-               (In: ix (+ I 1))
-               (i32 (val (ofs (In: (buf)) I))) ) )
-         ((isatty 0) (bye 0))
-         (T -1) ) ) )
+   # Call getStdin
+   (call $Get))
 
 (de i32 getBinary ()
    (let (In: (inFile (val $InFile))  I (In: ix))
@@ -909,18 +899,10 @@ selectErr)
 
 (de read0 (i1))
 
-(de i32 rlGetc ((i8* . F))
-   (if (waitFd 0 0 292MY)
-      (stdinByte)
-      -1 ) )
-
-(de i32 rlAvail ()
-   (i32 (waitFd 0 0 60)) )
-
 (de i32 _getStdin ()
   (loop
-    (let X (val (i32* (any UART-FR)))
-      (? (=0 (& X (hex "10")))) @))
+    (let X (val (i32* (any AUX-MU-LSR)))
+      (? (n0 (& X (hex "01")))) @))
   (val (i32* (any UART-DR))))
 
 (de i32 getChar ((i32 . C))
@@ -1321,7 +1303,23 @@ selectErr)
 
 # (key ['cnt]) -> sym
 (de _key (Exe)
-         $Nil )
+  (let C (stdinByte)
+      (mkChar
+        (cond
+            ((>= 127 C) C)  # Single byte
+            ((== C (hex "FF")) (i32 TOP))  # Infinite
+            (T
+              (let B
+                  (ifn (& C (hex "20"))  # Two bytes
+                    (& C (hex "1F"))  # First byte 110xxxxx
+                    (let A
+                        (ifn (& C (hex "10"))  # Three bytes
+                          (& C (hex "0F"))  # First byte 1110xxxx
+                          (|  # Four bytes
+                              (shl (& C 7) 6)  # First byte 11110xxx
+                              (& (stdinByte) (hex "3F")) ) )  # 10xxxxxx
+                        (| (shl A 6) (& (stdinByte) (hex "3F"))) ) )
+                  (| (shl B 6) (& (stdinByte) (hex "3F"))) ) ) ) ) ))
 
 # (peek) -> sym
 (de _peek (Exe)
@@ -1731,7 +1729,6 @@ selectErr)
                
 (de void _putStdout ((i8 . B))
   # mini
-  # prefix \n with \r ?
   (loop
     (let X (val (i32* (any AUX-MU-LSR)))
       (? (n0 (& X (hex "20")))) @))
