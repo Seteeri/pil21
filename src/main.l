@@ -1288,19 +1288,18 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (repl2 main sigChld except)
+(local) (loadKern main except)
 
-# do repl from str sym
-(de repl2 ()
-
+(de loadKern ()
   (let
       (Int (save (val $Intern))
         Pr1 (save (val $PrivT))
         Pr2 (save (val 2 $PrivT))
         Tr1 (save (val $Transient))
         Tr2 (save (val 2 $Transient))
-        V (link (push -ZERO NIL)) 
-        At (link (push -ZERO NIL)))
+        V (link (push -ZERO NIL))
+        At (link (push -ZERO NIL))
+        X  $Nil)
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
       
@@ -1314,15 +1313,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             $Get (fun (i32) getParse)
             $Parser (push 0 (save Nm) (hex "5D0A")) )
           
-          #(getParse)
-          
           (loop
             (let Y (read1 0)
               (? (nil? Y))
               (set V Y) # store on stack to prevent GC
-              (eval Y)))
-                
-          (outString ($ "pil21 bye"))
+              (set X (eval Y))))
             
           (set
               $Parser Pars
@@ -1333,29 +1328,34 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (set $Transient Tr1)
       (set 2 $PrivT Pr2)
       (set $PrivT Pr1)
-      (set $Intern Int)))
+      (set $Intern Int)
+      X))
+
       
-(de main ()
+(de void main ()
 
-   # Base = 0x80000 + 16MB (interpreter + kern)
-   # Mbox = Base + 4*36 bytes (must be alilgned to 16 bytes)
-   # Heap Start = Base + Mbox
-
+   # ... 512 KB : stack
+   # ... 4   MB : interpreter
+   #     4   MB : VC mem start
+   # ... 64  MB : ARM mem start
+   # ... 144 B  : mailbox (align 16 bytes)
+   # ....       : heap start
+  
    (set
-      $Mbox  (box64 (+ (hex "1080000") 0))
-      $Heap  (hex "1080090") # +144 bytes
-      $Limit (hex "1080090")
-      $Put (fun (void i8) _putStdout)
-      $Get (fun (i32) _getStdin))
+      $MBox  (box64 (hex "4000000"))
+      $Heap  (+ (hex "1080090") (* 4 36))
+      $Limit (+ (hex "1080090") (* 4 36))
+      $Put   (fun (void i8) _putStdout)
+      $Get   (fun (i32) _getStdin))
    
    (call $Put (char "\n"))
-   (outString ($ "$Heap=$Limit=1080000\n"))
+   (outString ($ "$MBox=0x4000000\n"))
+   (outString ($ "$Heap=$Limit=0x4000090\n"))
+   
    (outString ($ "Call heapAlloc...\n"))
-      
    (heapAlloc)
    
    (outString ($ "Init internal symbols...\n"))
-   
    (let P $Nil
       (loop
          (let Nm (val (tail P))
@@ -1366,30 +1366,29 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (setq P (ofs P 2)) ) ) )
          (setq P (ofs P 2)) ) )
          
-   (outString ($ "Init internal globals...\n"))         
-
+   (outString ($ "Init internal globals...\n"))
    (set
       $Dbg $Nil
-      $OS $Nil #(mkStr TgOS)
-      $CPU $Nil #(mkStr TgCPU)
+      #$OS $Nil (mkStr TgOS)
+      #$CPU $Nil (mkStr TgCPU)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
-      $Extern (cons $Db1 $Nil) )  # External symbol tree root node
+      $Extern (cons $Db1 $Nil)  # External symbol tree root node
+      $Kern (mkStr $Kerns))
    
-   (set $Kern (mkStr $Kerns))
-   (set $At $Nil  $At2 $Nil  $At3 $Nil)
+   (outString ($ "Load $Kern...\n"))
    
-   (outString ($ "Eval $Kerns...\n"))
+   (loadKern)
    
-   # gc fine
-   
-   (repl2)
-    
-   #(out "file.plio" (pr *Kernel))
-   #(eval (plio *Kern))
-   
-   0)
-   
+   # drop to repl
+   (outString ($ "pil21 bye")))
+
+
+(de _kern (Exe)
+  # TODO: pass flag whether dynamic repl or top-level
+  (loadKern))   
+
+
 (de void except ()
   (outString ($ "Exception\n")))
          

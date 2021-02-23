@@ -109,8 +109,8 @@
    ($PrivT $Nil $Nil 0)       # Private trees
    ($Priv $Tilde $PrivT 0)    # Private namespace
    ($priv "priv" $Priv)
-   ($OS "*OS" 0)
-   ($CPU "*CPU" 0)
+   #($OS "*OS" 0)
+   #($CPU "*CPU" 0)
    ($DB "*DB" 0)              # Database root constant
    ($Meth "meth" __meth)
    ($Quote "quote" _quote)
@@ -148,7 +148,7 @@
    ($Bye "*Bye" $Nil)
    ($Dbg "*Dbg" $Nil)
    ($Kern "*Kern" $Nil)
-   ($Mbox "*MBox" $Nil)
+   ($MBox "*MBox" $Nil)
    ($Complete "complete" $Nil)
    # Garbage collection
    (NIL "gc" _gc)
@@ -533,6 +533,8 @@
    #(NIL "trail" _trail)
    #(NIL "up" _up)
    #(NIL "history" _history)
+   # ARM/Kernel
+   (NIL "kern" _kern)
    ($LastSym "version" _version) )
 
 # GC relevant data
@@ -663,11 +665,11 @@
    31 31 28 31 30 31 30 31 31 30 31 30 31 )
 
 # Booleans
-(var $Repl i1 NO)                # REPL flag
+(var $Repl  i1 NO)                # REPL flag
 (var $PRepl i1 NO)               # Parent REPL
-(var $Jam i1 NO)                 # Error jam
+(var $Jam   i1 NO)                 # Error jam
 (var $InBye i1 NO)               # Exit status
-(var $Sync i1 NO)                # Family IPC synchronization
+(var $Sync  i1 NO)                # Family IPC synchronization
 
 # Strings
 (str $Empty "")
