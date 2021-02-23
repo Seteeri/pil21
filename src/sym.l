@@ -2,7 +2,15 @@
 
 (symbols '(llvm))
 
-(local) (bufSize pathSize bufString pathString)
+(local) (cpyString bufSize pathSize bufString pathString)
+
+(de void cpyString ((i8* . D) (i8* . S))
+   (let (A (i8* (any D))
+         B (i8* (any S)))
+      (while (val B)
+         (set A (val B))
+         (inc 'A)
+         (inc 'B))))
 
 (de i64 bufSize (Nm)
    (let N 1

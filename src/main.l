@@ -133,6 +133,7 @@
 (local) (alloc heapAlloc)
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
+  (outString ($ "alloc\n"))
   (giveup ($ "No memory") null) )
       
 (de void heapAlloc ()
@@ -180,7 +181,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (link (push X NIL)) )  # Save
    (let Msg (b8 240)
       #(gPrintf Msg 240 Fmt Arg)
-      (outString Fmt) #(call $Put (char ":"))
+      (set Msg (val Fmt))
       (when (val Msg)
          (set $Msg (mkStr Msg))
          (let Ca (val $Catch)
@@ -198,20 +199,20 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                               (longjmp (Ca: (rst)) 1) )
                            (shift Tag) ) ) )
                   (setq Ca (Ca: link)) ) ) ) )
-      (flushAll)
+      #(flushAll)
       (set $Chr (set $ExtN 0))
       (set $Break 0)
       (set $LinePtr null)
-      (set $Alarm (set $Sigio $Nil))
-      (pushOutFile (b8 (ioFrame T)) (val 3 (val $OutFiles)) 0)  # Stderr
-      (let In: (inFile (val $InFile))
-         (when (and (In:) (In: name))
-            (call $Put (char "["))
-            (outString (In: name))
-            (call $Put (char ":"))
-            (outWord (i64 (In: src)))
-            (call $Put (char "]"))
-            (space) ) )
+      #(set $Alarm (set $Sigio $Nil))
+      #(pushOutFile (b8 (ioFrame T)) (val 3 (val $OutFiles)) 0)  # Stderr
+      #(let In: (inFile (val $InFile))
+      #   (when (and (In:) (In: name))
+      #      (call $Put (char "["))
+      #      (outString (In: name))
+      #      (call $Put (char ":"))
+      #      (outWord (i64 (In: src)))
+      #      (call $Put (char "]"))
+      #      (space) ) )
       (when Exe
          (outString ($ "!? "))
          (print Exe)
@@ -220,15 +221,19 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (print X)
          (outString ($ " -- ")) )
       (when (val Msg)
-         (outString Msg)
+         #(outString Msg)
+         (outString Fmt)       
          (newline)
          (unless (or (nil? (val $Err)) (val $Jam))
             (set $Jam YES)
             (execAt (val $Err))
             (set $Jam NO) )
-         (unless (and (isatty 0) (isatty 1))
-            (bye 1) )
-         (repl 0 ($ "? ") $Nil) )
+         #(unless (and (isatty 0) (isatty 1))
+         #   (bye 1) )
+         #(repl 0 ($ "? ") $Nil) 
+         (set $Get (fun (i32) _getStdin))
+         (repl2)
+         )
       (unwind null)
       (set
          $Link 0
@@ -237,8 +242,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          $Make 0
          $Yoke 0
          $Trace 0 )
-      (set $Put (fun (void i8) _putStdout))
-      (set $Get (fun (i32) _getStdin))
+      #(set $Put (fun (void i8) _putStdout))
+      #(set $Get (fun (i32) _getStdin))
+      #(outString ($ "longjmp...\n"))
       (longjmp QuitRst 1) ) )
 
 (de NIL stkErr (Exe)
@@ -1298,8 +1304,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
         Tr1 (save (val $Transient))
         Tr2 (save (val 2 $Transient))
         V (link (push -ZERO NIL))
-        At (link (push -ZERO NIL))
-        X  $Nil)
+        At (link (push -ZERO NIL)))
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
       
@@ -1317,7 +1322,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (let Y (read1 0)
               (? (nil? Y))
               (set V Y) # store on stack to prevent GC
-              (set X (eval Y))))
+              (eval Y)))
             
           (set
               $Parser Pars
@@ -1328,8 +1333,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (set $Transient Tr1)
       (set 2 $PrivT Pr2)
       (set $PrivT Pr1)
-      (set $Intern Int)
-      X))
+      (set $Intern Int)))
 
       
 (de void main ()
@@ -1339,18 +1343,20 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    #     4   MB : VC mem start
    # ... 64  MB : ARM mem start
    # ... 144 B  : mailbox (align 16 bytes)
+   # ... 1   KB : Prompt
    # ....       : heap start
   
    (set
-      $MBox  (box64 (hex "4000000"))
-      $Heap  (+ (hex "1080090") (* 4 36))
-      $Limit (+ (hex "1080090") (* 4 36))
-      $Put   (fun (void i8) _putStdout)
-      $Get   (fun (i32) _getStdin))
+      $MBox     (box64 (hex "4000000"))
+      #$ReplPrmt (i8* (any (hex "4000090")))
+      $Heap     (hex "4000490")
+      $Limit    (hex "4000490")
+      $Put      (fun (void i8) _putStdout)
+      $Get      (fun (i32) _getStdin))
    
    (call $Put (char "\n"))
    (outString ($ "$MBox=0x4000000\n"))
-   (outString ($ "$Heap=$Limit=0x4000090\n"))
+   (outString ($ "$Heap=$Limit=0x4000490\n"))
    
    (outString ($ "Call heapAlloc...\n"))
    (heapAlloc)
@@ -1377,10 +1383,17 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Kern (mkStr $Kerns))
    
    (outString ($ "Load $Kern...\n"))
+  
+   (loadKern)  
+  
+   # kern exit opts:
+   # * reload kern
+   # * drop to repl
+   #   * use (kern) to reload it
    
-   (loadKern)
+   (setjmp QuitRst)
+   (repl2)
    
-   # drop to repl
    (outString ($ "pil21 bye")))
 
 

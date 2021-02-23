@@ -257,9 +257,9 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 
 # Catch and Throw
 (local) (JmpBufSize QuitRst)
-
-(var JmpBufSize i64 0)  # sizeof(jmp_buf)
-(var QuitRst i8 0)
+# https://stackoverflow.com/questions/17565200/what-is-the-correct-jmp-buf-size
+(var JmpBufSize i64 320)  # sizeof(jmp_buf)
+(var QuitRst i8 NIL)
 
 # Native lib.c
 
@@ -302,6 +302,7 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (de void outString (i8*))
 (de void print (any))
 (de repl (any i8* any))
+(de repl2 ())
 
 # db.l
 (local) (dbFetch dbTouch dbZap)
