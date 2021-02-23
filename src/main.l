@@ -1288,7 +1288,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (repl2 main sigChld)
+(local) (repl2 main sigChld except)
 
 # do repl from str sym
 (de repl2 ()
@@ -1389,5 +1389,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    #(eval (plio *Kern))
    
    0)
+   
+(de void except ()
+  (outString ($ "Exception\n")))
          
 (end "base.map")

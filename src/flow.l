@@ -1456,53 +1456,25 @@
                   (set (i8** $Put) Put  $OutFile Out) ) ) ) ) ) )
 
 # (exec 'any ..)
-(de _exec (Exe)
-   (let
-      (X (cdr Exe)
-         Av (b8* (inc (length X)))
-         Cmd (xName Exe (evSym X)) )
-      (set Av (pathString Cmd (b8 (pathSize Cmd))))
-      (let A Av
-         (while (pair (shift X))
-            (let Nm (xName Exe (evSym X))
-               (set (inc 'A)
-                  (bufString Nm (b8 (bufSize Nm))) ) ) )
-         (set (inc 'A) null) )
-      (flushAll)
-      (execvp (val Av) Av)  # Execute program
-      (execErr (val Av)) ) )  # Error if failed
+(de _exec (Exe) $Nil)
 
 # (call 'any ..) -> flg
-(de _call (Exe)
-         $Nil )
+(de _call (Exe) $Nil)
 
 # (ipid) -> pid | NIL
-(de _ipid (Exe)
-   (let Io: (ioFrame (val $InFrames))
-      (if (and (Io:) (> (Io: pid) 1))
-         (cnt (i64 (Io: pid)))
-         $Nil ) ) )
+(de _ipid (Exe) $Nil)
 
 # (opid) -> pid | NIL
-(de _opid (Exe)
-   (let Io: (ioFrame (val $OutFrames))
-      (if (and (Io:) (> (Io: pid) 1))
-         (cnt (i64 (Io: pid)))
-         $Nil ) ) )
+(de _opid (Exe) $Nil)
 
 # (kill 'pid ['cnt]) -> flg
-(de _kill (Exe)
-         $Nil )
+(de _kill (Exe) $Nil)
 
 # (fork) -> pid | NIL
-(de _fork (Exe)
-   (if (forkLisp Exe)
-      (cnt (i64 @))
-      $Nil ) )
+(de _fork (Exe) $Nil)
 
 # (detach) -> pid | NIL
-(de _detach (Exe)
-   $Nil)
+(de _detach (Exe) $Nil)
 
 # (bye ['cnt])
 (de _bye (Exe)
