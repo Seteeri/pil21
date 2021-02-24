@@ -5,6 +5,65 @@
 (begin "base" NIL
    "vers.l" "defs.l" "glob.l" "dec.l" )
 
+# Memory
+(local) (memset2 memcpy2 alloc heapAlloc)
+
+# naive implementation
+# void *memset(void *str, int c, size_t n)
+(de i8* memset2 ((i8* . S) (i32 . C) (i64 . N))
+  (let (A (i8* (any S))
+        I 0)
+    (loop
+      (? (== I N) A)
+      (set A (i8 C))
+      (inc 'I))))
+
+# naive implementation
+# void *memcpy(void *dest, const void * src, size_t n)
+(de i8* memcpy2 ((i8* . D) (i8* . S) (i64 . N))
+  (let (A (i8* (any D))
+        B (i8* (any S))
+        I 0)
+    (loop
+      (? (== I N) D)
+      (set A (val B))
+      (inc 'A)
+      (inc 'B)
+      (inc 'I))))
+
+(de i8* alloc ((i8* . Ptr) (i64 . Siz))
+  # verify stack/heap limits
+  #(giveup ($ "No memory") null) 
+  # ret $Limit then increase
+  (prog1
+    (i8* (any (val $Limit)))
+    (set $Limit (ofs (any (val $Limit)) Siz))))
+      
+(de void heapAlloc ()
+   (let
+      (H (any (alloc null (* 8 (inc HEAP))))
+         P (ofs H HEAP)
+         A (val $Avail) )
+      (set P (val $Heaps) 
+           $Heaps H)
+      (loop
+         (set (setq P (ofs P -2)) A)  # Link avail
+         (? (== (setq A P) H)) )
+      (set $Avail A)))   
+      
+(de void heapAlloc2 ()
+   (let
+      (H (val (any $Limit))
+         P (ofs H HEAP)
+         A (val $Avail) )
+      (set $Limit (ofs P 2))
+      (set P (val $Heaps) 
+           $Heaps H)
+      (loop
+         (set (setq P (ofs P -2)) A)  # Link avail
+         (? (== (setq A P) H)) )
+      (set $Avail A)))   
+   
 (local) (execAt runAt wrnl dbg)
 
 (de execAt (Prg)
@@ -81,7 +140,7 @@
                   (popInFiles)
                   (? (== (val $InFrames) (Ca: (env $InFrames i8*)))) )
                (tosInFile) )
-            (memcpy (env) (Ca: (env)) (env T))
+            (memcpy2 (env) (Ca: (env)) (env T))
             (eval (Ca: fin))  # Evaluate 'finally' expression
             (set $Catch (Ca: link))
             (when (== Ca Catch)
@@ -128,65 +187,6 @@
 (de NIL execErr ((i8* . Cmd))
    (stderrMsg ($ "%s: Can't exec\n") Cmd)
    (exit 127) )
-
-# Memory
-(local) (memset memcpy alloc heapAlloc)
-
-# naive implementation
-# void *memset(void *str, int c, size_t n)
-(de i8* memset ((i8* . S) (i32 . C) (i64 . N))
-  (let (A (i8* (any S))
-        I 0)
-    (loop
-      (? (== I N) A)
-      (set A (i8 C))
-      (inc 'I))))
-
-# naive implementation
-# void *memcpy(void *dest, const void * src, size_t n)
-(de i8* memcpy ((i8* . D) (i8* . S) (i64 . N))
-  (let (A (i8* (any D))
-        B (i8* (any S))
-        I 0)
-    (loop
-      (? (== I N) D)
-      (set A (val B))
-      (inc 'A)
-      (inc 'B)
-      (inc 'I))))
-
-(de i8* alloc ((i8* . Ptr) (i64 . Siz))
-  # verify stack/heap limits
-  #(giveup ($ "No memory") null) 
-  # ret $Limit then increase
-  (prog1
-    (i8* (any (val $Limit)))
-    (set $Limit (ofs (any (val $Limit)) Siz))))
-      
-(de void heapAlloc ()
-   (let
-      (H (any (alloc null (* 8 (inc HEAP))))
-         P (ofs H HEAP)
-         A (val $Avail) )
-      (set P (val $Heaps) 
-           $Heaps H)
-      (loop
-         (set (setq P (ofs P -2)) A)  # Link avail
-         (? (== (setq A P) H)) )
-      (set $Avail A)))   
-      
-(de void heapAlloc2 ()
-   (let
-      (H (val (any $Limit))
-         P (ofs H HEAP)
-         A (val $Avail) )
-      (set $Limit (ofs P 2))
-      (set P (val $Heaps) 
-           $Heaps H)
-      (loop
-         (set (setq P (ofs P -2)) A)  # Link avail
-         (? (== (setq A P) H)) )
-      (set $Avail A)))
 
 # Signals
 (local) (sig sigTerm sighandler)

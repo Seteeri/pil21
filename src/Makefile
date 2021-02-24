@@ -4,7 +4,7 @@
 
 CC = clang
 PIL = pil  # pil
-ASM = opt -O3 # llvm-as
+ASM = opt -O0 # llvm-as
 MAIN = -march=aarch64 -mcpu=cortex-a72 -mattr=+strict-align #-mattr=+a72
 OS = $(shell uname)
 CPU = $(shell uname -m)
@@ -28,7 +28,7 @@ all: $(BIN)/picolisp
 
 # Base system
 $(BIN)/picolisp: picolisp.bc
-	llc $(MAIN) picolisp.bc  -o picolisp.s
+	llc $(MAIN) picolisp.bc -o picolisp.s
 
 picolisp.bc: base.bc
 	llvm-link -o picolisp.bc base.bc

@@ -191,7 +191,7 @@
                (err 0 0 ($ "DB Oversize") null) )
             (T (setAdr (+ N BLKSIZE) (ofs P BLK))) )  # Increment next
          (blkPoke 0 P (* 2 BLK))  # Write back
-         (memset P 0 (i64 Siz))  # Init new block
+         (memset2 P 0 (i64 Siz))  # Init new block
          (blkPoke (shl N (i64 (Db: sh))) P Siz)
          N ) ) )
 
@@ -653,7 +653,7 @@
                      I (shr N 3) )  # Byte index
                   (when (>= I (Db: mrks))  # Greater or equal to mark vector size
                      (let J (inc I)
-                        (memset
+                        (memset2
                            (ofs
                               (setq P (Db: mark (alloc P J)))  # Increase mark bit vector
                               (Db: mrks) )
@@ -742,7 +742,7 @@
                   (case (& (val Blk) BLKTAG)
                      (0  # Free block
                         (inc 'Cnt BLKSIZE)
-                        (memcpy Blk Buf BLK)
+                        (memcpy2 Blk Buf BLK)
                         (wrBlock)
                         (setAdr P Buf)
                         (blkPoke 0 Buf BLK) )

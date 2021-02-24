@@ -59,11 +59,11 @@
          (case B
             ((char "@")
                (when (val $PilLen)
-                  (memcpy P (val $PilHome) @)
+                  (memcpy2 P (val $PilHome) @)
                   (inc 'P @) ) )
             ((char "~")
                (when (val $UsrLen)
-                  (memcpy P (val $UsrHome) @)
+                  (memcpy2 P (val $UsrHome) @)
                   (inc 'P @) ) )
             (T
                (set P B)
