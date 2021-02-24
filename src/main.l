@@ -130,7 +130,30 @@
    (exit 127) )
 
 # Memory
-(local) (alloc heapAlloc)
+(local) (memset memcpy alloc heapAlloc)
+
+# naive implementation
+# void *memset(void *str, int c, size_t n)
+(de i8* memset ((i8* . S) (i32 . C) (i64 . N))
+  (let (A (i8* (any S))
+        I 0)
+    (loop
+      (? (== I N) A)
+      (set A (i8 C))
+      (inc 'I))))
+
+# naive implementation
+# void *memcpy(void *dest, const void * src, size_t n)
+(de i8* memcpy ((i8* . D) (i8* . S) (i64 . N))
+  (let (A (i8* (any D))
+        B (i8* (any S))
+        I 0)
+    (loop
+      (? (== I N) D)
+      (set A (val B))
+      (inc 'A)
+      (inc 'B)
+      (inc 'I))))
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
   # verify stack/heap limits
