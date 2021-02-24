@@ -676,8 +676,106 @@
 
 # (free 'cnt) -> (sym . lst)
 (de _free (Exe)
-         $Nil )
+   (let
+      (X (cdr Exe)
+         F (dec (i32 (evCnt Exe X)))
+         Buf (b8 (* BLK 2)) )
+      (when (>= F (val $DBs))
+         (dbfErr Exe) )
+      (set $DbFile
+         (ofs (val $DbFiles) (* F (dbFile T))) )
+      (rdLockDb)  # Lock for reading
+      (blkPeek 0 Buf (* 2 BLK))  # Read 'free' and 'next' from block zero
+      (set $BlkLink (getAdr Buf))  # free' as next block
+      (let
+         (Y
+            (cons  # CAR of result list
+               (extern  # 'next' symbol
+                  (extNm F (shr (getAdr (ofs Buf BLK)) 6)) )
+               $Nil )
+            R (save Y) )
+         (while (val $BlkLink)  # Collect free list
+            (setq Y
+               (set 2 Y
+                  (cons (extern (extNm F (shr @ 6))) $Nil) ) )
+            (rdBlock @) )
+         (unLockDb 1)  # Unlock
+         R ) ) )
 
 # (dbck ['cnt] 'flg) -> any
 (de _dbck (Exe)
-         $Nil )
+   (let
+      (X (cdr Exe)
+         Y (eval (car X))
+         Jnl (val $DbJnl)
+         Buf (b8 (* BLK 2))
+         Cnt BLKSIZE
+         Syms 0
+         Blks 0 )
+      (if (cnt? Y)
+         (let F (dec (i32 (int Y)))
+            (when (>= F (val $DBs))
+               (dbfErr Exe) )
+            (set $DbFile
+               (ofs (val $DbFiles) (* F (dbFile T))) )
+            (setq Y (eval (cadr X))) )  # Use first dbFile
+         (set $DbFile (val $DbFiles)) )
+      (set $Protect (inc (val $Protect)))
+      (wrLockDb)
+      (when Jnl
+         (lockJnl)  # Write lock journal
+         (set $DbJnl null) )  # Disable Journal
+      (blkPeek 0 Buf (* 2 BLK))  # Read 'free' and 'next' from block zero
+      (set $BlkLink (getAdr Buf))  # free' as next block
+      (let Next (getAdr (ofs Buf BLK))  # Get 'next'
+         (while (val $BlkLink)  # Check free list
+            (let Blk (rdBlock @)
+               (set Blk (| (val Blk) BLKTAG)) )  # Mark free list
+            (when (> (inc 'Cnt BLKSIZE) Next)
+               (setq Y (mkStr ($ "Circular free list")))
+               (goto 9) )
+            (wrBlock) )
+         (set $DbJnl Jnl)  # Restore Journal
+         (let P BLKSIZE
+            (until (== P Next)  # Check all chains
+               (let Blk (rdBlock P)
+                  (case (& (val Blk) BLKTAG)
+                     (0  # Free block
+                        (inc 'Cnt BLKSIZE)
+                        (memcpy Blk Buf BLK)
+                        (wrBlock)
+                        (setAdr P Buf)
+                        (blkPoke 0 Buf BLK) )
+                     (1  # ID-block of symbol
+                        (inc 'Syms)
+                        (let I (i8 2)
+                           (loop  # Check chains
+                              (inc 'Blks)
+                              (inc 'Cnt BLKSIZE)
+                              (? (=0 (val $BlkLink)))
+                              (unless
+                                 (== I
+                                    (& (val (rdBlock @)) BLKTAG) )
+                                 (setq Y (mkStr ($ "Bad chain")))
+                                 (goto 9) )
+                              (when (> BLKTAG I)
+                                 (inc 'I) ) ) ) ) ) )
+               (inc 'P BLKSIZE) ) )
+         (set $BlkLink (getAdr Buf))
+         (set $DbJnl null)  # Disable Journal
+         (while (val $BlkLink)  # Unmark free list
+            (let Blk (rdBlock @)
+               (when (& (val Blk) BLKTAG)
+                  (set Blk (& (val Blk) BLKMASK))
+                  (wrBlock) ) ) )
+         (nond
+            ((== Cnt Next)
+               (setq Y (mkStr ($ "Bad count"))) )
+            ((nil? Y)
+               (setq Y (cons (cnt Blks) (cnt Syms))) ) ) )
+      (: 9
+         (when (set $DbJnl Jnl)
+            (unLockJnl) )
+         (unLockDb 1)  # Unlock
+         (set $Protect (dec (val $Protect)))
+         Y ) ) )

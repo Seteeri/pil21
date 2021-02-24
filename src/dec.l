@@ -302,7 +302,7 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (de void outString (i8*))
 (de void print (any))
 (de repl (any i8* any))
-(de repl2 ())
+(de repl2 (any i8* any))
 
 # db.l
 (local) (dbFetch dbTouch dbZap)

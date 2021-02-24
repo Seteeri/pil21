@@ -53,74 +53,13 @@ selectErr)
 
 (local) (initInFile initOutFile closeInFile closeOutFile)
 
-(de i8* initInFile ((i32 . Fd) (i8* . Nm))
-   (let I (val $InFDs)
-      (when (>= Fd I)
-         (let P
-            (set $InFiles
-               (i8**
-                  (alloc
-                     (i8* (val $InFiles))
-                     (* 8 (i64 (set $InFDs (+ Fd 1)))) ) ) )
-            (loop
-               (set (ofs P I) null)
-               (? (== I Fd))
-               (inc 'I) ) ) ) )
-   (let In:
-      (inFile
-         (let P (ofs (val $InFiles) Fd)
-            (if (val P)
-               @
-               (set P (alloc null (inFile T))) ) ) )
-      (In: name Nm)
-      (In: fd Fd)
-      (In: chr 0)
-      (In: line (In: src 1))
-      (In: ix (In: cnt 0))
-      (In:) ) )
+(de i8* initInFile ((i32 . Fd) (i8* . Nm)) null)
 
-(de i8* initOutFile ((i32 . Fd))
-   (let I (val $OutFDs)
-      (when (>= Fd I)
-         (let P
-            (set $OutFiles
-               (i8**
-                  (alloc
-                     (i8* (val $OutFiles))
-                     (* 8 (i64 (set $OutFDs (+ Fd 1)))) ) ) )
-            (loop
-               (set (ofs P I) null)
-               (? (== I Fd))
-               (inc 'I) ) ) ) )
-   (let Out:
-      (outFile
-         (let P (ofs (val $OutFiles) Fd)
-            (if (val P)
-               @
-               (set P (alloc null (outFile T))) ) ) )
-      (Out: tty (n0 (isatty (Out: fd Fd))))
-      (Out: ix 0)
-      (Out:) ) )
+(de i8* initOutFile ((i32 . Fd)) null)
 
-(de void closeInFile ((i32 . Fd))
-   (when (> (val $InFDs) Fd)
-      (let (P (ofs (val $InFiles) Fd)  In (val P))
-         (when (== In (val $InFile))
-            (set $Chr
-               ((inFile (set $InFile (val (val $InFiles)))) chr) ) )   # Stdin
-         (when In
-            (let In: (inFile @)
-               (free (In: name))
-               (In: name null)
-               (In: fd -1) ) ) ) ) )
+(de void closeInFile ((i32 . Fd)) null)
 
-(de void closeOutFile ((i32 . Fd))
-   (when (> (val $OutFDs) Fd)
-      (let (P (ofs (val $OutFiles) Fd)  Out (val P))
-         (when (== Out (val $OutFile))
-            (set $OutFile (val 2 (val $OutFiles))) )  # Stdout
-         (when Out
-            ((outFile @) fd -1) ) ) ) )
+(de void closeOutFile ((i32 . Fd)) null)
 
 (local) (slow slowNb rdBytes rdBytesNb wrBytes clsChild wrChild flush flushAll)
 
@@ -2175,7 +2114,7 @@ selectErr)
 
 (local) (repl2 repl loadAll)
 
-(de repl2 ()
+(de repl2 (Exe (i8* . Prmt) X)
   (let
       (Int (save (val $Intern))
         Pr1 (save (val $PrivT))
@@ -2184,13 +2123,13 @@ selectErr)
         Tr2 (save (val 2 $Transient))
         V (link (push -ZERO NIL))
         At (link (push -ZERO NIL))
-        X $Nil
         Y $Nil)
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
-          
+      (setq X $Nil)      
+
       (loop
-        (outString ($ ": "))
+        (outString Prmt)
         (setq Y (read1 (char "\r"))) # if nil try \n?
         (set $Chr 0)
         (? (nil? Y))   

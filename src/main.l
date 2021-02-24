@@ -133,10 +133,26 @@
 (local) (alloc heapAlloc)
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
-  (outString ($ "alloc\n"))
-  (giveup ($ "No memory") null) )
+  # verify stack/heap limits
+  #(giveup ($ "No memory") null) 
+  # ret $Limit then increase
+  (prog1
+    (i8* (any (val $Limit)))
+    (set $Limit (ofs (any (val $Limit)) Siz))))
       
 (de void heapAlloc ()
+   (let
+      (H (any (alloc null (* 8 (inc HEAP))))
+         P (ofs H HEAP)
+         A (val $Avail) )
+      (set P (val $Heaps) 
+           $Heaps H)
+      (loop
+         (set (setq P (ofs P -2)) A)  # Link avail
+         (? (== (setq A P) H)) )
+      (set $Avail A)))   
+      
+(de void heapAlloc2 ()
    (let
       (H (val (any $Limit))
          P (ofs H HEAP)
@@ -202,17 +218,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       #(flushAll)
       (set $Chr (set $ExtN 0))
       (set $Break 0)
-      (set $LinePtr null)
+      #(set $LinePtr null)
       #(set $Alarm (set $Sigio $Nil))
-      #(pushOutFile (b8 (ioFrame T)) (val 3 (val $OutFiles)) 0)  # Stderr
-      #(let In: (inFile (val $InFile))
-      #   (when (and (In:) (In: name))
-      #      (call $Put (char "["))
-      #      (outString (In: name))
-      #      (call $Put (char ":"))
-      #      (outWord (i64 (In: src)))
-      #      (call $Put (char "]"))
-      #      (space) ) )
       (when Exe
          (outString ($ "!? "))
          (print Exe)
@@ -230,10 +237,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (set $Jam NO) )
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
-         #(repl 0 ($ "? ") $Nil) 
-         (set $Get (fun (i32) _getStdin))
-         (repl2)
-         )
+         (set $Get (fun (i32) _getStdin))         
+         (repl2 0 ($ "? ") $Nil))
       (unwind null)
       (set
          $Link 0
@@ -792,114 +797,37 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          Msg ) ) )
 
 # (sys 'any ['any]) -> sym
-(de _sys (Exe)
-   (let
-      (X (cdr Exe)
-         Nm (xName Exe (evSym X))
-         S (bufString Nm (b8 (bufSize Nm))) )
-      (if (atom (shift X))
-         (mkStr (getenv S))
-         (let (Y (evSym X)  Nm2 (xName Exe Y))
-            (if
-               (setenv S
-                  (bufString Nm2 (b8 (bufSize Nm2)))
-                  1 )
-               $Nil
-               Y ) ) ) ) )
+(de _sys (Exe) $Nil)
 
 # (pwd) -> sym
-(de _pwd (Exe)
-   (let P (getcwd null 0)
-      (if P
-         (prog1 (mkStr P) (free P))
-         $Nil ) ) )
+(de _pwd (Exe) $Nil)
 
 # (cd 'any) -> sym
-(de _cd (Exe)
-   (let
-      (Nm (xName Exe (evSym (cdr Exe)))
-         P (getcwd null 0) )
-      (if P
-         (prog1
-            (if (lt0 (chdir (pathString Nm (b8 (pathSize Nm)))))
-               $Nil
-               (mkStr P) )
-            (free P) )
-         $Nil ) ) )
+(de _cd (Exe) $Nil)
 
 # (ctty 'sym|NIL|pid) -> flg
-(de _ctty (Exe)
-         $Nil )
+(de _ctty (Exe) $Nil)
 
 # (cmd ['any]) -> sym
-(de _cmd (Exe)
-   (if (nil? (evSym (cdr Exe)))
-      (mkStr (val $AV0))
-      (bufString (xName Exe @) (val $AV0))
-      @ ) )
+(de _cmd (Exe) $Nil)
 
 # (dir ['any] ['flg]) -> lst
-(de _dir (Exe)
-         $Nil )
+(de _dir (Exe) $Nil)
 
 # (info 'any ['flg]) -> (cnt|flg dat . tim)
-(de _info (Exe)
-         $Nil )
+(de _info (Exe) $Nil)
 
 # (file) -> (sym1 sym2 . num) | NIL
-(de _file (Exe)
-         $Nil )
+(de _file (Exe) $Nil)
 
 # (argv [var ..] [. sym]) -> lst|sym
-(de _argv (Exe)
-   (let (X (cdr Exe)  A (val $AV)  P (val A))
-      (when
-         (and
-            P
-            (== (val P) (char "-"))
-            (=0 (val 2 P)) )  # Single-dash argument
-         (inc 'A) )  # Skip "-"
-      (if (nil? X)  # No args
-         (if (setq P (val A))
-            (let (Y (cons (mkStr P) $Nil)  R (save Y))
-               (while (setq P (val (inc 'A)))
-                  (setq Y (set 2 Y (cons (mkStr P) $Nil))) )
-               R )
-            $Nil )
-         (loop
-            (? (atom X)
-               (set (needChkVar Exe X)
-                  (if (setq P (val A))
-                     (let (Y (cons (mkStr P) $Nil)  R Y)
-                        (save R
-                           (while (setq P (val (inc 'A)))
-                              (setq Y (set 2 Y (cons (mkStr P) $Nil))) ) )
-                        R )
-                     $Nil ) ) )
-            (let Y
-               (ifn (setq P (val A))
-                  $Nil
-                  (inc 'A)
-                  (mkStr P) )
-               (set (needChkVar Exe (++ X)) Y)
-               (? (nil? X) Y) ) ) ) ) )
+(de _argv (Exe) $Nil)
 
 # (opt) -> sym
-(de _opt (Exe)
-   (let (A (val $AV)  P (val A))
-      (if
-         (or
-            (=0 P)
-            (and
-               (== (val P) (char "-"))
-               (=0 (val 2 P)) ) )
-         $Nil
-         (set $AV (inc A))
-         (mkStr P) ) ) )
+(de _opt (Exe) $Nil)
 
 # (errno) -> cnt
-(de _errno (Exe)
-         $Nil )
+(de _errno (Exe) $Nil)
 
 # Native calls
 (local) (fetchChar natBuf natErr natRetBuf ffi)
@@ -1392,7 +1320,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    #   * use (kern) to reload it
    
    (setjmp QuitRst)
-   (repl2)
+   (repl2 0 ($ ": ") $Nil)
    
    (outString ($ "pil21 bye")))
 
