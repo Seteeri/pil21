@@ -1038,7 +1038,7 @@
 (de _catch (Exe)
    (let
       (X (cdr Exe)
-         Ca: (caFrame (b8 (+ (val JmpBufSize) (caFrame T)))) )
+         Ca: (caFrame (b8 (+ (val $JmpBufSize) (caFrame T)))) )
       (Ca: tag (eval (++ X)))
       (Ca: link (val $Catch))
       (set $Catch (Ca:))
@@ -1047,7 +1047,7 @@
       (prog1
          (if (setjmp (Ca: (rst)))
             (val $Ret)
-            (run X) )
+            (run X))
          (set $Catch (Ca: link)) ) ) )
 
 # (throw 'sym 'any)
@@ -1061,7 +1061,7 @@
             (let Ca: (caFrame Ca)
                (when (or (t? (Ca: tag)) (== Tag (Ca: tag)))
                   (unwind Ca)
-                  (set $Ret R)
+                  (set $Ret R)              
                   (longjmp (Ca: (rst)) 1) )
                (setq Ca (Ca: link)) ) ) )
       (err Exe Tag ($ "Tag not found") null) ) )
@@ -1070,7 +1070,7 @@
 (de _finally (Exe)
    (let
       (X (cdr Exe)
-         Ca: (caFrame (b8 (+ (val JmpBufSize) (caFrame T)))) )
+         Ca: (caFrame (b8 (+ (val $JmpBufSize) (caFrame T)))) )
       (Ca: tag 0)
       (Ca: link (val $Catch))
       (set $Catch (Ca:))
@@ -1112,7 +1112,7 @@
       (cond
          ((pair X)  # 'prg'
             (unless (val $Coroutines)  # First call
-               (let Main: (coroutine (alloc null (+ (val JmpBufSize) (coroutine T))))
+               (let Main: (coroutine (alloc null (+ (val $JmpBufSize) (coroutine T))))
                   (Main: tag $T)  # Tag 'T'
                   (Main: prv null)
                   (Main: nxt null)
@@ -1146,7 +1146,7 @@
                (if P
                   (stack P)  # Use free slot
                   (stack ((coroutine Crt) lim)) # Found no free slot
-                  (setq P (b8 (+ (val JmpBufSize) (coroutine T))))
+                  (setq P (b8 (+ (val $JmpBufSize) (coroutine T))))
                   ((coroutine Crt) nxt P)
                   ((coroutine P) prv Crt)
                   ((coroutine P) nxt null) )

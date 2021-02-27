@@ -146,8 +146,8 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
 (de i8* signal        () (pr-libc ($ "signal       ")) null)
 (de i32 tcsetpgrp     () (pr-libc ($ "tcsetpgrp    ")) 0)
 (de i32 waitpid       () (pr-libc ($ "waitpid      ")) 0)
-(de i32 setjmp        () (pr-libc ($ "setjmp       ")) 0)
-(de NIL longjmp       () (pr-libc ($ "longjmp      ")) 0)
+(de T i32 setjmp (i8*))
+(de T NIL longjmp (i8* i32))
 (de i32 kill          () (pr-libc ($ "kill         ")) 0)
 (de NIL exit          () (pr-libc ($ "exit         ")) 0)
 
@@ -254,12 +254,6 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (de i32 wrLock  () (pr-libc ($ "wrLock ")) 0)
 (de i32 unLock  () (pr-libc ($ "unLock ")) 0)
 (de i32 getLock () (pr-libc ($ "getLock")) 0)
-
-# Catch and Throw
-(local) (JmpBufSize QuitRst)
-# https://stackoverflow.com/questions/17565200/what-is-the-correct-jmp-buf-size
-(var JmpBufSize i64 320)  # sizeof(jmp_buf)
-(var QuitRst i8 NIL)
 
 # Native lib.c
 

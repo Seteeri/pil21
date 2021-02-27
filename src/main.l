@@ -273,7 +273,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       #(set $Put (fun (void i8) _putStdout))
       #(set $Get (fun (i32) _getStdin))
       #(outString ($ "longjmp...\n"))
-      (longjmp QuitRst 1) ) )
+      #(longjmp (i8* $QuitRst) 1) 
+      ) )
 
 (de NIL stkErr (Exe)
    (set $StkLimit null)
@@ -1299,7 +1300,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   
    (set
       $MBox     (box64 (hex "4000000"))
-      #$ReplPrmt (i8* (any (hex "4000090")))
+      $QuitRst  (hex "4000090")
       $Heap     (hex "4000490")
       $Limit    (hex "4000490")
       $Put      (fun (void i8) _putStdout)
@@ -1326,8 +1327,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (outString ($ "Init internal globals...\n"))
    (set
       $Dbg $Nil
-      #$OS $Nil (mkStr TgOS)
-      #$CPU $Nil (mkStr TgCPU)
+      #$OS $Nil #(mkStr TgOS)
+      #$CPU $Nil #(mkStr TgCPU)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil)  # External symbol tree root node
@@ -1342,7 +1343,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # * drop to repl
    #   * use (kern) to reload it
    
-   (setjmp QuitRst)
+   (setjmp (i8* $QuitRst))
    (repl2 0 ($ ": ") $Nil)
    
    (outString ($ "pil21 bye")))

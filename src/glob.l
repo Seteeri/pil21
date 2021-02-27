@@ -78,6 +78,11 @@
 (var $DbJnl i8* null)                  # Journal file
 (var $DbLog i8* null)                  # Transaction log file
 
+# Jmp
+(var $QuitRst i8 0)
+(var $JmpBufSize i64 176)              # IHI0055B_aapcs64.pdf:
+                                       # 5.1.1, 5.1.2 callee saved registers
+
 # Signals
 (array $Signal i32  # Sync src/lib.c 'gSignal'
    0    # Count
