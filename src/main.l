@@ -262,7 +262,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          #   (bye 1) )
          (set $Get (fun (i32) _getStdin))         
          (repl2 0 ($ "? ") $Nil))
+      (outString ($ "err 1\n"))
       (unwind null)
+      (outString ($ "err 2\n"))      
       (set
          $Link 0
          $Protect 0
@@ -272,8 +274,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          $Trace 0 )
       #(set $Put (fun (void i8) _putStdout))
       #(set $Get (fun (i32) _getStdin))
-      #(outString ($ "longjmp...\n"))
-      #(longjmp (i8* $QuitRst) 1) 
+      (outString ($ "err 3\n"))      
+      (longjmp $QuitRst 1)
       ) )
 
 (de NIL stkErr (Exe)
@@ -1336,14 +1338,15 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    
    (outString ($ "Load $Kern...\n"))
   
-   (loadKern)  
+   # load kernel, then drop to repl
   
-   # kern exit opts:
-   # * reload kern
-   # * drop to repl
-   #   * use (kern) to reload it
+   #(daif T)
+   #(let X (val (cntv-ctl)) (set $Tell X))
+   (cntv-ctl (val $Tell))
+  
+   (loadKern)
    
-   (setjmp (i8* $QuitRst))
+   (setjmp $QuitRst)
    (repl2 0 ($ ": ") $Nil)
    
    (outString ($ "pil21 bye")))

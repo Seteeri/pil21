@@ -1417,6 +1417,65 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
          (link (pack "ret " *Ret " " X)) )
       NIL )
    (llvm~ret) )
+
+### Armv8 Registers ###
+
+(asm ()
+   ((P)
+    (link "call void asm \"wfe\",\"\"()"))
+   (llvm~wfe) )
+   
+(asm ()
+   ((P)
+    (link "call void asm \"wfi\",\"\"()"))
+   (llvm~wfi) )
+
+(asm ()
+   ((P)
+    (if P
+        (link "call void asm \"msr DAIFClr, #2\",\"\"()")
+        (link "call void asm \"msr DAIFSet, #2\",\"\"()")))
+   (llvm~daif) )
+   
+# timers
+
+# https://github.com/tianocore/edk2/blob/master/ArmPkg/Library/ArmLib/AArch64/AArch64ArchTimerSupport.S
+
+# mrs   x0, cntv_ctl_el0         // Read CNTV_CTL (Virtual Timer Control Register)
+# msr   cntv_ctl_el0, x0         // Write to CNTV_CTL (Virtual Timer Control Register)
+
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntv_ctl_el0, $0\",\"r\"(i32 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i32* asm \"mrs $0, cntv_ctl_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i32*) ))
+   (llvm~cntv-ctl) )
+
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntv_cval_el0, $0\",\"r\"(i32 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i32* asm \"mrs $0, cntv_cval_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i32*) ))
+   (llvm~cntv-cval) )
+   
+(asm ()
+   ((P)
+    (ssa (inc '*Ssa) 
+      (pack "call i32* asm \"mrs $0, cntvct_el0\",\"=r\"()"))
+    (def (pack "%" *Ssa) 'i32*) )
+   (llvm~cntv-ct) )
+   
+(asm ()
+   ((P)
+    (ssa (inc '*Ssa) 
+      (pack "call i32* asm \"mrs $0, cntfrq_el0\",\"=r\"()"))
+    (def (pack "%" *Ssa) 'i32*) )
+   (llvm~cnt-frq) )
+
    
 ### Composite ###
 (symbols '(llvm cross pico))

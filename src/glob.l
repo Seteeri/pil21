@@ -82,7 +82,7 @@
 (var $QuitRst i8 0)
 (var $JmpBufSize i64 176)              # IHI0055B_aapcs64.pdf:
                                        # 5.1.1, 5.1.2 callee saved registers
-
+          
 # Signals
 (array $Signal i32  # Sync src/lib.c 'gSignal'
    0    # Count
@@ -670,11 +670,11 @@
    31 31 28 31 30 31 30 31 31 30 31 30 31 )
 
 # Booleans
-(var $Repl  i1 NO)                # REPL flag
+(var $Repl  i1 NO)               # REPL flag
 (var $PRepl i1 NO)               # Parent REPL
-(var $Jam   i1 NO)                 # Error jam
+(var $Jam   i1 NO)               # Error jam
 (var $InBye i1 NO)               # Exit status
-(var $Sync  i1 NO)                # Family IPC synchronization
+(var $Sync  i1 NO)               # Family IPC synchronization
 
 # Strings
 (str $Empty "")
