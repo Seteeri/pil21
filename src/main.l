@@ -548,7 +548,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # (usec ['flg]) -> num
 (de _usec (Exe)
-         $Nil )
+  # need date for flg
+   (cnt
+    (- (any (cntv-ct)) (val $USec))))
 
 # Try to load dynamic library
 (local) sharedLib
@@ -1334,6 +1336,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil)  # External symbol tree root node
+      $USec (any (cntv-ct))
       $Kern (mkStr $Kerns))
    
    (outString ($ "Load $Kern...\n"))
@@ -1341,8 +1344,14 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # load kernel, then drop to repl
   
    #(daif T)
+   
    #(let X (val (cntv-ctl)) (set $Tell X))
-   (cntv-ctl (val $Tell))
+   
+   (outWord (any (cntv-ct)))
+   
+   (newline)
+   
+   (outWord (i64 (any (cnt-frq))))
   
    (loadKern)
    
