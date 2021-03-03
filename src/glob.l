@@ -539,8 +539,14 @@
    #(NIL "up" _up)
    #(NIL "history" _history)
    # ARM/Kernel
-   (NIL "kern" _kern)
-   (NIL "daif" _daif)   
+   (NIL "kern"      _kern)
+   (NIL "wfi"       _wfi)
+   (NIL "wfe"       _wfe)
+   (NIL "daif"      _daif)
+   (NIL "cntv-ctl"  _cntv-ctl)
+   (NIL "cntv-cval" _cntv-cval)
+   (NIL "cntv-ct"   _cntv-ct)
+   (NIL "cnt-frq"   _cnt-frq)
    ($LastSym "version" _version) )
 
 # GC relevant data

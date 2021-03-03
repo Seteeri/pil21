@@ -1250,7 +1250,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (loadKern main except daif)
+(local) (loadKern main wfi wfe daif)
 
 (de loadKern ()
   (let
@@ -1365,15 +1365,45 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   # TODO: pass flag whether dynamic repl or top-level
   (loadKern))   
 
+(de _wfi (Exe)
+  (wfi)
+  $Nil)
 
-(de void except ()
-  (outString ($ "Exception\n")))
-
+(de _wfe (Exe)
+  (wfe)
+  $Nil)
   
 (de _daif (Exe)
   (if (nil? (eval (cadr Exe)))
       (prog (daif) $Nil)
       (prog (daif T) $T)))
-  
+
+# r/w
+(de _cntv-ctl (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntv-ctl)))
+        (let N (evCnt Exe X)
+          (cntv-ctl (i32 N))
+          (cnt N)))))
+
+# r/w
+(de _cntv-cval (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntv-cval)))
+        (let N (evCnt Exe X)
+          (cntv-cval (i32 N))
+          (cnt N)))))
+
+# r/o
+(de _cntv-ct (Exe)
+   (cnt
+    (any (cntv-ct))))
+
+# r/o
+(de _cnt-frq (Exe)
+   (cnt
+    (any (cnt-frq))))
   
 (end "base.map")
