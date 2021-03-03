@@ -1250,7 +1250,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (loadKern main except)
+(local) (loadKern main except daif)
 
 (de loadKern ()
   (let
@@ -1368,5 +1368,12 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 (de void except ()
   (outString ($ "Exception\n")))
-         
+
+  
+(de _daif (Exe)
+  (if (nil? (eval (cadr Exe)))
+      (prog (daif) $Nil)
+      (prog (daif T) $T)))
+  
+  
 (end "base.map")

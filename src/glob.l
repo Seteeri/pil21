@@ -540,6 +540,7 @@
    #(NIL "history" _history)
    # ARM/Kernel
    (NIL "kern" _kern)
+   (NIL "daif" _daif)   
    ($LastSym "version" _version) )
 
 # GC relevant data
