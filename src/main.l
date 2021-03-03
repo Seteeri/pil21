@@ -1114,8 +1114,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (int @)
                (val (dig @)) ) ) )
       (if (atom X)
-         (cnt (i64 (int (val P)))) # get val
-         (let # set/get val
+         (cnt (& (i64 (val P)) (hex "FFFFFFFF"))) # get val
+         (let # set val
             (Y (needCnt Exe (eval (car X)))
                N (int @) )
             (set P
@@ -1311,8 +1311,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Get      (fun (i32) _getStdin))
    
    (call $Put (char "\n"))
-   (outString ($ "$MBox=0x4000000\n"))
-   (outString ($ "$Heap=$Limit=0x4000490\n"))
+   
+   (outString ($ "$MBox="))  (print $MBox)          (newline)
+   (outString ($ "$QuitRst="))  (outWord (i64 (val $QuitRst)))  (newline)   
+   (outString ($ "$Heap="))  (outWord (val $Heap))  (newline)
+   (outString ($ "$Limit="))  (outWord (val $Limit)) (newline)
    
    (outString ($ "Call heapAlloc...\n"))
    (heapAlloc)
@@ -1338,20 +1341,10 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Extern (cons $Db1 $Nil)  # External symbol tree root node
       $USec (any (cntv-ct))
       $Kern (mkStr $Kerns))
-   
-   (outString ($ "Load $Kern...\n"))
+      
+   (outString ($ "$USec=")) (outWord (val $USec)) (newline)
   
    # load kernel, then drop to repl
-  
-   #(daif T)
-   
-   #(let X (val (cntv-ctl)) (set $Tell X))
-   
-   (outWord (any (cntv-ct)))
-   
-   (newline)
-   
-   (outWord (i64 (any (cnt-frq))))
   
    (loadKern)
    
