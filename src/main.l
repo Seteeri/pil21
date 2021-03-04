@@ -192,11 +192,10 @@
 (local) (sig sigTerm sighandler)
 
 (de void sig ((i32 . N))
-   (if (val $TtyPid)
-      (kill @ N)
-      (set $Signal (+ (val $Signal) 1))
-      (let P (ofs $Signal (gSignal N))
-         (set P (+ (val P) 1)) ) ) )
+  (set $Signal (+ (val $Signal) 1))
+  #(let P (ofs $Signal (gSignal N))
+  #    (set P (+ (val P) 1)) )
+  (outString ($ "sig\n")))
 
 (de void sigTerm ((i32 . N))
    (if (val $TtyPid)
