@@ -543,10 +543,15 @@
    (NIL "wfi"       _wfi)
    (NIL "wfe"       _wfe)
    (NIL "daif"      _daif)
+   (NIL "cnt-frq"   _cnt-frq)
    (NIL "cntv-ctl"  _cntv-ctl)
    (NIL "cntv-cval" _cntv-cval)
-   (NIL "cntv-ct"   _cntv-ct)
-   (NIL "cnt-frq"   _cnt-frq)
+   (NIL "cntv-tval" _cntv-tval)
+   (NIL "cntvct"    _cntvct)
+   (NIL "cntp-ctl"  _cntp-ctl)
+   (NIL "cntp-cval" _cntp-cval)
+   (NIL "cntp-tval" _cntp-tval)
+   (NIL "cntpct"    _cntpct)
    ($LastSym "version" _version) )
 
 # GC relevant data

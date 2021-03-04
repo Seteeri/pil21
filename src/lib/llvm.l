@@ -1418,7 +1418,7 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
       NIL )
    (llvm~ret) )
 
-### Armv8 Registers ###
+### Armv8 System Registers ###
 
 (asm ()
    (() (link "call void asm \"wfe\",\"\"()"))
@@ -1444,35 +1444,83 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
 
 (asm ()
    ((P)
+    (ssa (inc '*Ssa) 
+      (pack "call i32* asm \"mrs $0, cntfrq_el0\",\"=r\"()"))
+    (def (pack "%" *Ssa) 'i32*) )
+   (llvm~cnt-frq) )
+
+# virt
+
+(asm ()
+   ((P)
     (if P
-        (link (pack "call void asm \"msr cntv_ctl_el0, $0\",\"r\"(i32 " P ")"))
+        (link (pack "call void asm \"msr cntv_ctl_el0, $0\",\"r\"(i64 " P ")"))
         (ssa (inc '*Ssa) 
-          (pack "call i32* asm \"mrs $0, cntv_ctl_el0\",\"=r\"()"))
-        (def (pack "%" *Ssa) 'i32*) ))
+          (pack "call i64* asm \"mrs $0, cntv_ctl_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntv-ctl) )
 
 (asm ()
    ((P)
     (if P
-        (link (pack "call void asm \"msr cntv_cval_el0, $0\",\"r\"(i32 " P ")"))
+        (link (pack "call void asm \"msr cntv_cval_el0, $0\",\"r\"(i64 " P ")"))
         (ssa (inc '*Ssa) 
-          (pack "call i32* asm \"mrs $0, cntv_cval_el0\",\"=r\"()"))
-        (def (pack "%" *Ssa) 'i32*) ))
+          (pack "call i64* asm \"mrs $0, cntv_cval_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntv-cval) )
+   
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntv_tval_el0, $0\",\"r\"(i64 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i64* asm \"mrs $0, cntv_tval_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
+   (llvm~cntv-tval) )
    
 (asm ()
    ((P)
     (ssa (inc '*Ssa) 
       (pack "call i64* asm \"mrs $0, cntvct_el0\",\"=r\"()"))
     (def (pack "%" *Ssa) 'i64*) )
-   (llvm~cntv-ct) )
+   (llvm~cntvct) )
+
+   
+# phys
+
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntp_ctl_el0, $0\",\"r\"(i64 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i64* asm \"mrs $0, cntp_ctl_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
+   (llvm~cntp-ctl) )
+
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntp_cval_el0, $0\",\"r\"(i64 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i64* asm \"mrs $0, cntp_cval_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
+   (llvm~cntp-cval) )
+   
+(asm ()
+   ((P)
+    (if P
+        (link (pack "call void asm \"msr cntp_tval_el0, $0\",\"r\"(i64 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i64* asm \"mrs $0, cntp_tval_el0\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
+   (llvm~cntp-tval) )
    
 (asm ()
    ((P)
     (ssa (inc '*Ssa) 
-      (pack "call i32* asm \"mrs $0, cntfrq_el0\",\"=r\"()"))
-    (def (pack "%" *Ssa) 'i32*) )
-   (llvm~cnt-frq) )
+      (pack "call i64* asm \"mrs $0, cntpct_el0\",\"=r\"()"))
+    (def (pack "%" *Ssa) 'i64*) )
+   (llvm~cntpct) )
 
    
 ### Composite ###

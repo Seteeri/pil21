@@ -550,7 +550,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (de _usec (Exe)
   # need date for flg
    (cnt
-    (- (any (cntv-ct)) (val $USec))))
+    (- (any (cntvct)) (val $USec))))
 
 # Try to load dynamic library
 (local) sharedLib
@@ -1339,7 +1339,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil)  # External symbol tree root node
-      $USec (any (cntv-ct))
+      $USec (any (cntvct))
       $Kern (mkStr $Kerns))
       
    (outString ($ "$USec=")) (outWord (val $USec)) (newline)
@@ -1371,13 +1371,20 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (prog (daif) $Nil)
       (prog (daif T) $T)))
 
+# r/o
+(de _cnt-frq (Exe)
+   (cnt
+    (any (cnt-frq))))      
+   
+# virt   
+   
 # r/w
 (de _cntv-ctl (Exe)
   (let X (cdr Exe) 
     (if (atom X)
         (cnt (any (cntv-ctl)))
         (let N (evCnt Exe X)
-          (cntv-ctl (i32 N))
+          (cntv-ctl N)
           (cnt N)))))
 
 # r/w
@@ -1386,17 +1393,56 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
     (if (atom X)
         (cnt (any (cntv-cval)))
         (let N (evCnt Exe X)
-          (cntv-cval (i32 N))
+          (cntv-cval N)
+          (cnt N)))))
+          
+# r/w
+(de _cntv-tval (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntv-tval)))
+        (let N (evCnt Exe X)
+          (cntv-tval N)
+          (cnt N)))))          
+
+# r/o
+(de _cntvct (Exe)
+   (cnt
+    (any (cntvct))))
+
+    
+# phys
+
+# r/w
+(de _cntp-ctl (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntp-ctl)))
+        (let N (evCnt Exe X)
+          (cntp-ctl N)
           (cnt N)))))
 
-# r/o
-(de _cntv-ct (Exe)
-   (cnt
-    (any (cntv-ct))))
+# r/w
+(de _cntp-cval (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntp-cval)))
+        (let N (evCnt Exe X)
+          (cntp-cval N)
+          (cnt N)))))
+          
+# r/w
+(de _cntp-tval (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (cntp-tval)))
+        (let N (evCnt Exe X)
+          (cntp-tval N)
+          (cnt N)))))          
 
 # r/o
-(de _cnt-frq (Exe)
+(de _cntpct (Exe)
    (cnt
-    (any (cnt-frq))))
+    (any (cntpct))))
   
 (end "base.map")
