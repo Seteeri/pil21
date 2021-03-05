@@ -501,10 +501,10 @@
    # System functions
    #(NIL "tty" _tty)
    #(NIL "raw" _raw)
-   #(NIL "alarm" _alarm)
+   (NIL "alarm" _alarm)
    #(NIL "sigio" _sigio)
    #(NIL "kids" _kids)
-   #(NIL "protect" _protect)
+   (NIL "protect" _protect)
    (NIL "heap" _heap)
    (NIL "stack" _stack)
    (NIL "byte" _byte)

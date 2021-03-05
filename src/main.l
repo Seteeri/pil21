@@ -192,10 +192,20 @@
 (local) (sig sigTerm sighandler)
 
 (de void sig ((i32 . N))
-  (set $Signal (+ (val $Signal) 1))
-  #(let P (ofs $Signal (gSignal N))
-  #    (set P (+ (val P) 1)) )
-  (outString ($ "sig\n")))
+  # branch to interrupt handler
+
+  # mask interrupts - does not work?
+  #(daif)
+  
+  # disable timer (or mask it also poss)
+  (cntv-ctl 0)
+  
+  #(outString ($ "sig\n"))
+  
+  # set to interrupt ID
+  (set $Signal 1)
+  
+  null)
 
 (de void sigTerm ((i32 . N))
    (if (val $TtyPid)
@@ -205,7 +215,17 @@
          (set P (+ (val P) 1)) ) ) )
 
 (de void sighandler (Exe)
-   null )
+  # sigChk calls this if $Signal set
+  # $Signal set by sig
+  # sig called by exception vector
+  
+  (outString ($ "sighandler\n"))
+  
+   (unless (val $Protect)
+      (set $Protect 1)
+      (set $Signal (dec (val $Signal)))
+      (execAt (val $Alarm))
+      (set $Protect 0) ) )
 
 # Error handling
 (local) (pushOutFile err stkErr argErr cntErr numErr symErr extErr nameErr
@@ -417,35 +437,23 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                      (? (not (nil? Y)) 0) ) ) ) ) ) ) )
 
 # (tty . prg) -> any
-(de _tty (Exe)
-         $Nil )
+(de _tty (Exe) (outString ($ "tty\n")) $Nil)
 
 # (raw ['flg]) -> flg
-(de _raw (Exe)
-         $Nil )
+(de _raw (Exe) (outString ($ "raw\n")) $Nil)
 
 # (alarm 'cnt . prg) -> cnt
 (de _alarm (Exe)
    (let X (cdr Exe)
-      (prog1
-         (cnt (i64 (alarm (i32 (evCnt Exe X)))))
+      (prog #prog1
+         #(cnt (i64 (alarm (i32 (evCnt Exe X)))))
          (set $Alarm (cdr X)) ) ) )
 
 # (sigio 'cnt . prg) -> cnt
-(de _sigio (Exe)
-         $Nil )
+(de _sigio (Exe) (outString ($ "sigio\n")) $Nil)
 
 # (kids) -> lst
-(de _kids (Exe)
-   (let
-      (X $Nil
-         Cld (val $Child)  # Iterate children
-         <Cld (ofs Cld (* (val $Children) (child T))) )
-      (until (== Cld <Cld)
-         (when ((child Cld) pid)
-            (setq X (cons (cnt (i64 @)) X)) )
-         (setq Cld (ofs Cld (child T))) )
-      X ) )
+(de _kids (Exe) (outString ($ "kids\n")) $Nil)
 
 # (protect . prg) -> any
 (de _protect (Exe)

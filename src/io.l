@@ -595,8 +595,7 @@ selectErr)
                         (readyIn P)
                         (or Flg (ge0 (slowNb (In:)))) ) ) ) ) ) ) ) )
 
-(de i64 waitFd (Exe (i32 . Fd) (i64 . Ms))
-   0)
+(de i64 waitFd (Exe (i32 . Fd) (i64 . Ms)) (outString ($ "waitFd\n")) 0)
 
 # (wait 'cnt|NIL . prg) -> any
 # (wait 'cnt|NIL T 'fd) -> fd|NIL
@@ -618,35 +617,16 @@ selectErr)
             (setq N @) ) ) ) )
 
 # (sync) -> flg
-(de _sync (Exe)
-         $Nil )
+(de _sync (Exe) (outString ($ "sync\n")) $Nil)
 
 # (hear 'cnt) -> cnt
-(de _hear (Exe)
-   (let
-      (X (eval (cadr Exe))
-         Fd (i32 (xCnt Exe X)) )
-      (when
-         (or
-            (lt0 Fd)
-            (>= Fd (val $InFDs))
-            (=0 (val (ofs (val $InFiles) Fd)))
-            (lt0 ((inFile @) fd)) )
-         (badFd Exe X) )
-      (when (val $Hear)
-         (close @)
-         (closeInFile @)
-         (closeOutFile @) )
-      (set $Hear Fd)
-      X ) )
+(de _hear (Exe) (outString ($ "hear\n")) $Nil)
 
 # (tell ['cnt] 'sym ['any ..]) -> any
-(de _tell (Exe)
-         $Nil )
+(de _tell (Exe) (outString ($ "tell\n")) $Nil)
 
 # (poll 'cnt) -> cnt | NIL
-(de _poll (Exe)
-         $Nil )
+(de _poll (Exe) (outString ($ "poll\n")) $Nil)
 
 (local) (rdOpen wrOpen erOpen ctOpen)
 
