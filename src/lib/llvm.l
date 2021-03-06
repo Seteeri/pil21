@@ -1431,9 +1431,18 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
 (asm ()
    ((P)
     (if P
+        (link (pack "call void asm \"msr DAIF, $0\",\"r\"(i64 " P ")"))
+        (ssa (inc '*Ssa) 
+          (pack "call i64* asm \"mrs $0, DAIF\",\"=r\"()"))
+        (def (pack "%" *Ssa) 'i64*) ))
+   (llvm~daif) )
+   
+(asm ()
+   ((P)
+    (if P
         (link "call void asm \"msr DAIFClr, #2\",\"\"()")
         (link "call void asm \"msr DAIFSet, #2\",\"\"()")))
-   (llvm~daif) )
+   (llvm~daif2) )   
    
 # timers
 

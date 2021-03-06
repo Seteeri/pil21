@@ -195,7 +195,7 @@
   # branch to interrupt handler
 
   # mask interrupts - does not work?
-  #(daif)
+  #(daif2)
   
   # disable timer (or mask it also poss)
   (cntv-ctl 0)
@@ -1374,14 +1374,22 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   $Nil)
   
 (de _daif (Exe)
+  (let X (cdr Exe) 
+    (if (atom X)
+        (cnt (any (daif)))
+        (let N (evCnt Exe X)
+          (daif N)
+          (cnt N)))))
+      
+(de _daif2 (Exe)
   (if (nil? (eval (cadr Exe)))
-      (prog (daif) $Nil)
-      (prog (daif T) $T)))
+      (prog (daif2) $Nil)
+      (prog (daif2 T) $T)))      
 
 # r/o
 (de _cnt-frq (Exe)
    (cnt
-    (any (cnt-frq))))      
+    (any (cnt-frq))))   
    
 # virt   
    
@@ -1445,7 +1453,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
         (cnt (any (cntp-tval)))
         (let N (evCnt Exe X)
           (cntp-tval N)
-          (cnt N)))))          
+          (cnt N)))))       
 
 # r/o
 (de _cntpct (Exe)
