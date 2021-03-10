@@ -152,8 +152,11 @@
    ($Fork "*Fork" $Nil)
    ($Bye "*Bye" $Nil)
    ($Dbg "*Dbg" $Nil)
+   # ARM/Kern
    ($Kern "*Kern" $Nil)
-   ($MBox "*MBox" $Nil)
+   #($MBox "*MBox" $Nil)
+   ($Int1 "*Int1" $Nil)
+   ($Int2 "*Int2" $Nil)   
    ($Complete "complete" $Nil)
    # Garbage collection
    (NIL "gc" _gc)

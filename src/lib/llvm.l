@@ -1421,6 +1421,10 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
 ### Armv8 System Registers ###
 
 (asm ()
+   (() (link "call void asm \"isb\",\"\"()"))
+   (llvm~isb) )
+
+(asm ()
    (() (link "call void asm \"wfe\",\"\"()"))
    (llvm~wfe) )
    

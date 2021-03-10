@@ -50,19 +50,6 @@
          (set (setq P (ofs P -2)) A)  # Link avail
          (? (== (setq A P) H)) )
       (set $Avail A)))   
-      
-(de void heapAlloc2 ()
-   (let
-      (H (val (any $Limit))
-         P (ofs H HEAP)
-         A (val $Avail) )
-      (set $Limit (ofs P 2))
-      (set P (val $Heaps) 
-           $Heaps H)
-      (loop
-         (set (setq P (ofs P -2)) A)  # Link avail
-         (? (== (setq A P) H)) )
-      (set $Avail A)))   
    
 (local) (execAt runAt wrnl dbg)
 
@@ -191,18 +178,15 @@
 # Signals
 (local) (sig sigTerm sighandler)
 
-(de void sig ((i32 . N))
-  # branch to interrupt handler
-
-  # mask interrupts - does not work?
-  #(daif2)
+(de void sig ((i8* . E))
   
-  # disable timer (or mask it also poss)
-  (cntv-ctl 0)
+  # (stkChk 0)
   
-  #(outString ($ "sig\n"))
-  
-  # set to interrupt ID
+  # call intr
+  (execAt (val $Int1))
+    
+  # create array for ~1000
+  # set array[sigID]
   (set $Signal 1)
   
   null)
@@ -219,13 +203,11 @@
   # $Signal set by sig
   # sig called by exception vector
   
-  (outString ($ "sighandler\n"))
-  
-   (unless (val $Protect)
-      (set $Protect 1)
-      (set $Signal (dec (val $Signal)))
-      (execAt (val $Alarm))
-      (set $Protect 0) ) )
+  (unless (val $Protect)
+     (set $Protect 1)
+     (set $Signal (dec (val $Signal)))
+     (execAt (val $Int2))
+     (set $Protect 0) ) )
 
 # Error handling
 (local) (pushOutFile err stkErr argErr cntErr numErr symErr extErr nameErr
@@ -1310,7 +1292,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # ....       : heap start
   
    (set
-      $MBox     (box64 (hex "4000000"))
+      #$MBox     (box64 (hex "4000000"))
       $QuitRst  (hex "4000090")
       $Heap     (hex "4000490")
       $Limit    (hex "4000490")
@@ -1319,7 +1301,6 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    
    (call $Put (char "\n"))
    
-   (outString ($ "$MBox="))  (print $MBox)          (newline)
    (outString ($ "$QuitRst="))  (outWord (i64 (val $QuitRst)))  (newline)   
    (outString ($ "$Heap="))  (outWord (val $Heap))  (newline)
    (outString ($ "$Limit="))  (outWord (val $Limit)) (newline)
