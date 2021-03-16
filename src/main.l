@@ -178,19 +178,6 @@
 # Signals
 (local) (sig sigTerm sighandler)
 
-(de void sig ((i8* . E))
-  
-  # (stkChk 0)
-  
-  # call intr
-  (execAt (val $Int1))
-    
-  # create array for ~1000
-  # set array[sigID]
-  (set $Signal 1)
-  
-  null)
-
 (de void sigTerm ((i32 . N))
    (if (val $TtyPid)
       (kill @ N)
@@ -198,16 +185,54 @@
       (let P (ofs $Signal (gSignal (val SIGTERM Sig)))
          (set P (+ (val P) 1)) ) ) )
 
+(de void sig ((i8* . E))
+  
+  # Handle gic here only
+  # Specific intr handle in lisp
+  #
+  # volatile
+  
+  # disable interrupt
+  (let Ia (val (i32* (any GICC-IA)))
+  
+    (set (i32* (any GICD-IC-ENAB))
+      (i32 (shl 1 (% (i64 Ia) 32))))
+  
+    (newline)
+    (outString ($ "sig: ")) (outWord (i64 Ia))
+    (newline)
+    
+    (set $Signal (+ (val $Signal) 1))
+    
+    # need to shift to get id...
+    (let P (ofs $Signal (+ Ia 1))
+      (set P (+ (val P) 1)) )
+    
+    (set (i32* (any GICC-EOI)) Ia))
+  
+  null)
+
+
 (de void sighandler (Exe)
   # sigChk calls this if $Signal set
   # $Signal set by sig
   # sig called by exception vector
-  
-  (unless (val $Protect)
-     (set $Protect 1)
-     (set $Signal (dec (val $Signal)))
-     (execAt (val $Int2))
-     (set $Protect 0) ) )
+   (unless (val $Protect)
+      (set $Protect 1)
+      (let P T
+         # loop through all interrupts equally
+         (loop
+            (let N 1
+              (loop
+                (when (val (setq P (ofs $Signal N)))
+                    (set P (dec @))
+                    (set $Signal (dec (val $Signal)))
+                    (set $IntID (cnt (- N 1))) # cons needed?
+                    (execAt (val $Int)) )
+                (inc 'N)
+                (? (== N IRQ-MAX)) ) )
+            (? (=0 (val $Signal))) ) )
+      (set $Protect 0) ) )
 
 # Error handling
 (local) (pushOutFile err stkErr argErr cntErr numErr symErr extErr nameErr
@@ -1283,13 +1308,17 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       
 (de void main ()
 
+   # init mmu
+   # interrupts
+   # init uart
+
    # ... 512 KB : stack
    # ... 4   MB : interpreter
    #     4   MB : VC mem start
    # ... 64  MB : ARM mem start
    # ... 144 B  : mailbox (align 16 bytes)
    # ... 1   KB : Prompt
-   # ....       : heap start
+   # ....       : heap star
   
    (set
       #$MBox     (box64 (hex "4000000"))
@@ -1346,6 +1375,10 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   # TODO: pass flag whether dynamic repl or top-level
   (loadKern))   
 
+(de _isb (Exe)
+  (isb)
+  $Nil)  
+  
 (de _wfi (Exe)
   (wfi)
   $Nil)
