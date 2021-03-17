@@ -163,13 +163,7 @@
    (stderrMsg Fmt Msg)
    (finish 1) )
 
-(de NIL bye ((i32 . N))
-   (unless (val $InBye)
-      (set $InBye YES)
-      (unwind null)
-      (exec (val $Bye)) )
-   #(flushAll)
-   (finish N) )
+(de NIL bye ((i32 . N)) (outString ($ "bye\n")))
 
 (de NIL execErr ((i8* . Cmd))
    (stderrMsg ($ "%s: Can't exec\n") Cmd)
@@ -198,9 +192,9 @@
     (set (i32* (any GICD-IC-ENAB))
       (i32 (shl 1 (% (i64 Ia) 32))))
   
-    (newline)
-    (outString ($ "sig: ")) (outWord (i64 Ia))
-    (newline)
+    #(newline)
+    #(outString ($ "sig: ")) (outWord (i64 Ia))
+    #(newline)
     
     (set $Signal (+ (val $Signal) 1))
     
@@ -1309,7 +1303,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (de void main ()
 
    # init mmu
-   # interrupts
+   # init gic
    # init uart
 
    # ... 512 KB : stack
@@ -1327,6 +1321,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Limit    (hex "4000490")
       $Put      (fun (void i8) _putStdout)
       $Get      (fun (i32) _getStdin))
+      
+   # set gic symbols
    
    (call $Put (char "\n"))
    
@@ -1347,26 +1343,25 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (when (big? Nm)  # Max 15 chars
                   (setq P (ofs P 2)) ) ) )
          (setq P (ofs P 2)) ) )
-         
-   (outString ($ "Init internal globals...\n"))
+
    (set
       $Dbg $Nil
-      #$OS $Nil #(mkStr TgOS)
-      #$CPU $Nil #(mkStr TgCPU)
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
-      $Extern (cons $Db1 $Nil)  # External symbol tree root node
-      $USec (any (cntvct))
-      $Kern (mkStr $Kerns))
-      
-   (outString ($ "$USec=")) (outWord (val $USec)) (newline)
+      $Extern (cons $Db1 $Nil))  # External symbol tree root node
   
    # load kernel, then drop to repl
-  
+   (set
+      $USec (any (cntvct))
+      $Kern (mkStr $Kerns))
+   (outString ($ "$USec=")) (outWord (val $USec)) (newline)
    (loadKern)
    
    (setjmp $QuitRst)
    (repl2 0 ($ ": ") $Nil)
+   
+   # repl implemented in pil21
+   # bc err handling
    
    (outString ($ "pil21 bye")))
 
