@@ -823,7 +823,7 @@ selectErr)
     (let X (val (i32* (any AUX-MU-LSR)))
       (? (n0 (& X (hex "01")))) @))
   (let Y (val (i32* (any AUX-MU-IO)))
-    (call $Put (i8 Y))
+    (call $Put (i8 Y)) # echo
     (set $Chr Y)))
 
 (de i32 getChar ((i32 . C))
@@ -880,11 +880,15 @@ selectErr)
 
 (de i32 skip ()
    (loop
+      #(outString ($ "skip(0): ")) (outWord (i64 (val $Chr))) (newline)      
       (let Chr (val $Chr)
          (when (lt0 Chr)
+            #(outString ($ "skip(1): ")) (outWord (i64 (val $Chr))) (newline)   
             (ret Chr) )
          (while (>= (char " ") Chr)
+            #(outString ($ "skip(2): ")) (outWord (i64 (val $Chr))) (newline)   
             (when (lt0 (setq Chr (call $Get)))
+               #(outString ($ "skip(3): ")) (outWord (i64 (val $Chr))) (newline)                 
                (ret Chr) ) )
          (unless (== Chr (char "#"))
             (ret Chr) )
@@ -967,8 +971,7 @@ selectErr)
                (set (set $Intern (any $Cell)) S)  # Switch symbol namespace
                (set P 4  3 P ZERO) )  # Build new name
             (? (strchr2 $Delim Chr))
-            (when (== Chr (char "\\"))
-               (setq Chr (call $Get)) )
+            (when (== Chr (char "\\")) (setq Chr (call $Get)))
             (charSym Chr P) )
          (setq Chr (call $Get)) )
       (prog1
@@ -1048,6 +1051,7 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
+      #(outString ($ "read0: ")) (outWord (i64 (val $Chr))) (newline) 
       (cond
          ((lt0 C)
             (unless Top (eofErr))
@@ -1132,6 +1136,7 @@ selectErr)
 (de read1 ((i32 . End))
    (unless (val $Chr)
       (call $Get) )
+   #(outString ($ "\nread1: ")) (outWord (i64 (val $Chr))) (newline)
    (if (== End (val $Chr))
       $Nil
       (read0 YES) ) )
@@ -1746,8 +1751,10 @@ selectErr)
 (de void print (X)
    (sigChk 0)
    (cond
-      ((cnt? X) (outNum X))
-      ((big? X) (fmtNum X -1 0 0 null))
+      ((cnt? X)
+        (outNum X))
+      ((big? X)
+        (fmtNum X -1 0 0 null))
       ((sym? X)
          (cond
             ((sym? (val (tail X)))  # External
@@ -2006,8 +2013,9 @@ selectErr)
       (set $Chr
          (if (i32 (symByte P))
             @
-            (let C (val 3 P)
-               (set 3 P (shr C 8))
+            (let C (val 3 P) # term chars
+               #(outString ($ "getParse: ")) (outWord C) (newline)
+               (set 3 P (shr C 8))           
                (if C (i32 (i8 C)) -1) ) ) ) ) )
 
 (de parse (Nm (i1 . Skip) Eof Set)
@@ -2110,17 +2118,18 @@ selectErr)
 
       (loop
         (outString Prmt)
-        (setq Y (read1 (char "\r"))) # if nil try \n?
+        (setq Y (read1 (char "\n")))
         (set $Chr 0)
         (? (nil? Y))   
         (set V Y)
+        (newline)
         (let A (set At (val $At))
             (setq X (eval Y))
             (set
               $At3 (val $At2)
               $At2 A
               $At X ) )      
-        (outString ($ "\n-> "))
+        (outString ($ "-> "))
         (print X)
         (newline))
       
@@ -2210,6 +2219,7 @@ selectErr)
          (set $Intern Int)
          X ) ) )
 
+         
 (de loadAll (Exe)
    (let X $Nil
       (loop

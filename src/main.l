@@ -192,9 +192,9 @@
     (set (i32* (any GICD-IC-ENAB))
       (i32 (shl 1 (% (i64 Ia) 32))))
   
-    #(newline)
-    #(outString ($ "sig: ")) (outWord (i64 Ia))
-    #(newline)
+    (newline)
+    (outString ($ "sig: ")) (outWord (i64 Ia))
+    (newline)
     
     (set $Signal (+ (val $Signal) 1))
     
@@ -223,7 +223,7 @@
                     (set $Signal (dec (val $Signal)))
                     (set $IntID (cnt (- N 1))) # cons needed?
                     (execAt (val $Int)) )
-                (inc 'N)
+                (inc 'N)              
                 (? (== N IRQ-MAX)) ) )
             (? (=0 (val $Signal))) ) )
       (set $Protect 0) ) )
@@ -1280,7 +1280,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             
           (set
             $Get (fun (i32) getParse)
-            $Parser (push 0 (save Nm) (hex "5D0A")) )
+            $Parser (push 0 (save Nm) 0) )
           
           (loop
             (let Y (read1 0)
@@ -1326,7 +1326,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    
    (call $Put (char "\n"))
    
-   (outString ($ "$QuitRst="))  (outWord (i64 (val $QuitRst)))  (newline)   
+   (outString ($ "$QuitRst="))  (outWord (any $QuitRst))  (newline)   
    (outString ($ "$Heap="))  (outWord (val $Heap))  (newline)
    (outString ($ "$Limit="))  (outWord (val $Limit)) (newline)
    
@@ -1353,11 +1353,13 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # load kernel, then drop to repl
    (set
       $USec (any (cntvct))
-      $Kern (mkStr $Kerns))
-   (outString ($ "$USec=")) (outWord (val $USec)) (newline)
+      $Kern (mkStr $Kerns)
+      $Signal 0)
    (loadKern)
    
-   (setjmp $QuitRst)
+   # mov before
+   # mov loadKern in repl2
+   (setjmp $QuitRst)   
    (repl2 0 ($ ": ") $Nil)
    
    # repl implemented in pil21
