@@ -23,51 +23,9 @@
          (setq Nm (shr Nm 8)) )
       N ) )
 
-(de i64 pathSize (Nm)
-   (let
-      (Len (bufSize Nm)
-         N (if (cnt? Nm) (int @) (val (dig @)))
-         B (i8 N) )
-      (cond
-         ((or
-               (== B (char "@"))
-               (and
-                  (== B (char "+"))
-                  (== (i8 (shr N 8)) (char "@")) ) )
-            (+ (val $PilLen) (dec Len)) )
-         ((or
-               (== B (char "~"))
-               (and
-                  (== B (char "+"))
-                  (== (i8 (shr N 8)) (char "~")) ) )
-            (+ (val $UsrLen) (dec Len)) )
-         (T Len) ) ) )
-
 (de i8* bufString (Nm (i8* . P))
    (let Q (push 0 Nm)  # [cnt name]
       (prog1 P
-         (while (set P (symByte Q))
-            (inc 'P) ) ) ) )
-
-(de i8* pathString (Nm (i8* . P))
-   (let (Q (push 0 Nm)  B (symByte Q))  # [cnt name]
-      (prog1 P
-         (when (== B (char "+"))
-            (set P B)
-            (inc 'P)
-            (setq B (symByte Q)) )
-         (case B
-            ((char "@")
-               (when (val $PilLen)
-                  (memcpy2 P (val $PilHome) @)
-                  (inc 'P @) ) )
-            ((char "~")
-               (when (val $UsrLen)
-                  (memcpy2 P (val $UsrHome) @)
-                  (inc 'P @) ) )
-            (T
-               (set P B)
-               (inc 'P) ) )
          (while (set P (symByte Q))
             (inc 'P) ) ) ) )
 
@@ -561,7 +519,6 @@
       (cond
          ((not (symb? X)) $Nil)
          ((funq (setq V (val X))) V)
-         ((and (nil? V) (sharedLib X)) (val X))
          (T $Nil) ) ) )
 
 ### Namespaces ###

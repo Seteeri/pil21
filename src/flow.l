@@ -1351,7 +1351,7 @@
          (pushOutFile (b8 (ioFrame T)) (val 2 (val $OutFiles)) 0)  # Stdout
          (print Exe)
          (newline)
-         (repl 0 ($ "! ") $Nil)
+         (repl2 0 ($ "! ") $Nil)
          (popOutFiles)
          (tosOutFile)
          #(when Term (setRaw) ) 
@@ -1454,31 +1454,3 @@
                   (print @)
                   (newline)
                   (set (i8** $Put) Put  $OutFile Out) ) ) ) ) ) )
-
-# (exec 'any ..)
-(de _exec (Exe) $Nil)
-
-# (call 'any ..) -> flg
-(de _call (Exe) $Nil)
-
-# (ipid) -> pid | NIL
-(de _ipid (Exe) $Nil)
-
-# (opid) -> pid | NIL
-(de _opid (Exe) $Nil)
-
-# (kill 'pid ['cnt]) -> flg
-(de _kill (Exe) $Nil)
-
-# (fork) -> pid | NIL
-(de _fork (Exe) $Nil)
-
-# (detach) -> pid | NIL
-(de _detach (Exe) $Nil)
-
-# (bye ['cnt])
-(de _bye (Exe)
-   (bye
-      (if (nil? (eval (cadr Exe)))
-         0
-         (i32 (xCnt Exe @)) ) ) )

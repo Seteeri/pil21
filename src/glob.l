@@ -5,12 +5,6 @@
 (var $Heap  i64 0)                        # Heap start address
 (var $Limit i64 0)                        # Heap limit
 
-(var $AV0 i8* null)                    # Command name
-(var $AV i8** null)                    # Command line argument vector
-(var $PilHome i8* null)                # Picolisp home directory
-(var $PilLen i64 0)                    # $PilHome length
-(var $UsrHome i8* null)                # User home directory
-(var $UsrLen i64 0)                    # $UsrHome length
 (var $Heaps 0)                         # Heap list
 (var $Avail 0)                         # Avail list
 (var $Extern 0)                        # External symbol tree
@@ -18,43 +12,27 @@
 (var $ExtSkip i64 0)                   # External tree skip
 (var $StkSize i64 STACK)               # Coroutine stack segment size
 (var $StkLimit i8* null)               # Stack limit: StackN-Size+4096
+
 (var $Stdin i8* null)                  # Stdin frame
 (var $Stdout i8* null)                 # Stdout frame
-(var $LinePtr i8* null)                # Console line pointer
-(var $LineBuf i8* null)                # Console line buffer
-(var $LinePrmt i8* null)               # Console line prompt
 (var $ReplPrmt i8* null)               # REPL console prompt
 (var $ContPrmt i8* null)               # REPL continue prompt
 (var $Ret 0)                           # Secondary return value
-(var $TtyPid i32 0)                    # Terminal process ID
+
 (var $InFiles i8** null)               # Input files
 (var $InFDs i32 0)                     # Number of input files
 (var $OutFiles i8** null)              # Output files
 (var $InFile i8* null)                 # Input file
 (var $OutFile i8* null)                # Output file
+
 (var $Chr i32 0)                       # Single-char look ahead
 (var $Put (void i8) null)              # Character output function
 (var $Get (i32) null)                  # Character input function
 (var $PutBin (void i8) null)           # Binary output function
 (var $GetBin (i32) null)               # Binary input function
-(var $OutFDs i32 0)                    # Number of ourput files
-(var $Poll i64* null)                  # Poll entries
-(var $Nfds i32 0)                      # Number of poll entries
 (var $SeedL i64 0)                     # Random seed low
 (var $SeedH i64 0)                     # Random seed high
 (var $USec i64 0)                      # Startup microseconds
-(var $TickU i64 0)                     # Ticks in user time
-(var $TickS i64 0)                     # Ticks in system time
-(var $Child i8* null)                  # Child array
-(var $Children i32 0)                  # Number of children
-(var $Slot i32 0)                      # Child index
-(var $Spkr i32 0)                      # RPC loadspeaker
-(var $Mic i32 0)                       # RPC microphone
-(array $SpMiPipe i32 0 0)              # Speaker/microphone pipe
-(var $Talking i32 0)                   # Active child
-(var $Hear i32 0)                      # RPC listener
-(var $Tell i32 0)                      # RPC broadcaster
-(var $TellBuf i8* null)                # RPC buffer
 (var $Ptr i8* null)                    # Byte buffer pointer
 (var $End i8* null)                    # Buffer end pointer
 (var $BufX i8* null)                   # Exchange buffer
@@ -1301,8 +1279,6 @@
    ($PrivT $Nil $Nil 0)       # Private trees
    ($Priv $Tilde $PrivT 0)    # Private namespace
    ($priv "priv" $Priv)
-   #($OS "*OS" 0)
-   #($CPU "*CPU" 0)
    ($DB "*DB" 0)              # Database root constant
    ($Meth "meth" __meth)
    ($Quote "quote" _quote)
@@ -1326,18 +1302,10 @@
    ($Scl "*Scl" ZERO)
    ($Class "*Class" $Nil)
    ($Run "*Run" $Nil)
-   #($Hup "*Hup" $Nil)
-   #($Sig1 "*Sig1" $Nil)
-   #($Sig2 "*Sig2" $Nil)
-   #($Winch "*Winch" $Nil)
-   #($TStp1 "*TStp1" $Nil)
-   #($TStp2 "*TStp2" $Nil)
    ($Up "\^" $Nil)
    ($Err "*Err" $Nil)
    ($Msg "*Msg" $Nil)
    ($Uni "*Uni" $Nil)
-   #($Fork "*Fork" $Nil)
-   #($Bye "*Bye" $Nil)
    ($Dbg "*Dbg" $Nil)
    # Platform/Board
    ($Kern  "*Kern"  $Nil)
@@ -1433,15 +1401,9 @@
    (NIL "uppc" _uppc)
    (NIL "fold" _fold)
    # Input/Output
-   #(NIL "path" _path)
-   #(NIL "wait" _wait)
-   #(NIL "sync" _sync)
-   #(NIL "hear" _hear)
-   #(NIL "tell" _tell)
-   #(NIL "poll" _poll)
    (NIL "read" _read)
    (NIL "key" _key)
-   #(NIL "peek" _peek)
+   (NIL "peek" _peek)
    (NIL "char" _char)
    (NIL "skip" _skip)
    (NIL "eol" _eol)
@@ -1449,46 +1411,23 @@
    (NIL "from" _from)
    (NIL "till" _till)
    (NIL "line" _line)
-   #(NIL "in" _in)
-   #(NIL "out" _out)
-   #(NIL "err" _err)
-   #(NIL "ctl" _ctl)
-   #(NIL "fd" _fd)
-   #(NIL "echo" _echo)
+   (NIL "echo" _echo)
    (NIL "prin" _prin)
    (NIL "prinl" _prinl)
    (NIL "space" _space)
    (NIL "print" _print)
    (NIL "printsp" _printsp)
    (NIL "println" _println)
-   #(NIL "flush" _flush)
-   #(NIL "rewind" _rewind)
-   #(NIL "ext" _ext)
+   (NIL "ext" _ext)
    (NIL "plio" _plio)
-   #(NIL "rd" _rd)
-   #(NIL "pr" _pr)
-   #(NIL "wr" _wr)
+   (NIL "rd" _rd)
+   (NIL "pr" _pr)
+   (NIL "wr" _wr)
    (NIL "any" _any)
    (NIL "sym" _sym)
    (NIL "str" _str)
-   #(NIL "load" _load)
    # Database
-   (NIL "ext?" _extQ)
-   #(NIL "rollback" _rollback)
-   #(NIL "extern" _extern)
-   #(NIL "pool" _pool)
-   #(NIL "pool2" _pool2)
-   #(NIL "journal" _journal)
-   #(NIL "id" _id)
-   #(NIL "blk" _blk)
-   #(NIL "seq" _seq)
-   #(NIL "lieu" _lieu)
-   #(NIL "lock" _lock)
-   #(NIL "touch" _touch)
-   #(NIL "commit" _commit)
-   #(NIL "mark" _mark)
-   #(NIL "free" _free)
-   #(NIL "dbck" _dbck)
+   # 
    # Mapping
    (NIL "apply" _apply)
    (NIL "pass" _pass)
@@ -1571,14 +1510,6 @@
    (NIL "!" _break)
    (NIL "e" _e)
    (NIL "$" _trace)
-   #(NIL "exec" _exec)
-   #(NIL "call" _call)
-   #(NIL "ipid" _ipid)
-   #(NIL "opid" _opid)
-   #(NIL "kill" _kill)
-   #(NIL "fork" _fork)
-   #(NIL "detach" _detach)
-   #(NIL "bye" _bye)
    # List processing
    (NIL "car" _car)
    (NIL "cdr" _cdr)
@@ -1690,37 +1621,15 @@
    (NIL "group" _group)
    (NIL "sort" _sort)
    # System functions
-   #(NIL "tty" _tty)
-   #(NIL "raw" _raw)
-   #(NIL "alarm" _alarm)
-   #(NIL "sigio" _sigio)
-   #(NIL "kids" _kids)
    (NIL "protect" _protect)
    (NIL "heap" _heap)
    (NIL "stack" _stack)
    (NIL "byte" _byte)
    (NIL "ptr32" _ptr32)
    (NIL "ptr64" _ptr64)   
-   #(NIL "env" _env)
-   #(NIL "date" _date)
-   #(NIL "time" _time)
+   (NIL "env" _env)
    (NIL "usec" _usec)
-   #(NIL "quit" _quit)
-   #(NIL "sys" _sys)
-   #(NIL "pwd" _pwd)
-   #(NIL "cd" _cd)
-   #(NIL "ctty" _ctty)
-   #(NIL "cmd" _cmd)
-   #(NIL "dir" _dir)
-   #(NIL "info" _info)
-   #(NIL "file" _file)
-   #(NIL "argv" _argv)
-   #(NIL "opt" _opt)
-   #(NIL "errno" _errno)
-   #(NIL "%@" _nat)
-   #(NIL "native" _native)
-   (NIL "struct" _struct)
-   (NIL "lisp" _lisp)
+   (NIL "quit" _quit)   
    (NIL "args" _args)
    (NIL "next" _next)
    (NIL "arg" _arg)
@@ -1728,7 +1637,6 @@
    (NIL "adr" _adr)
    (NIL "trail" _trail)
    (NIL "up" _up)
-   #(NIL "history" _history)
    # Platform/Board
    (NIL "kern"      _kern)
    (NIL "isb"       _isb)   
@@ -1748,7 +1656,7 @@
    ($LastSym "version" _version) )
 
 # GC relevant data
-(local) (gcData cbFuns)
+(local) (gcData)
 
 (table gcData
    ($Transient $Nil)    # Short transient names
@@ -1804,32 +1712,6 @@
    (NIL $Nil)           # 24
    ($LispEnd $Nil) )
 
-(table cbFuns
-   ($Cb (i64 i64 i64 i64 i64 i64) _cb1)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb2)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb3)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb4)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb5)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb6)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb7)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb8)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb9)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb10)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb11)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb12)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb13)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb14)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb15)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb16)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb17)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb18)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb19)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb20)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb21)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb22)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb23)
-   (NIL (i64 i64 i64 i64 i64 i64) _cb24) )
-
 # Environment
 (local) env
 
@@ -1870,16 +1752,11 @@
    (+ INTERN 4)
    (char "T") )
 
-# Bytes
-(array $Month i8
-   31 31 28 31 30 31 30 31 31 30 31 30 31 )
-
 # Booleans
 (var $Repl  i1 NO)               # REPL flag
 (var $PRepl i1 NO)               # Parent REPL
 (var $Jam   i1 NO)               # Error jam
 (var $InBye i1 NO)               # Exit status
-(var $Sync  i1 NO)               # Family IPC synchronization
 
 # Strings
 (str $Empty "")

@@ -487,73 +487,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (ofs ((coroutine Crt) lim) (- Old New)) ) )
             (cnt N) ) ) ) )
 
-# Date and time
-(local) (tmDate tmTime)
-
-(de tmDate ((i64 . Y) (i64 . M) (i64 . D))
-   (if
-      (and
-         (gt0 Y)
-         (gt0 M)
-         (>= 12 M)
-         (gt0 D)
-         (or
-            (>= (i64 (val (ofs $Month M))) D)
-            (and
-               (== D 29)
-               (== M 2)
-               (=0 (% Y 4))
-               (or (% Y 100) (=0 (% Y 400))) ) ) )
-      (let N (/ (+ (* Y 12) M -3) 12)
-         (cnt
-            (-
-               (+
-                  (/
-                     (+ (* Y 4404) (* M 367) -1094)
-                     12 )
-                  (/ N 4)
-                  (/ N 400)
-                  D )
-               (* 2 N)
-               (/ N 100) ) ) )
-      $Nil ) )
-
-(de tmTime ((i64 . H) (i64 . M) (i64 . S))
-   (if
-      (and
-         (ge0 H)
-         (ge0 M)
-         (> 60 M)
-         (ge0 S)
-         (> 60 S) )
-      (cnt (+ (* H 3600) (* M 60) S))
-      $Nil ) )
-
-# (date ['T]) -> dat
-# (date 'dat) -> (y m d)
-# (date 'y 'm 'd) -> dat | NIL
-# (date '(y m d)) -> dat | NIL
-(de _date (Exe)
-         $Nil )
-
-# (time ['T]) -> tim
-# (time 'tim) -> (h m s)
-# (time 'h 'm ['s]) -> tim | NIL
-# (time '(h m [s])) -> tim | NIL
-(de _time (Exe)
-         $Nil )
-
 # (usec ['flg]) -> num
 (de _usec (Exe)
   # need date for flg
    (cnt
     (- (any (cntvct)) (val $USec))))
-
-# Try to load dynamic library
-(local) sharedLib
-
-(de i1 sharedLib (Sym)
-   0 )
 
 (load "gc.l" "big.l" "sym.l")
 
@@ -788,9 +726,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (? (num? V)  (subr V Exe Fun))
                   (? (pair V) (evExpr V Exe))
                   (? (== V (val V))
-                     (if (sharedLib Fun)
-                        (subr (val Fun) Exe Fun)
-                        (undefined Fun Exe) ) )
+                        (undefined Fun Exe) )
                   (setq Fun V) ) ) )
          (T  # List: Evaluate
             (stkChk Exe)
@@ -801,9 +737,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (? (pair F) (evExpr F Exe))
                   (let V (val F)
                      (? (== V (val V))
-                        (if (sharedLib F)
-                           (subr (val F) Exe F)
-                           (undefined F Exe) ) )
+                           (undefined F Exe) )
                      (setq Fun F  F V) ) ) ) ) ) ) )
 
 (load "io.l" "db.l" "apply.l" "flow.l" "subr.l")
@@ -820,231 +754,6 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (eval (car X)) )
          ($ "%s")
          Msg ) ) )
-
-# (sys 'any ['any]) -> sym
-(de _sys (Exe) $Nil)
-
-# (pwd) -> sym
-(de _pwd (Exe) $Nil)
-
-# (cd 'any) -> sym
-(de _cd (Exe) $Nil)
-
-# (ctty 'sym|NIL|pid) -> flg
-(de _ctty (Exe) $Nil)
-
-# (cmd ['any]) -> sym
-(de _cmd (Exe) $Nil)
-
-# (dir ['any] ['flg]) -> lst
-(de _dir (Exe) $Nil)
-
-# (info 'any ['flg]) -> (cnt|flg dat . tim)
-(de _info (Exe) $Nil)
-
-# (file) -> (sym1 sym2 . num) | NIL
-(de _file (Exe) $Nil)
-
-# (argv [var ..] [. sym]) -> lst|sym
-(de _argv (Exe) $Nil)
-
-# (opt) -> sym
-(de _opt (Exe) $Nil)
-
-# (errno) -> cnt
-(de _errno (Exe) $Nil)
-
-# Native calls
-(local) (fetchChar natBuf natErr natRetBuf ffi)
-
-(de i32 fetchChar ((i8** . Ptr))
-   (let (P (val Ptr)  C (i32 (val P)))
-      (prog2
-         (inc 'P)
-         (cond
-            ((>= 127 C) C)  # Single byte
-            ((== C (hex "FF")) (i32 TOP))  # Infinite
-            (T
-               (|
-                  (shl
-                     (ifn (& C (hex "20"))
-                        (& C (hex "1F"))
-                        (|
-                           (shl
-                              (ifn (& C (hex "10"))
-                                 (& C (hex "0F"))
-                                 (|
-                                    (shl (& C (hex "7")) 6)
-                                    (&
-                                       (i32 (prog1 (val P) (inc 'P)))
-                                       (hex "3F") ) ) )
-                              6 )
-                           (&
-                              (i32 (prog1 (val P) (inc 'P)))
-                              (hex "3F") ) ) )
-                     6 )
-                  (&
-                     (i32 (prog1 (val P) (inc 'P)))
-                     (hex "3F") ) ) ) )
-         (set Ptr P) ) ) )
-
-(de i64 natBuf (Val (i8* . Ptr))
-         $Nil )
-
-(de NIL natErr (Spec)
-   (err 0 Spec ($ "Bad result spec") null) )
-
-(de natRetBuf (Spec (i8** . Ptr))
-         $Nil )
-
-(de ffi (Exe (i8* . Lib) Fun Args)
-         $Nil )
-
-# (%@ 'cnt2|sym2 'any 'any ..) -> any
-(de _nat (Exe)
-   (let
-      (X (cdr Exe)
-         Fun (save (eval (++ X)))  # Eval function 'cnt2|sym2'
-         Args (save (cons (eval (++ X)) $Nil))
-         L Args )  # [ret args]
-      (while (pair X)
-         (let Z (push (save (eval (++ X))) $Nil)  # [argN next]
-            (set 2 L Z)
-            (setq L Z) ) )
-      (tailcall (ffi Exe null Fun Args)) ) )
-
-# (native 'cnt1|sym1 'cnt2|sym2 'any 'any ..) -> any
-(de _native (Exe)
-         $Nil )
-
-# (struct 'num 'any 'any ..) -> any
-(de _struct (Exe)
-   (let
-      (X (cdr Exe)
-         N  # Native value (pointer or scalar)
-         (if (cnt? (needNum Exe (eval (++ X))))
-            (int @)
-            (val (dig @)) )
-         P (i8* N)
-         Y (save (eval (car X))) )  # Result specification
-      (while (pair (shift X))
-         (setq P
-            (ofs P (natBuf (eval (car X)) P)) ) )
-      (cond
-         ((nil? Y) @)
-         ((== Y $S) (mkStr (i8* N)))
-         (T (natRetBuf Y (i8** (push N)))) ) ) )
-
-# Lisp callbacks
-(local) cbl
-
-(de cbl (Fun A B C D E)
-   (let Exe (push NIL NIL ZERO Fun)  # [car cdr name fun]
-      (set Exe (ofs Exe 3))
-      (let P (set 2 Exe (push NIL NIL ZERO (box A)))
-         (set P (ofs P 3))
-         (setq P
-            (set 2 P (push NIL NIL ZERO (box B))) )
-         (set P (ofs P 3))
-         (setq P
-            (set 2 P (push NIL NIL ZERO (box C))) )
-         (set P (ofs P 3))
-         (setq P
-            (set 2 P (push NIL NIL ZERO (box D))) )
-         (set P (ofs P 3))
-         (setq P
-            (set 2 P (push NIL $Nil ZERO (box E))) )
-         (set P (ofs P 3)) )
-      (xCnt 0 (evList Exe)) ) )
-
-(de _cb1 (A B C D E)
-   (cbl (val 2 $Lisp) A B C D E) )
-
-(de _cb2 (A B C D E)
-   (cbl (val 4 $Lisp) A B C D E) )
-
-(de _cb3 (A B C D E)
-   (cbl (val 6 $Lisp) A B C D E) )
-
-(de _cb4 (A B C D E)
-   (cbl (val 8 $Lisp) A B C D E) )
-
-(de _cb5 (A B C D E)
-   (cbl (val 10 $Lisp) A B C D E) )
-
-(de _cb6 (A B C D E)
-   (cbl (val 12 $Lisp) A B C D E) )
-
-(de _cb7 (A B C D E)
-   (cbl (val 14 $Lisp) A B C D E) )
-
-(de _cb8 (A B C D E)
-   (cbl (val 16 $Lisp) A B C D E) )
-
-(de _cb9 (A B C D E)
-   (cbl (val 18 $Lisp) A B C D E) )
-
-(de _cb10 (A B C D E)
-   (cbl (val 20 $Lisp) A B C D E) )
-
-(de _cb11 (A B C D E)
-   (cbl (val 22 $Lisp) A B C D E) )
-
-(de _cb12 (A B C D E)
-   (cbl (val 24 $Lisp) A B C D E) )
-
-(de _cb13 (A B C D E)
-   (cbl (val 26 $Lisp) A B C D E) )
-
-(de _cb14 (A B C D E)
-   (cbl (val 28 $Lisp) A B C D E) )
-
-(de _cb15 (A B C D E)
-   (cbl (val 30 $Lisp) A B C D E) )
-
-(de _cb16 (A B C D E)
-   (cbl (val 32 $Lisp) A B C D E) )
-
-(de _cb17 (A B C D E)
-   (cbl (val 34 $Lisp) A B C D E) )
-
-(de _cb18 (A B C D E)
-   (cbl (val 36 $Lisp) A B C D E) )
-
-(de _cb19 (A B C D E)
-   (cbl (val 38 $Lisp) A B C D E) )
-
-(de _cb20 (A B C D E)
-   (cbl (val 40 $Lisp) A B C D E) )
-
-(de _cb21 (A B C D E)
-   (cbl (val 42 $Lisp) A B C D E) )
-
-(de _cb22 (A B C D E)
-   (cbl (val 44 $Lisp) A B C D E) )
-
-(de _cb23 (A B C D E)
-   (cbl (val 46 $Lisp) A B C D E) )
-
-(de _cb24 (A B C D E)
-   (cbl (val 48 $Lisp) A B C D E) )
-
-# (lisp 'sym ['fun]) -> num
-(de _lisp (Exe)
-   (let (X (cdr Exe)  Y (evSym X))
-      (let (P $Lisp  Q (i8** (cbFuns)))
-         (loop  # Search for tag 'sym'
-            (? (== Y (val P)))  # Found
-            (setq P (ofs P 2)  Q (ofs Q 1))
-            (? (> P $LispEnd)  # Not found
-               (setq P $Lisp  Q (i8** (cbFuns)))
-               (until (nil? (val 2 P))  # Search for empty slot
-                  (setq P (ofs P 2)  Q (ofs Q 1))
-                  (when (> P $LispEnd)
-                     (err Exe 0 ($ "Too many callbacks") null) ) )
-               (set P Y) ) )
-         (set 2 P (eval (cadr X)))  # Eval 'fun'
-         (box64 (i64 (val Q))) ) ) )
 
 # (args) -> flg
 (de _args (Exe)
@@ -1228,10 +937,6 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (if (atom (shift X))
                (val Z)
                (set Z (eval (car X))) ) ) ) ) )
-
-# (history ['lst]) -> lst
-(de _history (Exe)
-         $Nil )
 
 # (version ['flg]) -> lst
 (de _version (Exe)
