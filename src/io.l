@@ -723,7 +723,6 @@ selectErr)
                   $Nil ) ) )
          (and
             (== (val $Chr) (char "\n"))
-            (== (val $InFile) (val (val $InFiles)))  # Stdin
             (set $Chr 0) ) ) ) )
 
 # (key ['cnt]) -> sym
