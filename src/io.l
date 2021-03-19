@@ -61,7 +61,7 @@ selectErr)
 
 (de void closeOutFile ((i32 . Fd)) null)
 
-(local) (slow slowNb rdBytes rdBytesNb wrBytes clsChild wrChild flush flushAll)
+(local) (slow slowNb rdBytes rdBytesNb wrBytes clsChild wrChild flush)
 
 (de i32 slow ((i8* . In))
    (let In: (inFile In)
@@ -147,8 +147,6 @@ selectErr)
 (de void wrChild ((i8* . Cld)  (i8* . P) (i32 . Cnt)) (outString ($ "wrChild")) null)
 
 (de i1 flush ((i8* . Out)) (outString ($ "flush")) 0)
-
-(de void flushAll () (outString ($ "flushAll")) null)
 
 (local) (stdinByte getBinary binRead)
 
@@ -2199,7 +2197,6 @@ selectErr)
                      (val $Chr)
                      (=0 Prmt) )
                   (setq X (eval Y))
-                  #(flushAll)
                   (let A (set At (val $At))
                      (setq X (eval Y))
                      (set
@@ -2207,7 +2204,6 @@ selectErr)
                         $At2 A
                         $At X ) )
                   (outString ($ "-> "))
-                  #(flushAll)
                   (print X)
                   (newline) ) ) )
          #(popInFiles)

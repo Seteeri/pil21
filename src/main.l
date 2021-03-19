@@ -258,7 +258,6 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                               (longjmp (Ca: (rst)) 1) )
                            (shift Tag) ) ) )
                   (setq Ca (Ca: link)) ) ) ) )
-      #(flushAll)
       (set $Chr (set $ExtN 0))
       (set $Break 0)
       #(set $LinePtr null)
@@ -1358,7 +1357,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (loadKern)
    
    # mov before
-   # mov loadKern in repl2
+   # mov loadKern in repl2f
    (setjmp $QuitRst)   
    (repl2 0 ($ ": ") $Nil)
    

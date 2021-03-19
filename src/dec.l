@@ -287,9 +287,8 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (de i1 subStr (any any))
 
 # io.l
-(local) (flushAll newline space outWord outString print repl)
+(local) (newline space outWord outString print repl)
 
-(de void flushAll ())
 (de void newline ())
 (de void space ())
 (de void outWord (i64))
