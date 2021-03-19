@@ -32,56 +32,13 @@ selectErr)
 (de NIL selectErr (Exe)
    (err Exe 0 ($ "Select error: <ERRNO>") null) )
 
-(local) (closeOnExec rdLockWait wrLockWait)
-
-(de void closeOnExec (Exe (i32 . Fd)) (outString ($ "closeOnExec\n")))
-
-(de void rdLockWait ((i32 . Fd) (i64 . Len)) (outString ($ "rdLockWait\n")))
-
-(de void wrLockWait ((i32 . Fd) (i64 . Len)) (outString ($ "wrLockWait\n")))
-
-(local) (initInFile initOutFile closeInFile closeOutFile)
-
-(de i8* initInFile ((i32 . Fd) (i8* . Nm)) null)
-
-(de i8* initOutFile ((i32 . Fd)) null)
-
-(de void closeInFile ((i32 . Fd)) null)
-
-(de void closeOutFile ((i32 . Fd)) null)
-
-(local) (slow slowNb rdBytes rdBytesNb wrBytes clsChild wrChild flush)
-
-(de i32 slow ((i8* . In)) (outString ($ "slow\n")) 0)
-
-(de i32 slowNb ((i8* . In)) (outString ($ "slowNb\n")) 0)
-
-(de i1 rdBytes ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "rdBytes\n")) 0)
-
-(de i64 rdBytesNb ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "rdBytesNb\n")) 0)
-
-(de i1 wrBytes ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "wrBytes\n")) 0)
-
-(de void clsChild ((i8* . Cld)) (outString ($ "clsChild")) null)
-
-(de void wrChild ((i8* . Cld)  (i8* . P) (i32 . Cnt)) (outString ($ "wrChild")) null)
-
-(de i1 flush ((i8* . Out)) (outString ($ "flush")) 0)
-
 (local) (stdinByte getBinary binRead)
 
 (de i32 stdinByte ()
-   # Call getStdin
    (call $Get))
 
 (de i32 getBinary ()
-   (let (In: (inFile (val $InFile))  I (In: ix))
-      (when (== I (In: cnt))
-         (when (or (lt0 I) (=0 (slow (In:))))  # Closed or EOF
-            (ret -1) )
-         (setq I 0) )
-      (In: ix (+ I 1))
-      (i32 (val (ofs (In: (buf)) I))) ) )
+   (call $Get))
 
 # Read binary PLIO expression
 (de binRead ()
@@ -177,7 +134,7 @@ selectErr)
                                                    (hex "000FF000FF000000") ) ) ) ) )  # Mask file number
                                     (extern Nm) ) ) ) ) ) ) ) ) ) ) ) )
 
-(local) (prCnt binPrint pr putTell prTell tellBeg tellEnd unsync)
+(local) (prCnt binPrint pr)
 
 # Binary print short number
 (de void prCnt ((i8 . Tag) Num)
@@ -311,31 +268,6 @@ selectErr)
    (set $PutBin (fun (void i8) _putStdout))
    (tailcall (binPrint X)) )
 
-(de void putTell ((i8 . B))
-   (let P (val $Ptr)
-      (set P B)
-      (when (== (set $Ptr (inc P)) (val $End))
-         (err 0 0 ($ "Tell PIPE_BUF") null) ) ) )
-
-(de void prTell (X)
-   (set
-      $PutBin (fun (void i8) putTell)
-      $Extn 0 )
-   (tailcall (binPrint X)) )
-
-(de void tellBeg ((i8* . P)) null)
-
-(de void tellEnd ((i32 . Pid)) (outString ($ "tellEnd\n")))
-
-(de void unsync () (outString ($ "unsync\n")))
-
-(local) (waitFile currFd)
-
-# Wait for pipe process if necessary
-(de void waitFile ((i32 . Pid)) (outString ($ "waitFile\n")))
-
-(de i32 currFd (Exe) (outString ($ "currFd\n")) 0)
-
 (local) (pushInFile pushOutFile pushErrFile pushCtlFile)
 
 (de void pushInFile ((i8* . Io) (i8* . In) (i32 . Pid))
@@ -380,33 +312,6 @@ selectErr)
 (de void popErrFiles ()  (outString ($ "popErrFiles\n")))
 
 (de void popCtlFiles ()  (outString ($ "popCtlFiles\n")))
-
-(local) (pollfd hasData inReady waitFd)
-
-(de i64* pollfd ((i32 . Fd)) (outString ($ "pollFd\n")) null)
-
-(de i1 hasData ((i32 . Fd))
-   (and
-      (> (val $InFDs) Fd)
-      (val (ofs (val $InFiles) Fd))
-      (let In: (inFile @)
-         (and
-            (ge0 (In: fd))
-            (> (In: cnt) (In: ix)) ) ) ) )
-
-(de i1 inReady ((i32 . Fd) (i1 . Flg)) (outString ($ "inReady\n")) 0)
-
-(de i64 waitFd (Exe (i32 . Fd) (i64 . Ms)) (outString ($ "waitFd\n")) 0)
-
-(local) (rdOpen wrOpen erOpen ctOpen)
-
-(de void rdOpen (Exe X (i8* . Io)) (outString ($ "rdOpen\n")))
-
-(de void wrOpen (Exe X (i8* . Io)) (outString ($ "wrOpen\n")))
-
-(de void erOpen (Exe X (i8* . Ct)) (outString ($ "erOpen\n")))
-
-(de void ctOpen (Exe X (i8* . Ct)) (outString ($ "ctOpen\n")))
 
 (local) (read0 getChar skipc comment skip testEsc anonymous rdAtom rdl rdList)
 
