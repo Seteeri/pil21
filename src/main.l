@@ -270,7 +270,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
          (set $Get (fun (i32) _getStdin))         
-         (repl2 0 ($ "? ") $Nil))
+         (repl 0 ($ "? ") $Nil))
       (outString ($ "err 1\n"))
       (unwind null)
       (outString ($ "err 2\n"))      
@@ -1052,9 +1052,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (loadKern)
    
    # mov before
-   # mov loadKern in repl2f
+   # mov loadKern in replf
    (setjmp $QuitRst)   
-   (repl2 0 ($ ": ") $Nil)
+   (repl 0 ($ ": ") $Nil)
    
    # repl implemented in pil21
    # bc err handling

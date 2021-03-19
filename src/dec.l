@@ -144,14 +144,14 @@ memcmp strchr2 setjmp longjmp)
 (de i1 subStr (any any))
 
 # io.l
-(local) (newline space outWord outString print repl2)
+(local) (newline space outWord outString print repl)
 
 (de void newline ())
 (de void space ())
 (de void outWord (i64))
 (de void outString (i8*))
 (de void print (any))
-(de repl2 (any i8* any))
+(de repl (any i8* any))
 
 # db.l
 (local) (dbFetch dbTouch dbZap)

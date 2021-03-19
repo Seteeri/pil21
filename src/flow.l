@@ -1349,7 +1349,7 @@
       (let Term NIL #(val Termio)
          (print Exe)
          (newline)
-         (repl2 0 ($ "! ") $Nil))
+         (repl 0 ($ "! ") $Nil))
       (setq Exe (val $Up))
       (let P (val $Bind)
          (set $Run (val P))
@@ -1382,16 +1382,10 @@
             $Run (val P)
             $At (val (val 3 (val 3 P))) )
          (let (In: (ioFrame (val $InFrames))  Out: (ioFrame (val $OutFrames)))
-            (popInFiles)
-            (tosInFile)
-            (popOutFiles)
-            (tosOutFile)
             (prog1
                (if (pair (cdr Exe))
                   (run @)
                   (eval (val $Up)) )
-               (pushOutFile (Out:) (Out: file) (Out: pid))
-               (pushInFile (In:) (In: file) (In: pid))
                (set $Run Run  $At At  $Dbg Dbg) ) ) ) ) )
 
 (local) trace

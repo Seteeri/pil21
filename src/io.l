@@ -268,37 +268,6 @@ selectErr)
    (set $PutBin (fun (void i8) _putOutMini))
    (tailcall (binPrint X)) )
 
-(local) (pushInFile pushOutFile pushErrFile pushCtlFile)
-
-(de void pushInFile ((i8* . Io) (i8* . In) (i32 . Pid))
-   (let Io: (ioFrame Io)
-      (when (val $InFile)
-         ((inFile @) chr (val $Chr)) )
-      (when (Io: link (val $InFrames))
-         ((ioFrame @) fun (val (i8** $Get))) )
-      (set $Get (fun (i32) _getStdin))
-      (set $Chr
-         ((inFile (Io: file (set $InFile In))) chr) )
-      (Io: pid Pid)
-      (set $InFrames (Io:)) ) )
-
-(de void pushOutFile ((i8* . Io) (i8* . Out) (i32 . Pid))
-   (let Io: (ioFrame Io)
-      (when (Io: link (val $OutFrames))
-         ((ioFrame @) fun (val (i8** $Put))) )
-      (set $Put (fun (void i8) _putOutMini))
-      (Io: file (set $OutFile Out))
-      (Io: pid Pid)
-      (set $OutFrames (Io:)) ) )
-
-(de void pushErrFile ((i8* . Ct))
-   ((ctFrame Ct) link (val $ErrFrames))
-   (set $ErrFrames Ct) )
-
-(de void pushCtlFile ((i8* . Ct))
-   ((ctFrame Ct) link (val $CtlFrames))
-   (set $CtlFrames Ct) )
-
 (local) (popInFiles tosInFile popOutFiles tosOutFile popErrFiles popCtlFiles)
 
 (de void popInFiles () (outString ($ "popInFiles\n")))
@@ -1509,9 +1478,9 @@ selectErr)
             (save Y
                (parse (name Y) NO 0 (save (evSym X))) ) ) ) ) )
 
-(local) (repl2)
+(local) (repl)
 
-(de repl2 (Exe (i8* . Prmt) X)
+(de repl (Exe (i8* . Prmt) X)
   (let
       (Int (save (val $Intern))
         Pr1 (save (val $PrivT))
