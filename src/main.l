@@ -68,7 +68,7 @@
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
       (set
          $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putStdout) )
+         $Put (fun (void i8) _putOutMini) )
       (outWord N)
       (when X
          (space)
@@ -281,7 +281,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          $Make 0
          $Yoke 0
          $Trace 0 )
-      #(set $Put (fun (void i8) _putStdout))
+      #(set $Put (fun (void i8) _putOutMini))
       #(set $Get (fun (i32) _getStdin))
       (outString ($ "err 3\n"))      
       (longjmp $QuitRst 1)
@@ -1013,7 +1013,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $QuitRst  (hex "4000090")
       $Heap     (hex "4000490")
       $Limit    (hex "4000490")
-      $Put      (fun (void i8) _putStdout)
+      $Put      (fun (void i8) _putOutMini)
       $Get      (fun (i32) _getStdin))
       
    # set gic symbols

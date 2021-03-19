@@ -265,7 +265,7 @@ selectErr)
                         (call $PutBin (i8 N)) ) ) ) ) ) ) ) )
 
 (de void pr (X)
-   (set $PutBin (fun (void i8) _putStdout))
+   (set $PutBin (fun (void i8) _putOutMini))
    (tailcall (binPrint X)) )
 
 (local) (pushInFile pushOutFile pushErrFile pushCtlFile)
@@ -286,7 +286,7 @@ selectErr)
    (let Io: (ioFrame Io)
       (when (Io: link (val $OutFrames))
          ((ioFrame @) fun (val (i8** $Put))) )
-      (set $Put (fun (void i8) _putStdout))
+      (set $Put (fun (void i8) _putOutMini))
       (Io: file (set $OutFile Out))
       (Io: pid Pid)
       (set $OutFrames (Io:)) ) )
@@ -1072,14 +1072,14 @@ selectErr)
                (drop P)
                $Nil ) ) ) ) )
 
-(de void _putStdout_uart ((i8 . B))
+(de void _putOutUart ((i8 . B))
   # pl011
   (loop
     (let X (val (i32* (any UART-FR)))
       (? (=0 (& X (hex "20")))) @))
   (set (i32* (any UART-DR)) (i32 B)))
                
-(de void _putStdout ((i8 . B))
+(de void _putOutMini ((i8 . B))
   # mini
   (loop
     (let X (val (i32* (any AUX-MU-LSR)))
@@ -1413,7 +1413,7 @@ selectErr)
    (let X (cdr Exe)
       (loop
          (let N (eval (++ X))
-            (_putStdout (i8 (int N)))
+            (_putOutMini (i8 (int N)))
             (? (atom X) N) ) ) ) )
 
 (local) (getParse parse)
