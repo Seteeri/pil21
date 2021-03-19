@@ -51,7 +51,7 @@
          (? (== (setq A P) H)) )
       (set $Avail A)))   
    
-(local) (execAt runAt wrnl dbg)
+(local) (execAt runAt dbg)
 
 (de execAt (Prg)
    (let At (save (val $At))
@@ -63,9 +63,6 @@
       (prog1
          (run Prg)
          (set $At At) ) ) )
-
-(de wrnl ()
-   (write 1 ($ "\n") 1) )
 
 (de dbg ((i64 . N) X)
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
@@ -155,29 +152,22 @@
 # Exit
 (local) (finish giveup bye execErr)
 
-(de NIL finish ((i32 . N))
-   #(setCooked)
-   (exit N) )
+(de NIL finish ((i32 . N)) (outString ($ "finish\n")))
 
 (de NIL giveup ((i8* . Fmt) (i8* . Msg))
-   (stderrMsg Fmt Msg)
+   (outString Fmt) (space) (outString Msg) (newline)
    (finish 1) )
 
 (de NIL bye ((i32 . N)) (outString ($ "bye\n")))
 
 (de NIL execErr ((i8* . Cmd))
-   (stderrMsg ($ "%s: Can't exec\n") Cmd)
-   (exit 127) )
+   (outString ($ "%s: Can't exec\n")) (space) (outString Cmd) (newline)   
+   (outString ($ "exit\n")) )
 
 # Signals
 (local) (sig sigTerm sighandler)
 
-(de void sigTerm ((i32 . N))
-   (if (val $TtyPid)
-      (kill @ N)
-      (set $Signal (+ (val $Signal) 1))
-      (let P (ofs $Signal (gSignal (val SIGTERM Sig)))
-         (set P (+ (val P) 1)) ) ) )
+(de void sigTerm ((i32 . N)) (outString ($ "sigTerm\n")))
 
 (de void sig ((i8* . E))
   
@@ -338,7 +328,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (err Exe X ($ "Protected") null) )
 
 (de NIL lockErr ()
-   (err 0 0 ($ "File lock: %s") (strErrno)) )
+   (err 0 0 ($ "File lock: <ERRNO>") null) )
 
 (de NIL forkErr (Exe)
    (err Exe 0 ($ "Can't fork") null) )

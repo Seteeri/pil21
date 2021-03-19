@@ -85,50 +85,16 @@
    (tell 4 i32) )       # Tell pipe
 
 # libc
-(local) (pr-libc malloc realloc free fork getenv setenv getpid getpgrp setsid alarm
-setpgid execvp isatty tcgetattr read write pread pwrite fread fwrite
-putc_unlocked getc_unlocked fopen fflush feof fclose fileno fsync pipe memcmp
-strlen strcpy strdup strcmp strchr2 strrchr dlsym dlerror dup dup2 close signal
-tcsetpgrp waitpid setjmp longjmp kill exit)
-
-(de void pr-libc ((i8* . Str)) 0)
+(local) (malloc realloc free
+putc_unlocked getc_unlocked
+memcmp strchr2 setjmp longjmp)
 
 (de i8* malloc        () null)
 (de i8* realloc       () null)
 (de void free         () null)
-(de i32 fork          () 0)
-(de i8* getenv        () null)
-(de i32 setenv        () 0)
-(de i8* getcwd        () null)
-(de i32 chdir         () 0)
-(de i32 getpid        () 0)
-(de i32 getpgrp       () 0)
-(de i32 setsid        () 0)
-(de i32 alarm         () 0)
-(de i32 setpgid       () 0)
-(de i32 execvp        () 0)
-(de i32 isatty        () 0)
-(de i32 tcgetattr     () 0)
-(de i64 read          () 0)
-(de i64 write         () 0)
-(de i64 pread         () 0)
-(de i64 pwrite        () 0)
-(de i32 fread         () 0)
-(de i32 fwrite        () 0)
 (de i32 putc_unlocked () 0)
 (de i32 getc_unlocked () 0)
-(de i8* fopen         () null)
-(de i32 fflush        () 0)
-(de i32 feof          () 0)
-(de i32 fclose        () 0)
-(de i32 fileno        () 0)
-(de i32 fsync         () 0)
-(de i32 pipe          () 0)
 (de i32 memcmp        () 0)
-(de i64 strlen        () 0)
-(de i8* strcpy        () null)
-(de i8* strdup        () null)
-(de i32 strcmp        () 0)
 
 (de i8* strchr2 ((i8* . Str) (i32 . Chr))
    (let (X (i8* Str))
@@ -136,69 +102,9 @@ tcsetpgrp waitpid setjmp longjmp kill exit)
          (? (== @ (i8 Chr)) (ret X))
          (inc 'X) )
       null))
-      
-(de i8* strrchr       () null)
-(de i8* dlsym         () null)
-(de i8* dlerror       () null)
-(de i32 dup           () 0)
-(de i32 dup2          () 0)
-(de i32 close         () 0)
-(de i8* signal        () null)
-(de i32 tcsetpgrp     () 0)
-(de i32 waitpid       () 0)
+
 (de T i32 setjmp (i8*))
 (de T NIL longjmp (i8* i32))
-(de i32 kill          () 0)
-(de NIL exit          () 0)
-
-# libreadline
-(local) (readline add_history history_list clear_history)
-
-(de i8*   readline      () null)
-(de void  add_history   () null)
-(de i8*** history_list  () null)
-(de void  clear_history () null)
-
-# Glue lib.c
-#(local) (TgOS TgCPU PipeBufSize)
-
-#(var TgOS i8 0)  # Target OS
-#(var TgCPU i8 0)  # Target CPU
-#(var PipeBufSize i32 0)  # PIPE_BUF
-
-(local) (stderrMsg gPrintf strErrno openRd openWr openRdWr openRdWrExcl
-openRdWrCreate openRdWrAppend openWrAppend fseekOfs fseek0 seek0 truncate0
-socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
-
-(de i8*  stderrMsg      () null)
-(de i32  gPrintf        () 0)
-(de i8*  strErrno       () null)
-(de i32  openRd         () 0)
-(de i32  openWr         () 0)
-(de i32  openRdWr       () 0)
-(de i32  openRdWrExcl   () 0)
-(de i32  openRdWrCreate () 0)
-(de i32  openRdWrAppend () 0)
-(de i32  openWrAppend   () 0)
-(de i1   fseekOfs       () 0)
-(de i1   fseek0         () 0)
-(de i1   seek0          () 0)
-(de i1   truncate0      () 0)
-(de i32  socketPair     () 0)
-(de i32  fcntlCloExec   () 0)
-(de void fcntlSetFl     () null)
-(de i32  nonBlocking    () 0)
-(de void fcntlSetOwn    () null)
-(de i8*  getDir         () null)
-
-(local) (initReadline rlHide rlShow rlSigBeg rlSigEnd currentLine)
-
-(de void initReadline () null)
-(de void rlHide       () null)
-(de void rlShow       () null)
-(de void rlSigBeg     () null)
-(de void rlSigEnd     () null)
-(de i8*  currentLine  () null)
 
 # Signals
 (local) (Sig SigDfl SigIgn)
@@ -207,58 +113,9 @@ socketPair fcntlCloExec fcntlSetFl nonBlocking fcntlSetOwn getDir)
 (var SigDfl i8* null)
 (var SigIgn i8* null)
 
-(local) (gSignal sigUnblock iSignal sigChld waitWuntraced wifStopped)
-
-(de i32  gSignal       ()    0)
-(de void sigUnblock    ()    null)
-(de void iSignal       ()    null)
-(de void sigChld       (i32) null)
-(de i32  waitWuntraced ()    0)
-(de i32  wifStopped    ()    0)
-
 (local) (nErrno gErrno)
 (de i32 nErrno () 0)
 (de i32 gErrno () 0)
-
-# Terminal
-(local) (setRaw setCooked reopenTty)
-
-#(var Tio i1 0)
-#(var OrgTermio i8 0)
-#(var Termio i8* null)
-
-(de void setRaw    () null)
-(de void setCooked () null)
-
-# System
-(local) (getUsec getMsec getDate getGmDate getTime getGmTime fileInfo)
-
-(de i64 getUsec  (i1)          0)
-(de i64 getMsec  ()            0)
-(de i64 fileInfo (i1 i8* i64*) 0)
-
-# Polling
-(local) (pollIn pollOut pollIgn gPoll readyIn readyOut)
-
-(de void pollIn   () null)
-(de void pollOut  () null)
-(de void pollIgn  () null)
-(de i32  gPoll    () 0)
-(de i1   readyIn  () 0)
-(de i1   readyOut () 0)
-
-# Locking
-(local) (rdLock wrLock unLock getLock)
-
-(de i32 rdLock  () 0)
-(de i32 wrLock  () 0)
-(de i32 unLock  () 0)
-(de i32 getLock () 0)
-
-# Native lib.c
-
-
-# Case mappings lib.c
 
 ### Forward references ###
 

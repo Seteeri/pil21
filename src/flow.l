@@ -1339,7 +1339,7 @@
          (loadCoEnv (Src:)) ) ) )
 
 (de brkLoad (Exe)
-   (when (and (isatty 0) (isatty 1) (=0 (val $Break)))
+   (when (=0 (val $Break))
       (let P (val $Bind)
          (setq P (push (val $At) $At P 0))  # [[@] @ LINK Expr]
          (setq P (push (val $Up) $Up P))

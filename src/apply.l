@@ -687,25 +687,3 @@
                (set Z (cdar Z))
                (? (atom (shift Z))) ) ) )
       R ) )
-
-# Readline
-(local) tabComplete
-
-(de i8* tabComplete ((i8* . Text))
-   (if (nil? (val $Complete))
-      null
-      (let
-         (V (push NIL $Nil ZERO NIL NIL)  # [car cdr name arg link]
-            E (push NIL V ZERO @ NIL) )  # [car cdr name fun link]
-         (set 4 V
-            (nond
-               (Text $Nil)
-               ((val Text) $T)
-               (NIL (mkStr Text)) ) )
-         (set
-            V (link (ofs V 3) T)
-            E (link (ofs E 3)) )
-         (if (nil? (evList E))
-            null
-            (let Nm (name (val (tail (xSym @))))
-               (strdup (bufString Nm (b8 (bufSize Nm)))) ) ) ) ) )

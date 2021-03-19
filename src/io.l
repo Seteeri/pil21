@@ -2,17 +2,17 @@
 
 (symbols '(llvm))
 
-(local) (openErr closeErr pipeErr sizeErr eofErr badInput badFd writeErr
+(local) (openErr closeErr pipeErr sizeErr eofErr badInput badFd 
 selectErr)
 
 (de NIL openErr (Exe X)
-   (err Exe X ($ "Open error: %s") (strErrno)) )
+   (err Exe X ($ "Open error: <ERRNO>") null) )
 
 (de NIL closeErr ()
-   (err 0 0 ($ "Close error: %s") (strErrno)) )
+   (err 0 0 ($ "Close error: <ERRNO>") null) )
 
 (de NIL pipeErr (Exe)
-   (err Exe 0 ($ "Pipe error: %s") (strErrno)) )
+   (err Exe 0 ($ "Pipe error: <ERRNO>") null) )
 
 (de NIL sizeErr (Exe)
    (err Exe 0 ($ "Size overflow") null) )
@@ -29,27 +29,16 @@ selectErr)
 (de NIL badFd (Exe Fd)
    (err Exe Fd ($ "Bad FD") null) )
 
-(de NIL writeErr ((i8* . Fmt))
-   (err 0 0 Fmt (strErrno)) )
-
 (de NIL selectErr (Exe)
-   (err Exe 0 ($ "Select error: %s") (strErrno)) )
+   (err Exe 0 ($ "Select error: <ERRNO>") null) )
 
 (local) (closeOnExec rdLockWait wrLockWait)
 
-(de void closeOnExec (Exe (i32 . Fd))
-   (when (lt0 (fcntlCloExec Fd))
-      (err Exe 0 ($ "SETFD %s") (strErrno)) ) )
+(de void closeOnExec (Exe (i32 . Fd)) (outString ($ "closeOnExec\n")))
 
-(de void rdLockWait ((i32 . Fd) (i64 . Len))
-   (while (lt0 (rdLock Fd 0 Len YES))
-      (unless (== (gErrno) EINTR)
-         (lockErr) ) ) )
+(de void rdLockWait ((i32 . Fd) (i64 . Len)) (outString ($ "rdLockWait\n")))
 
-(de void wrLockWait ((i32 . Fd) (i64 . Len))
-   (while (lt0 (wrLock Fd 0 Len YES))
-      (unless (== (gErrno) EINTR)
-         (lockErr) ) ) )
+(de void wrLockWait ((i32 . Fd) (i64 . Len)) (outString ($ "wrLockWait\n")))
 
 (local) (initInFile initOutFile closeInFile closeOutFile)
 
@@ -63,84 +52,15 @@ selectErr)
 
 (local) (slow slowNb rdBytes rdBytesNb wrBytes clsChild wrChild flush)
 
-(de i32 slow ((i8* . In))
-   (let In: (inFile In)
-      (In: ix 0)
-      (loop
-         (?
-            (ge0
-               (i32 (read (In: fd) (In: (buf)) BUFSIZ)) )
-            (In: cnt @) )
-         (? (<> (gErrno) EINTR)
-            (In: cnt 0) )
-         (sigChk 0) ) ) )
+(de i32 slow ((i8* . In)) (outString ($ "slow\n")) 0)
 
-(de i32 slowNb ((i8* . In))
-   (let In: (inFile In)
-      (loop
-         (let
-            (Flg (nonBlocking (In: fd))
-               N (i32 (read (In: fd) (In: (buf)) BUFSIZ)) )
-            (fcntlSetFl (In: fd) Flg)
-            (? (gt0 N)
-               (In: ix 0)
-               (In: cnt N) )
-            (? (=0 N)
-               (In: ix (In: cnt -1))
-               0 ) )
-         (? (== (gErrno) EAGAIN) -1)
-         (? (<> @ EINTR)
-            (In: ix (In: cnt 0)) )
-         (sigChk 0) ) ) )
+(de i32 slowNb ((i8* . In)) (outString ($ "slowNb\n")) 0)
 
-(de i1 rdBytes ((i32 . Fd) (i8* . P) (i32 . Cnt))
-   (loop
-      (loop
-         (? (gt0 (i32 (read Fd P (i64 Cnt))))
-            (inc 'P @)
-            (dec 'Cnt @) )
-         (unless (and @ (== (gErrno) EINTR))
-            (ret NO) )
-         (sigChk 0) )
-      (? (=0 Cnt) YES) ) )
+(de i1 rdBytes ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "rdBytes\n")) 0)
 
-(de i64 rdBytesNb ((i32 . Fd) (i8* . P) (i32 . Cnt))
-   (loop
-      (let
-         (Flg (nonBlocking Fd)
-            N (i32 (read Fd P (i64 Cnt))) )
-         (fcntlSetFl Fd Flg)
-         (when (gt0 N)
-            (loop
-               (unless (dec 'Cnt N)
-                  (ret 1) )
-               (inc 'P N)
-               (while
-                  (le0
-                     (setq N (i32 (read Fd P (i64 Cnt)))) )
-                  (unless (and N (== (gErrno) EINTR))
-                     (ret 0) )
-                  (sigChk 0) ) ) )
-         (? (=0 N) 0) )
-      (? (== (gErrno) EAGAIN) -1)
-      (? (<> @ EINTR) 0)
-      (sigChk 0) ) )
+(de i64 rdBytesNb ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "rdBytesNb\n")) 0)
 
-(de i1 wrBytes ((i32 . Fd) (i8* . P) (i32 . Cnt))
-   (loop
-      (let N (i32 (write Fd P (i64 Cnt)))
-         (if (lt0 N)
-            (let E (gErrno)
-               (? (== E EBADF) NO)
-               (? (== E EPIPE) NO)
-               (? (== E ECONNRESET) NO)
-               (unless (== E EINTR)
-                  (when (== Fd 2)  # Stderr
-                     (bye 2) )
-                  (writeErr ($ "bytes write: %s")) )
-               (sigChk 0) )
-            (? (=0 (dec 'Cnt N)) YES)
-            (inc 'P N) ) ) ) )
+(de i1 wrBytes ((i32 . Fd) (i8* . P) (i32 . Cnt)) (outString ($ "wrBytes\n")) 0)
 
 (de void clsChild ((i8* . Cld)) (outString ($ "clsChild")) null)
 
@@ -405,65 +325,16 @@ selectErr)
 
 (de void tellBeg ((i8* . P)) null)
 
-(de void tellEnd ((i32 . Pid))
-   (let (P (val $Ptr)  Q (val $TellBuf))
-      (set P END)  # Close list
-      (inc 'P)
-      (let (D (i32 (- P Q))  N (- D 8))  # Size without PID and count
-         (set
-            (i32* Q) Pid
-            (inc (i32* Q)) N )
-         (when (val $Tell)
-            (let Fd @
-               (unless (wrBytes Fd Q D)
-                  (close Fd)
-                  (set $Tell 0) ) ) )
-         (let
-            (Cld (val $Child)  # Iterate children
-               <Cld (ofs Cld (* (val $Children) (child T))) )
-            (inc 'Q 8)
-            (until (== Cld <Cld)
-               (let Cld: (child Cld)
-                  (when
-                     (and
-                        (Cld: pid)
-                        (or (=0 Pid) (== Pid (Cld: pid))) )
-                     (wrChild Cld Q N) ) )
-               (setq Cld (ofs Cld (child T))) ) ) ) ) )
+(de void tellEnd ((i32 . Pid)) (outString ($ "tellEnd\n")))
 
-(de void unsync ()
-   (when (val $Tell)
-      (let Fd @
-         (unless (wrBytes Fd (i8* (push 0)) 8)
-            (close Fd)
-            (set $Tell 0) ) ) )
-   (set $Sync NO) )
+(de void unsync () (outString ($ "unsync\n")))
 
 (local) (waitFile currFd)
 
 # Wait for pipe process if necessary
-(de void waitFile ((i32 . Pid))
-   (let Res (b32 1)
-      (while (lt0 (waitpid Pid Res 0))
-         (unless (== (gErrno) EINTR)
-            (closeErr) )
-         (sigChk 0) )
-      (set $At2 (cnt (i64 (val Res)))) ) )
+(de void waitFile ((i32 . Pid)) (outString ($ "waitFile\n")))
 
-(de i32 currFd (Exe)
-   (let (In (val $InFrames)  Out (val $OutFrames))
-      (nond
-         ((or In Out)
-            (err 0 0 ($ "No current fd") null) )
-         (Out ((inFile ((ioFrame In) file)) fd))
-         (In ((outFile ((ioFrame Out) file)) fd))
-         (NIL
-            (if
-               (if (> In (stack))  # Assume stack is growing downwards
-                  (> Out In)
-                  (> In Out) )
-               ((inFile ((ioFrame In) file)) fd)
-               ((outFile ((ioFrame Out) file)) fd) ) ) ) ) )
+(de i32 currFd (Exe) (outString ($ "currFd\n")) 0)
 
 (local) (pushInFile pushOutFile pushErrFile pushCtlFile)
 
@@ -498,52 +369,17 @@ selectErr)
 
 (local) (popInFiles tosInFile popOutFiles tosOutFile popErrFiles popCtlFiles)
 
-(de void popInFiles ()
-   (let (Io: (ioFrame (val $InFrames))  In: (inFile (Io: file)))
-      (when (ge0 (In: fd))
-         (ifn (Io: pid)
-            (In: chr (val $Chr))
-            (close (In: fd))
-            (closeInFile (In: fd))
-            (when (> (Io: pid) 1)
-               (waitFile @) ) ) )
-      (set $InFrames (Io: link)) ) )
+(de void popInFiles () (outString ($ "popInFiles\n")))
 
-(de void tosInFile ()
-   (let Io: (ioFrame (val $InFrames))
-      (set
-         $Chr ((inFile (set $InFile (Io: file))) chr)
-         (i8** $Get) (Io: fun) ) ) )
+(de void tosInFile ()  (outString ($ "tosInFile\n")))
 
-(de void popOutFiles ()
-   (flush (val $OutFile))
-   (let (Io: (ioFrame (val $OutFrames))  Out: (outFile (Io: file)))
-      (when (ge0 (Out: fd))
-         (when (Io: pid)
-            (close (Out: fd))
-            (closeOutFile (Out: fd))
-            (when (> (Io: pid) 1)
-               (waitFile @) ) ) )
-      (set $OutFrames (Io: link)) ) )
+(de void popOutFiles () (outString ($ "popOutFiles\n")))
 
-(de void tosOutFile ()
-   (let Io: (ioFrame (val $OutFrames))
-      (set
-         $OutFile (Io: file)
-         (i8** $Put) (Io: fun) ) ) )
+(de void tosOutFile ()  (outString ($ "tosOutFile\n")))
 
-(de void popErrFiles ()
-   (let Ct: (ctFrame (val $ErrFrames))
-      (dup2 (Ct: fd) 2)  # Restore stderr
-      (close (Ct: fd))
-      (set $ErrFrames (Ct: link)) ) )
+(de void popErrFiles ()  (outString ($ "popErrFiles\n")))
 
-(de void popCtlFiles ()
-   (let Ct: (ctFrame (val $CtlFrames))
-      (if (ge0 (Ct: fd))
-         (close @)
-         (unLock (currFd 0) 0 0) )
-      (set $CtlFrames (Ct: link)) ) )
+(de void popCtlFiles ()  (outString ($ "popCtlFiles\n")))
 
 # (path 'any) -> sym
 (de _path (Exe)
@@ -552,20 +388,7 @@ selectErr)
 
 (local) (pollfd hasData inReady waitFd)
 
-(de i64* pollfd ((i32 . Fd))
-   (let I (val $Nfds)
-      (when (>= Fd I)
-         (let P
-            (set $Poll
-               (i64*
-                  (alloc
-                     (i8* (val $Poll))
-                     (* 8 #{pollfd}# (i64 (set $Nfds (+ Fd 1)))) ) ) )
-            (loop
-               (pollIgn (ofs P I))
-               (? (== I Fd))
-               (inc 'I) ) ) ) )
-   (ofs (val $Poll) Fd) )
+(de i64* pollfd ((i32 . Fd)) (outString ($ "pollFd\n")) null)
 
 (de i1 hasData ((i32 . Fd))
    (and
@@ -576,22 +399,7 @@ selectErr)
             (ge0 (In: fd))
             (> (In: cnt) (In: ix)) ) ) ) )
 
-(de i1 inReady ((i32 . Fd) (i1 . Flg))
-   (let P (pollfd Fd)
-      (cond
-         ((>= Fd (val $InFDs))
-            (readyIn P) )
-         ((=0 (val (ofs (val $InFiles) Fd)))
-            (readyIn P) )
-         (T
-            (let In: (inFile @)
-               (if (lt0 (In: fd))
-                  (readyIn P)
-                  (or
-                     (> (In: cnt) (In: ix))
-                     (and
-                        (readyIn P)
-                        (or Flg (ge0 (slowNb (In:)))) ) ) ) ) ) ) ) )
+(de i1 inReady ((i32 . Fd) (i1 . Flg)) (outString ($ "inReady\n")) 0)
 
 (de i64 waitFd (Exe (i32 . Fd) (i64 . Ms)) (outString ($ "waitFd\n")) 0)
 
@@ -628,189 +436,13 @@ selectErr)
 
 (local) (rdOpen wrOpen erOpen ctOpen)
 
-(de void rdOpen (Exe X (i8* . Io))
-   (let Io: (ioFrame Io)
-      (cond
-         ((nil? X)
-            (pushInFile Io (val (val $InFiles)) 0) )  # Stdin
-         ((num? X)
-            (let N (i32 (int X))
-               (pushInFile Io
-                  (cond
-                     ((sign? X)
-                        (let In (val $InFrames)
-                           (loop
-                              (unless (setq In ((ioFrame In) link))
-                                 (badFd Exe X) )
-                              (? (=0 (dec 'N))) )
-                           ((ioFrame In) file) ) )
-                     ((>= N (val $InFDs))
-                        (badFd Exe X) )
-                     ((=0 (val (ofs (val $InFiles) N)))
-                        (badFd Exe X) )
-                     (T @) )
-                  0 ) ) )
-         ((sym? X)
-            (let
-               (Nm (xName Exe X)
-                  S (pathString Nm (b8 (pathSize Nm)))
-                  Flg (== (val S) (char "+"))
-                  Fd T )
-               (when Flg
-                  (setq S (ofs S 1)) )
-               (while (lt0 (setq Fd (if Flg (openRdWrAppend S) (openRd S))))
-                  (unless (== (gErrno) EINTR)
-                     (openErr Exe X) )
-                  (sigChk Exe) )
-               (closeOnExec Exe Fd)
-               (pushInFile Io (initInFile Fd (strdup S)) 1) ) )
-         (T  # Pipe
-            (let
-               (Pfd (b32 2)
-                  Av (b8* (inc (length X)))
-                  Cmd (xName Exe (xSym (car X))) )
-               (when (lt0 (pipe Pfd))
-                  (pipeErr Exe) )
-               (set Av (pathString Cmd (b8 (pathSize Cmd))))
-               (let A Av
-                  (while (pair (shift X))
-                     (let Nm (xName Exe (xSym (car X)))
-                        (set (inc 'A)
-                           (bufString Nm (b8 (bufSize Nm))) ) ) )
-                  (set (inc 'A) null) )
-               (cond
-                  ((lt0 (fork)) (forkErr Exe))
-                  ((=0 @)  # In child
-                     (setpgid 0 0)  # Set process group
-                     (close (val Pfd))  # Close read pipe
-                     (unless (== (val 2 Pfd) 1)
-                        (dup2 @ 1)  # Dup write pipe to STDOUT_FILENO
-                        (close @) )
-                     (signal (val SIGPIPE Sig) (val SigDfl))  # Default SIGPIPE
-                     (execvp (val Av) Av)  # Execute program
-                     (execErr (val Av)) ) )  # Error if failed
-               # In parent
-               (let (Pid @  Fd (val Pfd))
-                  (setpgid Pid 0)  # Set process group
-                  (close (val 2 Pfd))  # Close write pipe
-                  (closeOnExec Exe Fd)
-                  (pushInFile Io (initInFile Fd null) Pid) ) ) ) ) ) )
+(de void rdOpen (Exe X (i8* . Io)) (outString ($ "rdOpen\n")))
 
-(de void wrOpen (Exe X (i8* . Io))
-   (let Io: (ioFrame Io)
-      (cond
-         ((nil? X)
-            (pushOutFile Io (val 2 (val $OutFiles)) 0) )  # Stdout
-         ((num? X)
-            (let N (i32 (int X))
-               (pushOutFile Io
-                  (cond
-                     ((sign? X)
-                        (let Out (val $OutFrames)
-                           (loop
-                              (unless (setq Out ((ioFrame Out) link))
-                                 (badFd Exe X) )
-                              (? (=0 (dec 'N))) )
-                           ((ioFrame Out) file) ) )
-                     ((>= N (val $OutFDs))
-                        (badFd Exe X) )
-                     ((=0 (val (ofs (val $OutFiles) N)))
-                        (badFd Exe X) )
-                     (T @) )
-                  0 ) ) )
-         ((sym? X)
-            (let
-               (Nm (xName Exe X)
-                  S (pathString Nm (b8 (pathSize Nm)))
-                  Flg (== (val S) (char "+"))
-                  Fd T )
-               (when Flg
-                  (setq S (ofs S 1)) )
-               (while (lt0 (setq Fd (if Flg (openWrAppend S) (openWr S))))
-                  (unless (== (gErrno) EINTR)
-                     (openErr Exe X) )
-                  (sigChk Exe) )
-               (closeOnExec Exe Fd)
-               (pushOutFile Io (initOutFile Fd) 1) ) )
-         (T  # Pipe
-            (let
-               (Pfd (b32 2)
-                  Av (b8* (inc (length X)))
-                  Cmd (xName Exe (xSym (car X))) )
-               (when (lt0 (pipe Pfd))
-                  (pipeErr Exe) )
-               (set Av (pathString Cmd (b8 (pathSize Cmd))))
-               (let A Av
-                  (while (pair (shift X))
-                     (let Nm (xName Exe (xSym (car X)))
-                        (set (inc 'A)
-                           (bufString Nm (b8 (bufSize Nm))) ) ) )
-                  (set (inc 'A) null) )
-               (cond
-                  ((lt0 (fork)) (forkErr Exe))
-                  ((=0 @)  # In child
-                     (setpgid 0 0)  # Set process group
-                     (close (val 2 Pfd))  # Close write pipe
-                     (when (val Pfd)  # STDIN_FILENO
-                        (dup2 @ 0)  # Dup read pipe to STDIN_FILENO
-                        (close @) )
-                     (execvp (val Av) Av)  # Execute program
-                     (execErr (val Av)) ) )  # Error if failed
-               # In parent
-               (let (Pid @  Fd (val 2 Pfd))
-                  (setpgid Pid 0)  # Set process group
-                  (close (val Pfd))  # Close read pipe
-                  (closeOnExec Exe Fd)
-                  (pushOutFile Io (initOutFile Fd) Pid) ) ) ) ) ) )
+(de void wrOpen (Exe X (i8* . Io)) (outString ($ "wrOpen\n")))
 
-(de void erOpen (Exe X (i8* . Ct))
-   (let Ct: (ctFrame Ct)
-      (Ct: fd (dup 2))  # Stderr
-      (let Fd
-         (if (nil? (needSymb Exe X))
-            (dup ((outFile (val $OutFile)) fd))
-            (let
-               (Nm (xName Exe X)
-                  S (pathString Nm (b8 (pathSize Nm)))
-                  Flg (== (val S) (char "+")) )
-               (when Flg
-                  (setq S (ofs S 1)) )
-               (while (lt0 (if Flg (openWrAppend S) (openWr S)))
-                  (unless (== (gErrno) EINTR)
-                     (openErr Exe X) )
-                  (sigChk Exe) )
-               (closeOnExec Exe @)
-               @ ) )
-         (dup2 Fd 2)
-         (close Fd) )
-      (pushErrFile Ct) ) )
+(de void erOpen (Exe X (i8* . Ct)) (outString ($ "erOpen\n")))
 
-(de void ctOpen (Exe X (i8* . Ct))
-   (let Ct: (ctFrame Ct)
-      (cond
-         ((nil? (needSymb Exe X))
-            (Ct: fd -1)
-            (rdLockWait (currFd Exe) 0) )
-         ((t? X)
-            (Ct: fd -1)
-            (wrLockWait (currFd Exe) 0) )
-         (T
-            (let
-               (Nm (xName Exe X)
-                  S (pathString Nm (b8 (pathSize Nm)))
-                  Flg (== (val S) (char "+")) )
-               (when Flg
-                  (setq S (ofs S 1)) )
-               (while (lt0 (openRdWrCreate S))
-                  (unless (== (gErrno) EINTR)
-                     (openErr Exe X) )
-                  (sigChk Exe) )
-               (let Fd (Ct: fd @)
-                  (if Flg
-                     (rdLockWait Fd 0)
-                     (wrLockWait Fd 0) )
-                  (closeOnExec Exe Fd) ) ) ) )
-      (pushCtlFile Ct) ) )
+(de void ctOpen (Exe X (i8* . Ct)) (outString ($ "ctOpen\n")))
 
 (local) (read0 getChar skipc comment skip testEsc anonymous rdAtom rdl rdList)
 
@@ -1464,78 +1096,10 @@ selectErr)
                            (? (eol (setq C (call $Get)))) )
                         R ) ) ) ) ) ) ) )
 
-# (in 'any . prg) -> any
-(de _in (Exe)
-   (let X (cdr Exe)
-      (rdOpen Exe (eval (++ X)) (b8 (ioFrame T)))
-      (prog1
-         (run X)
-         (popInFiles)
-         (tosInFile) ) ) )
-
-# (out 'any . prg) -> any
-(de _out (Exe)
-   (let X (cdr Exe)
-      (wrOpen Exe (eval (++ X)) (b8 (ioFrame T)))
-      (prog1
-         (run X)
-         (popOutFiles)
-         (tosOutFile) ) ) )
-
-# (err 'sym . prg) -> any
-(de _err (Exe)
-   (let X (cdr Exe)
-      (erOpen Exe (eval (++ X)) (b8 (ctFrame T)))
-      (prog1
-         (run X)
-         (popErrFiles) ) ) )
-
-# (ctl 'sym . prg) -> any
-(de _ctl (Exe)
-         $Nil )
-
-# (fd) -> cnt
-(de _fd (Exe)
-   (cnt (i64 (currFd Exe))) )
-
 (local) forkLisp
 
 (de i32 forkLisp (Exe)
          (i32 0) )
-
-# (pipe exe) -> cnt
-# (pipe exe . prg) -> any
-(de _pipe (Exe)
-         $Nil )
-
-# (open 'any ['flg]) -> cnt | NIL
-(de _open (Exe)
-   (let
-      (X (cdr Exe)
-         Nm (xName Exe (evSym X))
-         S (pathString Nm (b8 (pathSize Nm)))
-         Flg (nil? (eval (cadr X))) )
-      (loop
-         (? (ge0 (if Flg (openRdWrCreate S) (openRd S)))
-            (closeOnExec Exe @)
-            (initInFile @ (strdup S))
-            (initOutFile @)
-            (cnt (i64 @)) )
-         (? (<> (gErrno) EINTR) $Nil)
-         (sigChk Exe) ) ) )
-
-# (close 'cnt) -> cnt | NIL
-(de _close (Exe)
-   (let
-      (X (eval (cadr Exe))
-         Fd (i32 (xCnt Exe X)) )
-      (loop
-         (? (=0 (close Fd))
-            (closeInFile Fd)
-            (closeOutFile Fd)
-            X )
-         (? (<> (gErrno) EINTR) $Nil)
-         (sigChk Exe) ) ) )
 
 # (echo ['cnt ['cnt]] | ['sym ..]) -> sym
 (de _echo (Exe)
@@ -1892,16 +1456,7 @@ selectErr)
    (if (flush (val $OutFile)) $T $Nil) )
 
 # (rewind) -> flg
-(de _rewind (Exe)
-   (let Out: (outFile (val $OutFile))
-      (if
-         (and
-            (Out:)
-            (let Fd (Out: fd)
-               (Out: ix 0)
-               (and (seek0 Fd) (truncate0 Fd)) ) )
-         $T
-         $Nil ) ) )
+(de _rewind (Exe))
 
 # (ext 'cnt . prg) -> any
 (de _ext (Exe)
@@ -2147,7 +1702,8 @@ selectErr)
          (evList E) )
       (when (and (nil? X) (not (val $Repl)))
          (set $Repl YES)
-         (iSignal (val SIGINT Sig) (fun sig)) )
+         #(iSignal (val SIGINT Sig) (fun sig)) 
+         )
       (let
          (Int (save (val $Intern))
             Pr1 (save (val $PrivT))
