@@ -2,7 +2,7 @@
 
 (symbols '(llvm))
 
-(local) (openErr closeErr pipeErr sizeErr eofErr badInput badFd 
+(local) (openErr closeErr pipeErr sizeErr eofErr badInput badFd
 selectErr)
 
 (de NIL openErr (Exe X)
@@ -288,9 +288,9 @@ selectErr)
 
 (de i32 _getStdin ()
   (loop
-    (let X (val (i32* (any AUX-MU-LSR)))
+    (let X (val (i32* (any AUX-MU-LSR-REG)))
       (? (n0 (& X (hex "01")))) @))
-  (let Y (val (i32* (any AUX-MU-IO)))
+  (let Y (val (i32* (any AUX-MU-IO-REG)))
     (call $Put (i8 Y)) # echo
     (set $Chr Y)))
 
@@ -348,15 +348,15 @@ selectErr)
 
 (de i32 skip ()
    (loop
-      #(outString ($ "skip(0): ")) (outWord (i64 (val $Chr))) (newline)      
+      #(outString ($ "skip(0): ")) (outWord (i64 (val $Chr))) (newline)
       (let Chr (val $Chr)
          (when (lt0 Chr)
-            #(outString ($ "skip(1): ")) (outWord (i64 (val $Chr))) (newline)   
+            #(outString ($ "skip(1): ")) (outWord (i64 (val $Chr))) (newline)
             (ret Chr) )
          (while (>= (char " ") Chr)
-            #(outString ($ "skip(2): ")) (outWord (i64 (val $Chr))) (newline)   
+            #(outString ($ "skip(2): ")) (outWord (i64 (val $Chr))) (newline)
             (when (lt0 (setq Chr (call $Get)))
-               #(outString ($ "skip(3): ")) (outWord (i64 (val $Chr))) (newline)                 
+               #(outString ($ "skip(3): ")) (outWord (i64 (val $Chr))) (newline)
                (ret Chr) ) )
          (unless (== Chr (char "#"))
             (ret Chr) )
@@ -415,7 +415,7 @@ selectErr)
                   (sym (shl N 4)) )  # Make symbol pointer
                (? (> (- @ (char "0")) 7) 0)
                (setq N (| (i64 @) (shl N 3))) ) ) ) ) )
-               
+
 (de rdAtom ((i32 . Chr))
    (let
       (Int (save (val $Intern))  # Current symbol namespaces
@@ -452,7 +452,7 @@ selectErr)
                ((anonymous Nm) @)
                ((and (== (car L) $priv) (nil? (cdr L)))
                   (intern (consSym Nm $Nil) 0 Nm $PrivT $Nil YES) )
-               (T 
+               (T
                 (prog1
                   (requestSym Nm)) )))
          (set $Intern Int) ) ) )
@@ -506,10 +506,10 @@ selectErr)
       (? (<> @ (char "~"))  # Read macro
          (let R (save (cons (read0 NO) $Nil))
             (rdl R R)
-            R ) )        
+            R ) )
       (call $Get)
-      (let R (let X (save (read0 NO)) 
-                (eval X))               
+      (let R (let X (save (read0 NO))
+                (eval X))
          (? (pair R)
             (let L (save R)
                (while (pair (cdr L))
@@ -519,7 +519,7 @@ selectErr)
 
 (de read0 ((i1 . Top))
    (let C (skip)
-      #(outString ($ "read0: ")) (outWord (i64 (val $Chr))) (newline) 
+      #(outString ($ "read0: ")) (outWord (i64 (val $Chr))) (newline)
       (cond
          ((lt0 C)
             (unless Top (eofErr))
@@ -556,7 +556,7 @@ selectErr)
                   (eval E) ) ) )
          ((== C (char "\""))
             (if (== (setq C (call $Get)) (char "\""))
-               (prog 
+               (prog
                 (call $Get) $Nil)  # Empty string
                (unless (testEsc C) (eofErr))
                (let
@@ -566,7 +566,7 @@ selectErr)
                      (charSym (val $Chr) P)
                      (? (== (setq C (call $Get)) (char "\"")))
                      (unless (testEsc C) (eofErr)) )
-                  (call $Get)  # Skip "\""     
+                  (call $Get)  # Skip "\""
                   (drop Q (intern 0 0 (val Q) $Transient $Nil NO)))))
          ((== C (char "{"))
             (prog1
@@ -1043,16 +1043,16 @@ selectErr)
 (de void _putOutUart ((i8 . B))
   # pl011
   (loop
-    (let X (val (i32* (any UART-FR)))
+    (let X (val (i32* (any UART0-FR)))
       (? (=0 (& X (hex "20")))) @))
-  (set (i32* (any UART-DR)) (i32 B)))
-               
+  (set (i32* (any UART0-DR)) (i32 B)))
+
 (de void _putOutMini ((i8 . B))
   # mini
   (loop
-    (let X (val (i32* (any AUX-MU-LSR)))
+    (let X (val (i32* (any AUX-MU-LSR-REG)))
       (? (n0 (& X (hex "20")))) @))
-  (set (i32* (any AUX-MU-IO)) (i32 B)))
+  (set (i32* (any AUX-MU-IO-REG)) (i32 B)))
 
 (local) (newline space)
 
@@ -1393,7 +1393,7 @@ selectErr)
             @
             (let C (val 3 P) # term chars
                #(outString ($ "getParse: ")) (outWord C) (newline)
-               (set 3 P (shr C 8))           
+               (set 3 P (shr C 8))
                (if C (i32 (i8 C)) -1) ) ) ) ) )
 
 (de parse (Nm (i1 . Skip) Eof Set)
@@ -1406,7 +1406,7 @@ selectErr)
          $Get (fun (i32) getParse)
          $Parser (push 0 (save Nm) Eof) )
       (when Skip
-         (getParse) )   
+         (getParse) )
       (prog1
          (cond
             ((=0 Set) (rdList))
@@ -1492,13 +1492,13 @@ selectErr)
         Y $Nil)
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
-      (setq X $Nil)      
+      (setq X $Nil)
 
       (loop
         (outString Prmt)
         (setq Y (read1 (char "\n")))
         (set $Chr 0)
-        (? (nil? Y))   
+        (? (nil? Y))
         (set V Y)
         (newline)
         (let A (set At (val $At))
@@ -1506,15 +1506,15 @@ selectErr)
             (set
               $At3 (val $At2)
               $At2 A
-              $At X ) )      
+              $At X ) )
         (outString ($ "-> "))
         (print X)
         (newline))
-      
+
       (set 2 $Transient Tr2)
       (set $Transient Tr1)
       (set 2 $PrivT Pr2)
       (set $PrivT Pr1)
       (set $Intern Int)
-      
+
       X))

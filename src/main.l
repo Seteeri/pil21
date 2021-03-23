@@ -33,24 +33,24 @@
 
 (de i8* alloc ((i8* . Ptr) (i64 . Siz))
   # verify stack/heap limits
-  #(giveup ($ "No memory") null) 
+  #(giveup ($ "No memory") null)
   # ret $Limit then increase
   (prog1
     (i8* (any (val $Limit)))
     (set $Limit (ofs (any (val $Limit)) Siz))))
-      
+
 (de void heapAlloc ()
    (let
       (H (any (alloc null (* 8 (inc HEAP))))
          P (ofs H HEAP)
          A (val $Avail) )
-      (set P (val $Heaps) 
+      (set P (val $Heaps)
            $Heaps H)
       (loop
          (set (setq P (ofs P -2)) A)  # Link avail
          (? (== (setq A P) H)) )
-      (set $Avail A)))   
-   
+      (set $Avail A)))
+
 (local) (execAt runAt dbg)
 
 (de execAt (Prg)
@@ -161,7 +161,7 @@
 (de NIL bye ((i32 . N)) (outString ($ "bye\n")))
 
 (de NIL execErr ((i8* . Cmd))
-   (outString ($ "%s: Can't exec\n")) (space) (outString Cmd) (newline)   
+   (outString ($ "%s: Can't exec\n")) (space) (outString Cmd) (newline)
    (outString ($ "exit\n")) )
 
 # Signals
@@ -170,30 +170,30 @@
 (de void sigTerm ((i32 . N)) (outString ($ "sigTerm\n")))
 
 (de void sig ((i8* . E))
-  
+
   # Handle gic here only
   # Specific intr handle in lisp
   #
   # volatile
-  
+
   # disable interrupt
-  (let Ia (val (i32* (any GICC-IA)))
-  
-    (set (i32* (any GICD-IC-ENAB))
+  (let Ia (val (i32* (any CPUI-IAR)))
+
+    (set (i32* (any DIST-ICENABLER))
       (i32 (shl 1 (% (i64 Ia) 32))))
-  
+
     (newline)
     (outString ($ "sig: ")) (outWord (i64 Ia))
     (newline)
-    
+
     (set $Signal (+ (val $Signal) 1))
-    
+
     # need to shift to get id...
     (let P (ofs $Signal (+ Ia 1))
       (set P (+ (val P) 1)) )
-    
-    (set (i32* (any GICC-EOI)) Ia))
-  
+
+    (set (i32* (any CPUI-EOIR)) Ia))
+
   null)
 
 
@@ -213,7 +213,7 @@
                     (set $Signal (dec (val $Signal)))
                     (set $IntID (cnt (- N 1))) # cons needed?
                     (execAt (val $Int)) )
-                (inc 'N)              
+                (inc 'N)
                 (? (== N IRQ-MAX)) ) )
             (? (=0 (val $Signal))) ) )
       (set $Protect 0) ) )
@@ -261,7 +261,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (outString ($ " -- ")) )
       (when (val Msg)
          #(outString Msg)
-         (outString Fmt)       
+         (outString Fmt)
          (newline)
          (unless (or (nil? (val $Err)) (val $Jam))
             (set $Jam YES)
@@ -269,11 +269,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (set $Jam NO) )
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
-         (set $Get (fun (i32) _getStdin))         
+         (set $Get (fun (i32) _getStdin))
          (repl 0 ($ "? ") $Nil))
       (outString ($ "err 1\n"))
       (unwind null)
-      (outString ($ "err 2\n"))      
+      (outString ($ "err 2\n"))
       (set
          $Link 0
          $Protect 0
@@ -283,7 +283,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          $Trace 0 )
       #(set $Put (fun (void i8) _putOutMini))
       #(set $Get (fun (i32) _getStdin))
-      (outString ($ "err 3\n"))      
+      (outString ($ "err 3\n"))
       (longjmp $QuitRst 1)
       ) )
 
@@ -808,9 +808,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                N (int @) )
             (set P
                (i8 (if (sign? Y) (- N) N)) )
-            Y ) ) ) )        
-            
-# (ptr32 'num ['cnt]) -> cnt            
+            Y ) ) ) )
+
+# (ptr32 'num ['cnt]) -> cnt
 (de _ptr32 (Exe)
    (let
       (X (cdr Exe)
@@ -828,7 +828,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (i32 (if (sign? Y) (- N) N)) )
             Y ) ) ) )
 
-# (ptr64 'num ['cnt]) -> cnt            
+# (ptr64 'num ['cnt]) -> cnt
 (de _ptr64 (Exe)
    (let
       (X (cdr Exe)
@@ -844,8 +844,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                N (int @) )
             (set P
                (any (if (sign? Y) (- N) N)))
-            Y ) ) ) )            
-            
+            Y ) ) ) )
+
 # (env ['lst] | ['sym 'val] ..) -> lst
 (de _env (Exe)
    (let (X (cdr Exe)  R (save $Nil))
@@ -952,7 +952,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (cons (val $D) $Nil) ) ) )
 
 # Main entry point
-(local) (loadKern main wfi wfe daif)
+(local) (loadKern setPeri main wfi wfe daif)
 
 (de loadKern ()
   (let
@@ -965,35 +965,225 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
         At (link (push -ZERO NIL)))
       (set $PrivT (set 2 $PrivT $Nil))
       (set $Transient (set 2 $Transient $Nil))
-      
+
       (let
           (Nm (name (val (tail (val $Kern))))
             Chr (val $Chr)
             Get (val (i8** $Get))
             Pars (val $Parser) )
-            
+
           (set
             $Get (fun (i32) getParse)
             $Parser (push 0 (save Nm) 0) )
-          
+
           (loop
             (let Y (read1 0)
               (? (nil? Y))
               (set V Y) # store on stack to prevent GC
               (eval Y)))
-            
+
           (set
               $Parser Pars
               (i8** $Get) Get
               $Chr Chr ) )
-      
+
       (set 2 $Transient Tr2)
       (set $Transient Tr1)
       (set 2 $PrivT Pr2)
       (set $PrivT Pr1)
       (set $Intern Int)))
 
-      
+
+(de void setPeri ()
+  (set
+      $Peri   (box64 BASE-PERI)
+      $Irq    $Nil)
+  (set $Gic
+      (cons (cons (mkStr ($ "DIST-CTLR"))       (box64 DIST-CTLR      ))
+      (cons (cons (mkStr ($ "DIST-TYPER"))      (box64 DIST-TYPER     ))
+      (cons (cons (mkStr ($ "DIST-IIDR"))       (box64 DIST-IIDR      ))
+      (cons (cons (mkStr ($ "DIST-IGROUPR"))    (box64 DIST-IGROUPR   ))
+      (cons (cons (mkStr ($ "DIST-ISENABLER"))  (box64 DIST-ISENABLER ))
+      (cons (cons (mkStr ($ "DIST-ICENABLER"))  (box64 DIST-ICENABLER ))
+      (cons (cons (mkStr ($ "DIST-ISPENDR"))    (box64 DIST-ISPENDR   ))
+      (cons (cons (mkStr ($ "DIST-ICPENDR"))    (box64 DIST-ICPENDR   ))
+      (cons (cons (mkStr ($ "DIST-ISACTIVER"))  (box64 DIST-ISACTIVER ))
+      (cons (cons (mkStr ($ "DIST-ICACTIVER"))  (box64 DIST-ICACTIVER ))
+      (cons (cons (mkStr ($ "DIST-IPRIORITYR")) (box64 DIST-IPRIORITYR))
+      (cons (cons (mkStr ($ "DIST-ITARGETS"))   (box64 DIST-ITARGETSR ))
+      (cons (cons (mkStr ($ "DIST-ICFGR"))      (box64 DIST-ICFGR     ))
+      (cons (cons (mkStr ($ "DIST-PPISR"))      (box64 DIST-PPISR     ))
+      (cons (cons (mkStr ($ "DIST-SPISR"))      (box64 DIST-SPISR     ))
+      (cons (cons (mkStr ($ "DIST-SGIR"))       (box64 DIST-SGIR      ))
+      (cons (cons (mkStr ($ "DIST-CPENDSGIR"))  (box64 DIST-CPENDSGIR ))
+      (cons (cons (mkStr ($ "DIST-SPENDSGIR"))  (box64 DIST-SPENDSGIR ))
+      (cons (cons (mkStr ($ "DIST-PIDR4"))      (box64 DIST-PIDR4     ))
+      (cons (cons (mkStr ($ "DIST-PIDR5"))      (box64 DIST-PIDR5     ))
+      (cons (cons (mkStr ($ "DIST-PIDR6"))      (box64 DIST-PIDR6     ))
+      (cons (cons (mkStr ($ "DIST-PIDR7"))      (box64 DIST-PIDR7     ))
+      (cons (cons (mkStr ($ "DIST-PIDR0"))      (box64 DIST-PIDR0     ))
+      (cons (cons (mkStr ($ "DIST-PIDR1"))      (box64 DIST-PIDR1     ))
+      (cons (cons (mkStr ($ "DIST-PIDR2"))      (box64 DIST-PIDR2     ))
+      (cons (cons (mkStr ($ "DIST-PIDR3"))      (box64 DIST-PIDR3     ))
+      (cons (cons (mkStr ($ "DIST-CIDR0"))      (box64 DIST-CIDR0     ))
+      (cons (cons (mkStr ($ "DIST-CIDR1"))      (box64 DIST-CIDR1     ))
+      (cons (cons (mkStr ($ "DIST-CIDR2"))      (box64 DIST-CIDR2     ))
+      (cons (cons (mkStr ($ "DIST-CIDR3"))      (box64 DIST-CIDR3     ))
+
+      (cons (cons (mkStr ($ "CPUI-CTLR"))       (box64 CPUI-CTLR      ))
+      (cons (cons (mkStr ($ "CPUI-PMR"))        (box64 CPUI-PMR       ))
+      (cons (cons (mkStr ($ "CPUI-BPR"))        (box64 CPUI-BPR       ))
+      (cons (cons (mkStr ($ "CPUI-IAR"))        (box64 CPUI-IAR       ))
+      (cons (cons (mkStr ($ "CPUI-EOIR"))       (box64 CPUI-EOIR      ))
+      (cons (cons (mkStr ($ "CPUI-RPR"))        (box64 CPUI-RPR       ))
+      (cons (cons (mkStr ($ "CPUI-HPPIR"))      (box64 CPUI-HPPIR     ))
+      (cons (cons (mkStr ($ "CPUI-ABPR"))       (box64 CPUI-ABPR      ))
+      (cons (cons (mkStr ($ "CPUI-AIAR"))       (box64 CPUI-AIAR      ))
+      (cons (cons (mkStr ($ "CPUI-AEOIR"))      (box64 CPUI-AEOIR     ))
+      (cons (cons (mkStr ($ "CPUI-AHPPIR"))     (box64 CPUI-AHPPIR    ))
+      (cons (cons (mkStr ($ "CPUI-APR0"))       (box64 CPUI-APR0      ))
+      (cons (cons (mkStr ($ "CPUI-NSAPR0"))     (box64 CPUI-NSAPR0    ))
+      (cons (cons (mkStr ($ "CPUI-IIDR"))       (box64 CPUI-IIDR      ))
+      (cons (cons (mkStr ($ "CPUI-DIR"))        (box64 CPUI-DIR       ))
+            $Nil))))))))))))))))))))))))))))))))))))))))))))))
+
+  (set $Aux
+      (cons (cons (mkStr ($ "AUX-IRQ"))             (box64 AUX-IRQ))             # Auxiliary Interrupt status 3
+      (cons (cons (mkStr ($ "AUX-ENABLES"))         (box64 AUX-ENABLES))         # Auxiliary enables 3
+      (cons (cons (mkStr ($ "AUX-MU-IO-REG"))       (box64 AUX-MU-IO-REG))       # Mini UART I/O Data 8
+      (cons (cons (mkStr ($ "AUX-MU-IER-REG"))      (box64 AUX-MU-IER-REG))      # Mini UART Interrupt Enable 8
+      (cons (cons (mkStr ($ "AUX-MU-IIR-REG"))      (box64 AUX-MU-IIR-REG))      # Mini UART Interrupt Identify 8
+      (cons (cons (mkStr ($ "AUX-MU-LCR-REG"))      (box64 AUX-MU-LCR-REG))      # Mini UART Line Control 8
+      (cons (cons (mkStr ($ "AUX-MU-MCR-REG"))      (box64 AUX-MU-MCR-REG))      # Mini UART Modem Control 8
+      (cons (cons (mkStr ($ "AUX-MU-LSR-REG"))      (box64 AUX-MU-LSR-REG))      # Mini UART Line Status 8
+      (cons (cons (mkStr ($ "AUX-MU-MSR-REG"))      (box64 AUX-MU-MSR-REG))      # Mini UART Modem Status 8
+      (cons (cons (mkStr ($ "AUX-MU-SCRATCH"))      (box64 AUX-MU-SCRATCH))      # Mini UART Scratch 8
+      (cons (cons (mkStr ($ "AUX-MU-CNTL-REG"))     (box64 AUX-MU-CNTL-REG))     # Mini UART Extra Control 8
+      (cons (cons (mkStr ($ "AUX-MU-STAT-REG"))     (box64 AUX-MU-STAT-REG))     # Mini UART Extra Status 32
+      (cons (cons (mkStr ($ "AUX-MU-BAUD-REG"))     (box64 AUX-MU-BAUD-REG))     # Mini UART Baudrate 16
+      (cons (cons (mkStr ($ "AUX-SPI1-CNTL0-REG"))  (box64 AUX-SPI1-CNTL0-REG))  # SPI 1 Control register 0 32
+      (cons (cons (mkStr ($ "AUX-SPI1-CNTL1-REG"))  (box64 AUX-SPI1-CNTL1-REG))  # SPI 1 Control register 1 8
+      (cons (cons (mkStr ($ "AUX-SPI1-STAT-REG"))   (box64 AUX-SPI1-STAT-REG))   # SPI 1 Status 32
+      (cons (cons (mkStr ($ "AUX-SPI1-PEEK-REG"))   (box64 AUX-SPI1-PEEK-REG))   # SPI 1 Peek 16
+      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-CNTL0-REG"))  (box64 AUX-SPI2-CNTL0-REG))  # SPI 2 Control register 0 32
+      (cons (cons (mkStr ($ "AUX-SPI2-CNTL1-REG"))  (box64 AUX-SPI2-CNTL1-REG))  # SPI 2 Control register 1 8
+      (cons (cons (mkStr ($ "AUX-SPI2-STAT-REG"))   (box64 AUX-SPI2-STAT-REG))   # SPI 2 Status 32
+      (cons (cons (mkStr ($ "AUX-SPI2-PEEK-REG"))   (box64 AUX-SPI2-PEEK-REG))   # SPI 2 Peek 16
+      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
+            $Nil))))))))))))))))))))))))))))))))))))))
+
+  (set $Uart
+      (cons (cons (mkStr ($ "UART0-DR"))     (box64 UART0-DR    )) # Data Register 32
+      (cons (cons (mkStr ($ "UART0-RSRECR")) (box64 UART0-RSRECR)) # 32
+      (cons (cons (mkStr ($ "UART0-FR"))     (box64 UART0-FR    )) # Flag register 32
+      (cons (cons (mkStr ($ "UART0-ILPR"))   (box64 UART0-ILPR  )) # not in use 32
+      (cons (cons (mkStr ($ "UART0-IBRD"))   (box64 UART0-IBRD  )) # Integer Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART0-FBRD"))   (box64 UART0-FBRD  )) # Fractional Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART0-LCRH"))   (box64 UART0-LCRH  )) # Line Control register 32
+      (cons (cons (mkStr ($ "UART0-CR"))     (box64 UART0-CR    )) # Control register 32
+      (cons (cons (mkStr ($ "UART0-IFLS"))   (box64 UART0-IFLS  )) # Interrupt FIFO Level Select Register 32
+      (cons (cons (mkStr ($ "UART0-IMSC"))   (box64 UART0-IMSC  )) # Interrupt Mask Set Clear Register 32
+      (cons (cons (mkStr ($ "UART0-RIS"))    (box64 UART0-RIS   )) # Raw Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART0-MIS"))    (box64 UART0-MIS   )) # Masked Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART0-ICR"))    (box64 UART0-ICR   )) # Interrupt Clear Register 32
+      (cons (cons (mkStr ($ "UART0-DMACR"))  (box64 UART0-DMACR )) # DMA Control Register 32
+      (cons (cons (mkStr ($ "UART0-ITCR"))   (box64 UART0-ITCR  )) # Test Control register 32
+      (cons (cons (mkStr ($ "UART0-ITIP"))   (box64 UART0-ITIP  )) # Integration test input reg 32
+      (cons (cons (mkStr ($ "UART0-ITOP"))   (box64 UART0-ITOP  )) # Integration test output reg 32
+      (cons (cons (mkStr ($ "UART0-TDR"))    (box64 UART0-TDR   )) # Test Data reg 32
+
+      (cons (cons (mkStr ($ "UART2-DR"))     (box64 UART2-DR    )) # Data Register 32
+      (cons (cons (mkStr ($ "UART2-RSRECR")) (box64 UART2-RSRECR)) # 32
+      (cons (cons (mkStr ($ "UART2-FR"))     (box64 UART2-FR    )) # Flag register 32
+      (cons (cons (mkStr ($ "UART2-ILPR"))   (box64 UART2-ILPR  )) # not in use 32
+      (cons (cons (mkStr ($ "UART2-IBRD"))   (box64 UART2-IBRD  )) # Integer Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART2-FBRD"))   (box64 UART2-FBRD  )) # Fractional Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART2-LCRH"))   (box64 UART2-LCRH  )) # Line Control register 32
+      (cons (cons (mkStr ($ "UART2-CR"))     (box64 UART2-CR    )) # Control register 32
+      (cons (cons (mkStr ($ "UART2-IFLS"))   (box64 UART2-IFLS  )) # Interrupt FIFO Level Select Register 32
+      (cons (cons (mkStr ($ "UART2-IMSC"))   (box64 UART2-IMSC  )) # Interrupt Mask Set Clear Register 32
+      (cons (cons (mkStr ($ "UART2-RIS"))    (box64 UART2-RIS   )) # Raw Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART2-MIS"))    (box64 UART2-MIS   )) # Masked Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART2-ICR"))    (box64 UART2-ICR   )) # Interrupt Clear Register 32
+      (cons (cons (mkStr ($ "UART2-DMACR"))  (box64 UART2-DMACR )) # DMA Control Register 32
+      (cons (cons (mkStr ($ "UART2-ITCR"))   (box64 UART2-ITCR  )) # Test Control register 32
+      (cons (cons (mkStr ($ "UART2-ITIP"))   (box64 UART2-ITIP  )) # Integration test input reg 32
+      (cons (cons (mkStr ($ "UART2-ITOP"))   (box64 UART2-ITOP  )) # Integration test output reg 32
+      (cons (cons (mkStr ($ "UART2-TDR"))    (box64 UART2-TDR   )) # Test Data reg 32
+
+      (cons (cons (mkStr ($ "UART3-DR"))     (box64 UART3-DR    )) # Data Register 32
+      (cons (cons (mkStr ($ "UART3-RSRECR")) (box64 UART3-RSRECR)) # 32
+      (cons (cons (mkStr ($ "UART3-FR"))     (box64 UART3-FR    )) # Flag register 32
+      (cons (cons (mkStr ($ "UART3-ILPR"))   (box64 UART3-ILPR  )) # not in use 32
+      (cons (cons (mkStr ($ "UART3-IBRD"))   (box64 UART3-IBRD  )) # Integer Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART3-FBRD"))   (box64 UART3-FBRD  )) # Fractional Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART3-LCRH"))   (box64 UART3-LCRH  )) # Line Control register 32
+      (cons (cons (mkStr ($ "UART3-CR"))     (box64 UART3-CR    )) # Control register 32
+      (cons (cons (mkStr ($ "UART3-IFLS"))   (box64 UART3-IFLS  )) # Interrupt FIFO Level Select Register 32
+      (cons (cons (mkStr ($ "UART3-IMSC"))   (box64 UART3-IMSC  )) # Interrupt Mask Set Clear Register 32
+      (cons (cons (mkStr ($ "UART3-RIS"))    (box64 UART3-RIS   )) # Raw Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART3-MIS"))    (box64 UART3-MIS   )) # Masked Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART3-ICR"))    (box64 UART3-ICR   )) # Interrupt Clear Register 32
+      (cons (cons (mkStr ($ "UART3-DMACR"))  (box64 UART3-DMACR )) # DMA Control Register 32
+      (cons (cons (mkStr ($ "UART3-ITCR"))   (box64 UART3-ITCR  )) # Test Control register 32
+      (cons (cons (mkStr ($ "UART3-ITIP"))   (box64 UART3-ITIP  )) # Integration test input reg 32
+      (cons (cons (mkStr ($ "UART3-ITOP"))   (box64 UART3-ITOP  )) # Integration test output reg 32
+      (cons (cons (mkStr ($ "UART3-TDR"))    (box64 UART3-TDR   )) # Test Data reg 32
+
+      (cons (cons (mkStr ($ "UART4-DR"))     (box64 UART4-DR    )) # Data Register 32
+      (cons (cons (mkStr ($ "UART4-RSRECR")) (box64 UART4-RSRECR)) # 32
+      (cons (cons (mkStr ($ "UART4-FR"))     (box64 UART4-FR    )) # Flag register 32
+      (cons (cons (mkStr ($ "UART4-ILPR"))   (box64 UART4-ILPR  )) # not in use 32
+      (cons (cons (mkStr ($ "UART4-IBRD"))   (box64 UART4-IBRD  )) # Integer Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART4-FBRD"))   (box64 UART4-FBRD  )) # Fractional Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART4-LCRH"))   (box64 UART4-LCRH  )) # Line Control register 32
+      (cons (cons (mkStr ($ "UART4-CR"))     (box64 UART4-CR    )) # Control register 32
+      (cons (cons (mkStr ($ "UART4-IFLS"))   (box64 UART4-IFLS  )) # Interrupt FIFO Level Select Register 32
+      (cons (cons (mkStr ($ "UART4-IMSC"))   (box64 UART4-IMSC  )) # Interrupt Mask Set Clear Register 32
+      (cons (cons (mkStr ($ "UART4-RIS"))    (box64 UART4-RIS   )) # Raw Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART4-MIS"))    (box64 UART4-MIS   )) # Masked Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART4-ICR"))    (box64 UART4-ICR   )) # Interrupt Clear Register 32
+      (cons (cons (mkStr ($ "UART4-DMACR"))  (box64 UART4-DMACR )) # DMA Control Register 32
+      (cons (cons (mkStr ($ "UART4-ITCR"))   (box64 UART4-ITCR  )) # Test Control register 32
+      (cons (cons (mkStr ($ "UART4-ITIP"))   (box64 UART4-ITIP  )) # Integration test input reg 32
+      (cons (cons (mkStr ($ "UART4-ITOP"))   (box64 UART4-ITOP  )) # Integration test output reg 32
+      (cons (cons (mkStr ($ "UART4-TDR"))    (box64 UART4-TDR   )) # Test Data reg 32
+
+      (cons (cons (mkStr ($ "UART5-DR"))     (box64 UART5-DR    )) # Data Register 32
+      (cons (cons (mkStr ($ "UART5-RSRECR")) (box64 UART5-RSRECR)) # 32
+      (cons (cons (mkStr ($ "UART5-FR"))     (box64 UART5-FR    )) # Flag register 32
+      (cons (cons (mkStr ($ "UART5-ILPR"))   (box64 UART5-ILPR  )) # not in use 32
+      (cons (cons (mkStr ($ "UART5-IBRD"))   (box64 UART5-IBRD  )) # Integer Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART5-FBRD"))   (box64 UART5-FBRD  )) # Fractional Baud rate divisor 32
+      (cons (cons (mkStr ($ "UART5-LCRH"))   (box64 UART5-LCRH  )) # Line Control register 32
+      (cons (cons (mkStr ($ "UART5-CR"))     (box64 UART5-CR    )) # Control register 32
+      (cons (cons (mkStr ($ "UART5-IFLS"))   (box64 UART5-IFLS  )) # Interrupt FIFO Level Select Register 32
+      (cons (cons (mkStr ($ "UART5-IMSC"))   (box64 UART5-IMSC  )) # Interrupt Mask Set Clear Register 32
+      (cons (cons (mkStr ($ "UART5-RIS"))    (box64 UART5-RIS   )) # Raw Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART5-MIS"))    (box64 UART5-MIS   )) # Masked Interrupt Status Register 32
+      (cons (cons (mkStr ($ "UART5-ICR"))    (box64 UART5-ICR   )) # Interrupt Clear Register 32
+      (cons (cons (mkStr ($ "UART5-DMACR"))  (box64 UART5-DMACR )) # DMA Control Register 32
+      (cons (cons (mkStr ($ "UART5-ITCR"))   (box64 UART5-ITCR  )) # Test Control register 32
+      (cons (cons (mkStr ($ "UART5-ITIP"))   (box64 UART5-ITIP  )) # Integration test input reg 32
+      (cons (cons (mkStr ($ "UART5-ITOP"))   (box64 UART5-ITOP  )) # Integration test output reg 32
+      (cons (cons (mkStr ($ "UART5-TDR"))    (box64 UART5-TDR   )) # Test Data reg 32
+            $Nil))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
 (de void main ()
 
    # init mmu
@@ -1007,26 +1197,23 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # ... 144 B  : mailbox (align 16 bytes)
    # ... 1   KB : Prompt
    # ....       : heap star
-  
+
    (set
-      #$MBox     (box64 (hex "4000000"))
-      $QuitRst  (hex "4000090")
-      $Heap     (hex "4000490")
-      $Limit    (hex "4000490")
-      $Put      (fun (void i8) _putOutMini)
-      $Get      (fun (i32) _getStdin))
-      
-   # set gic symbols
-   
-   (call $Put (char "\n"))
-   
-   (outString ($ "$QuitRst="))  (outWord (any $QuitRst))  (newline)   
-   (outString ($ "$Heap="))  (outWord (val $Heap))  (newline)
-   (outString ($ "$Limit="))  (outWord (val $Limit)) (newline)
-   
+      $USec    (any (cntvct))
+      $QuitRst (hex "4000090")
+      $Heap    (hex "4000490")
+      $Limit   (hex "4000490")
+      $Put     (fun (void i8) _putOutMini)
+      $Get     (fun (i32) _getStdin))
+
+   (newline)
+   (outString ($ "$QuitRst=")) (outWord (any $QuitRst)) (newline)
+   (outString ($ "$Heap="))    (outWord (val $Heap))    (newline)
+   (outString ($ "$Limit="))   (outWord (val $Limit))   (newline)
+
    (outString ($ "Call heapAlloc...\n"))
    (heapAlloc)
-   
+
    (outString ($ "Init internal symbols...\n"))
    (let P $Nil
       (loop
@@ -1037,70 +1224,59 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (when (big? Nm)  # Max 15 chars
                   (setq P (ofs P 2)) ) ) )
          (setq P (ofs P 2)) ) )
-
    (set
       $Dbg $Nil
       $DB $Db1  # Database root constant
       (tail $Db1) DB1  # Name of external root symbol '{1}'
       $Extern (cons $Db1 $Nil))  # External symbol tree root node
-  
+
+   (setPeri)
+
+   # timestamp?
    # load kernel, then drop to repl
-   (set
-      $USec (any (cntvct))
-      $Kern (mkStr $Kerns)
-      $Signal 0)
+   (set $Kern (mkStr $Kerns))
    (loadKern)
-   
+
    # mov before
-   # mov loadKern in replf
-   (setjmp $QuitRst)   
+   # mov loadKern in repl
+   (setjmp $QuitRst)
    (repl 0 ($ ": ") $Nil)
-   
+
    # repl implemented in pil21
    # bc err handling
-   
+
    (outString ($ "pil21 bye")))
 
 
-(de _kern (Exe)
-  # TODO: pass flag whether dynamic repl or top-level
-  (loadKern))   
+(de _kern (Exe) (loadKern))
 
-(de _isb (Exe)
-  (isb)
-  $Nil)  
-  
-(de _wfi (Exe)
-  (wfi)
-  $Nil)
+(de _isb (Exe) (isb) $Nil)
+(de _wfi (Exe) (wfi) $Nil)
+(de _wfe (Exe) (wfe) $Nil)
 
-(de _wfe (Exe)
-  (wfe)
-  $Nil)
-  
 (de _daif (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (daif)))
         (let N (evCnt Exe X)
           (daif N)
           (cnt N)))))
-      
+
 (de _daif2 (Exe)
   (if (nil? (eval (cadr Exe)))
       (prog (daif2) $Nil)
-      (prog (daif2 T) $T)))      
+      (prog (daif2 T) $T)))
 
 # r/o
 (de _cnt-frq (Exe)
    (cnt
-    (any (cnt-frq))))   
-   
-# virt   
-   
+    (any (cnt-frq))))
+
+# virt
+
 # r/w
 (de _cntv-ctl (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntv-ctl)))
         (let N (evCnt Exe X)
@@ -1109,33 +1285,33 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # r/w
 (de _cntv-cval (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntv-cval)))
         (let N (evCnt Exe X)
           (cntv-cval N)
           (cnt N)))))
-          
+
 # r/w
 (de _cntv-tval (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntv-tval)))
         (let N (evCnt Exe X)
           (cntv-tval N)
-          (cnt N)))))          
+          (cnt N)))))
 
 # r/o
 (de _cntvct (Exe)
    (cnt
     (any (cntvct))))
 
-    
+
 # phys
 
 # r/w
 (de _cntp-ctl (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntp-ctl)))
         (let N (evCnt Exe X)
@@ -1144,25 +1320,25 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
 # r/w
 (de _cntp-cval (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntp-cval)))
         (let N (evCnt Exe X)
           (cntp-cval N)
           (cnt N)))))
-          
+
 # r/w
 (de _cntp-tval (Exe)
-  (let X (cdr Exe) 
+  (let X (cdr Exe)
     (if (atom X)
         (cnt (any (cntp-tval)))
         (let N (evCnt Exe X)
           (cntp-tval N)
-          (cnt N)))))       
+          (cnt N)))))
 
 # r/o
 (de _cntpct (Exe)
    (cnt
     (any (cntpct))))
-  
+
 (end "base.map")
