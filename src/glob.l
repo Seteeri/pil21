@@ -56,8 +56,8 @@
 (var $DbJnl i8* null)                  # Journal file
 (var $DbLog i8* null)                  # Transaction log file
 
-# Jmp
-(var $JmpBufSize i64 176)              # IHI0055B_aapcs64.pdf:
+# Jmp -> 176
+(var $JmpBufSize i64 256)              # IHI0055B_aapcs64.pdf:
                                        # 5.1.1, 5.1.2 callee saved registers
 #(var $QuitRst i8 0)
 (array $QuitRst i8
@@ -1307,7 +1307,7 @@
    ($Msg "*Msg" $Nil)
    ($Uni "*Uni" $Nil)
    ($Dbg "*Dbg" $Nil)
-   # Platform/Board
+   # Platform/Board/Sys
    ($Kern  "*Kern"  $Nil)
    ($IntID "*IntID" $Nil)
    ($Int   "*Int"   $Nil)
@@ -1316,6 +1316,8 @@
    ($Irq   "*Irq"   $Nil)
    ($Aux   "*Aux"   $Nil)
    ($Uart  "*Uart"  $Nil)
+   ($Putc  "*Putc"  $Nil)
+   ($Getc  "*Getc"  $Nil)
    ($Complete "complete" $Nil)
    # Garbage collection
    (NIL "gc" _gc)
@@ -1507,9 +1509,9 @@
    (NIL "finally" _finally)
    (NIL "co" _co)
    (NIL "yield" _yield)
-   (NIL "!" _break)
-   (NIL "e" _e)
-   (NIL "$" _trace)
+   #(NIL "!" _break) # implement in kern
+   #(NIL "e" _e)
+   #(NIL "$" _trace)
    # List processing
    (NIL "car" _car)
    (NIL "cdr" _cdr)

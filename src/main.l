@@ -228,9 +228,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (set $Up (if Exe @ $Nil))
    (when X
       (link (push X NIL)) )  # Save
-   (let Msg (b8 240)
+   (let Msg Fmt #(b8 240)
       #(gPrintf Msg 240 Fmt Arg)
-      (set Msg (val Fmt))
       (when (val Msg)
          (set $Msg (mkStr Msg))
          (let Ca (val $Catch)
@@ -1355,19 +1354,20 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (setPeri)
 
    # timestamp?
-   # load kernel, then drop to repl
+
+   # load kern
+   # on uncaught err or bye/exit:
+   * reload
+   * hang
+   * call *repl
+   #(setjmp $QuitRst)
    (set $Kern (mkStr $Kerns))
    (loadKern)
 
-   # mov before
-   # mov loadKern in repl
-   (setjmp $QuitRst)
-   (repl 0 ($ ": ") $Nil)
+   #(setjmp $QuitRst)
+   #(repl 0 ($ ": ") $Nil)
 
-   # repl implemented in pil21
-   # bc err handling
-
-   (outString ($ "pil21 bye")))
+   (outString ($ "pil21 loop wfe")))
 
 
 (de _kern (Exe) (loadKern))
