@@ -1309,6 +1309,7 @@
    ($Dbg "*Dbg" $Nil)
    # Platform/Board/Sys
    ($Kern  "*Kern"  $Nil)
+   ($MBox  "*MBox"  $Nil)
    ($IntID "*IntID" $Nil)
    ($Int   "*Int"   $Nil)
    ($Peri  "*Peri"  $Nil)

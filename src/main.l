@@ -247,6 +247,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                               (longjmp (Ca: (rst)) 1) )
                            (shift Tag) ) ) )
                   (setq Ca (Ca: link)) ) ) ) )
+
+      # Should not go here...
+
       (set $Chr (set $ExtN 0))
       (set $Break 0)
       #(set $LinePtr null)
@@ -259,8 +262,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          (print X)
          (outString ($ " -- ")) )
       (when (val Msg)
-         #(outString Msg)
-         (outString Fmt)
+         (outString Msg)
          (newline)
          (unless (or (nil? (val $Err)) (val $Jam))
             (set $Jam YES)
@@ -270,9 +272,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          #   (bye 1) )
          (set $Get (fun (i32) _getStdin))
          (repl 0 ($ "? ") $Nil))
-      (outString ($ "err 1\n"))
       (unwind null)
-      (outString ($ "err 2\n"))
       (set
          $Link 0
          $Protect 0
@@ -280,9 +280,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
          $Make 0
          $Yoke 0
          $Trace 0 )
-      #(set $Put (fun (void i8) _putOutMini))
-      #(set $Get (fun (i32) _getStdin))
-      (outString ($ "err 3\n"))
+      # (loop (wfe))
       (longjmp $QuitRst 1)
       ) )
 
@@ -1321,6 +1319,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (set
       $USec    (any (cntvct))
+      $MBox    (box64 (hex "4000000"))
       $QuitRst (hex "4000090")
       $Heap    (hex "4000490")
       $Limit   (hex "4000490")
