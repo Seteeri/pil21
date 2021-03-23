@@ -222,6 +222,233 @@
 
 
 (local)
+(UART-TXE
+ UART-RXF
+ UART-TXF
+ UART-RXE
+ UART-BUS
+ UART-DCD
+ UART-DSR
+ UART-CTS)
+
+(equ
+  UART-TXE       (>> -7 1)
+  UART-RXF       (>> -6 1)
+  UART-TXF       (>> -5 1)
+  UART-RXE       (>> -4 1)
+  UART-BUS       (>> -3 1)
+  UART-DCD       (>> -2 1)
+  UART-DSR       (>> -1 1)
+  UART-CTS       (>> -0 1))
+
+# UART0: 0x7E20 1000
+# UART2: 0x7E20 1400
+# UART3: 0x7E20 1600
+# UART4: 0x7E20 1800
+# UART5: 0x7E20 1A00
+
+#UART-DR        (+ BASE-PERI (hex "00201000"))
+#UART-FR        (+ BASE-PERI (hex "00201018"))
+
+(local)
+(BASE-UART0
+ UART0-DR
+ UART0-RSRECR
+ UART0-FR
+ UART0-ILPR
+ UART0-IBRD
+ UART0-FBRD
+ UART0-LCRH
+ UART0-CR
+ UART0-IFLS
+ UART0-IMSC
+ UART0-RIS
+ UART0-MIS
+ UART0-ICR
+ UART0-DMACR
+ UART0-ITCR
+ UART0-ITIP
+ UART0-ITOP
+ UART0-TDR
+
+ UART2-DR
+ UART2-RSRECR
+ UART2-FR
+ UART2-ILPR
+ UART2-IBRD
+ UART2-FBRD
+ UART2-LCRH
+ UART2-CR
+ UART2-IFLS
+ UART2-IMSC
+ UART2-RIS
+ UART2-MIS
+ UART2-ICR
+ UART2-DMACR
+ UART2-ITCR
+ UART2-ITIP
+ UART2-ITOP
+ UART2-TDR
+
+ UART3-DR
+ UART3-RSRECR
+ UART3-FR
+ UART3-ILPR
+ UART3-IBRD
+ UART3-FBRD
+ UART3-LCRH
+ UART3-CR
+ UART3-IFLS
+ UART3-IMSC
+ UART3-RIS
+ UART3-MIS
+ UART3-ICR
+ UART3-DMACR
+ UART3-ITCR
+ UART3-ITIP
+ UART3-ITOP
+ UART3-TDR
+
+ UART4-DR
+ UART4-RSRECR
+ UART4-FR
+ UART4-ILPR
+ UART4-IBRD
+ UART4-FBRD
+ UART4-LCRH
+ UART4-CR
+ UART4-IFLS
+ UART4-IMSC
+ UART4-RIS
+ UART4-MIS
+ UART4-ICR
+ UART4-DMACR
+ UART4-ITCR
+ UART4-ITIP
+ UART4-ITOP
+ UART4-TDR
+
+ UART5-DR
+ UART5-RSRECR
+ UART5-FR
+ UART5-ILPR
+ UART5-IBRD
+ UART5-FBRD
+ UART5-LCRH
+ UART5-CR
+ UART5-IFLS
+ UART5-IMSC
+ UART5-RIS
+ UART5-MIS
+ UART5-ICR
+ UART5-DMACR
+ UART5-ITCR
+ UART5-ITIP
+ UART5-ITOP
+ UART5-TDR)
+
+(equ
+  BASE-UART0   (+ BASE-PERI (hex "00200000"))
+
+  UART0-DR     (+ BASE-UART0 (hex "1000")) # Data Register 32
+  UART0-RSRECR (+ BASE-UART0 (hex "1004")) # 32
+  UART0-FR     (+ BASE-UART0 (hex "1018")) # Flag register 32
+  UART0-ILPR   (+ BASE-UART0 (hex "1020")) # not in use 32
+  UART0-IBRD   (+ BASE-UART0 (hex "1024")) # Integer Baud rate divisor 32
+  UART0-FBRD   (+ BASE-UART0 (hex "1028")) # Fractional Baud rate divisor 32
+  UART0-LCRH   (+ BASE-UART0 (hex "102C")) # Line Control register 32
+  UART0-CR     (+ BASE-UART0 (hex "1030")) # Control register 32
+  UART0-IFLS   (+ BASE-UART0 (hex "1034")) # Interrupt FIFO Level Select Register 32
+  UART0-IMSC   (+ BASE-UART0 (hex "1038")) # Interrupt Mask Set Clear Register 32
+  UART0-RIS    (+ BASE-UART0 (hex "103C")) # Raw Interrupt Status Register 32
+  UART0-MIS    (+ BASE-UART0 (hex "1040")) # Masked Interrupt Status Register 32
+  UART0-ICR    (+ BASE-UART0 (hex "1044")) # Interrupt Clear Register 32
+  UART0-DMACR  (+ BASE-UART0 (hex "1048")) # DMA Control Register 32
+  UART0-ITCR   (+ BASE-UART0 (hex "1080")) # Test Control register 32
+  UART0-ITIP   (+ BASE-UART0 (hex "1084")) # Integration test input reg 32
+  UART0-ITOP   (+ BASE-UART0 (hex "1088")) # Integration test output reg 32
+  UART0-TDR    (+ BASE-UART0 (hex "108C")) # Test Data reg 32
+
+  UART2-DR     (+ BASE-UART0 (hex "1400")) # Data Register 32
+  UART2-RSRECR (+ BASE-UART0 (hex "1404")) # 32
+  UART2-FR     (+ BASE-UART0 (hex "1418")) # Flag register 32
+  UART2-ILPR   (+ BASE-UART0 (hex "1420")) # not in use 32
+  UART2-IBRD   (+ BASE-UART0 (hex "1424")) # Integer Baud rate divisor 32
+  UART2-FBRD   (+ BASE-UART0 (hex "1428")) # Fractional Baud rate divisor 32
+  UART2-LCRH   (+ BASE-UART0 (hex "142C")) # Line Control register 32
+  UART2-CR     (+ BASE-UART0 (hex "1430")) # Control register 32
+  UART2-IFLS   (+ BASE-UART0 (hex "1434")) # Interrupt FIFO Level Select Register 32
+  UART2-IMSC   (+ BASE-UART0 (hex "1438")) # Interrupt Mask Set Clear Register 32
+  UART2-RIS    (+ BASE-UART0 (hex "143C")) # Raw Interrupt Status Register 32
+  UART2-MIS    (+ BASE-UART0 (hex "1440")) # Masked Interrupt Status Register 32
+  UART2-ICR    (+ BASE-UART0 (hex "1444")) # Interrupt Clear Register 32
+  UART2-DMACR  (+ BASE-UART0 (hex "1448")) # DMA Control Register 32
+  UART2-ITCR   (+ BASE-UART0 (hex "1480")) # Test Control register 32
+  UART2-ITIP   (+ BASE-UART0 (hex "1484")) # Integration test input reg 32
+  UART2-ITOP   (+ BASE-UART0 (hex "1488")) # Integration test output reg 32
+  UART2-TDR    (+ BASE-UART0 (hex "148C")) # Test Data reg 32
+
+  UART3-DR     (+ BASE-UART0 (hex "1600")) # Data Register 32
+  UART3-RSRECR (+ BASE-UART0 (hex "1604")) # 32
+  UART3-FR     (+ BASE-UART0 (hex "1618")) # Flag register 32
+  UART3-ILPR   (+ BASE-UART0 (hex "1620")) # not in use 32
+  UART3-IBRD   (+ BASE-UART0 (hex "1624")) # Integer Baud rate divisor 32
+  UART3-FBRD   (+ BASE-UART0 (hex "1628")) # Fractional Baud rate divisor 32
+  UART3-LCRH   (+ BASE-UART0 (hex "162C")) # Line Control register 32
+  UART3-CR     (+ BASE-UART0 (hex "1630")) # Control register 32
+  UART3-IFLS   (+ BASE-UART0 (hex "1634")) # Interrupt FIFO Level Select Register 32
+  UART3-IMSC   (+ BASE-UART0 (hex "1638")) # Interrupt Mask Set Clear Register 32
+  UART3-RIS    (+ BASE-UART0 (hex "163C")) # Raw Interrupt Status Register 32
+  UART3-MIS    (+ BASE-UART0 (hex "1640")) # Masked Interrupt Status Register 32
+  UART3-ICR    (+ BASE-UART0 (hex "1644")) # Interrupt Clear Register 32
+  UART3-DMACR  (+ BASE-UART0 (hex "1648")) # DMA Control Register 32
+  UART3-ITCR   (+ BASE-UART0 (hex "1680")) # Test Control register 32
+  UART3-ITIP   (+ BASE-UART0 (hex "1684")) # Integration test input reg 32
+  UART3-ITOP   (+ BASE-UART0 (hex "1688")) # Integration test output reg 32
+  UART3-TDR    (+ BASE-UART0 (hex "168C")) # Test Data reg 32
+
+  UART4-DR     (+ BASE-UART0 (hex "1800")) # Data Register 32
+  UART4-RSRECR (+ BASE-UART0 (hex "1804")) # 32
+  UART4-FR     (+ BASE-UART0 (hex "1818")) # Flag register 32
+  UART4-ILPR   (+ BASE-UART0 (hex "1820")) # not in use 32
+  UART4-IBRD   (+ BASE-UART0 (hex "1824")) # Integer Baud rate divisor 32
+  UART4-FBRD   (+ BASE-UART0 (hex "1828")) # Fractional Baud rate divisor 32
+  UART4-LCRH   (+ BASE-UART0 (hex "182C")) # Line Control register 32
+  UART4-CR     (+ BASE-UART0 (hex "1830")) # Control register 32
+  UART4-IFLS   (+ BASE-UART0 (hex "1834")) # Interrupt FIFO Level Select Register 32
+  UART4-IMSC   (+ BASE-UART0 (hex "1838")) # Interrupt Mask Set Clear Register 32
+  UART4-RIS    (+ BASE-UART0 (hex "183C")) # Raw Interrupt Status Register 32
+  UART4-MIS    (+ BASE-UART0 (hex "1840")) # Masked Interrupt Status Register 32
+  UART4-ICR    (+ BASE-UART0 (hex "1844")) # Interrupt Clear Register 32
+  UART4-DMACR  (+ BASE-UART0 (hex "1848")) # DMA Control Register 32
+  UART4-ITCR   (+ BASE-UART0 (hex "1880")) # Test Control register 32
+  UART4-ITIP   (+ BASE-UART0 (hex "1884")) # Integration test input reg 32
+  UART4-ITOP   (+ BASE-UART0 (hex "1888")) # Integration test output reg 32
+  UART4-TDR    (+ BASE-UART0 (hex "188C")) # Test Data reg 32
+
+  UART5-DR     (+ BASE-UART0 (hex "1A00")) # Data Register 32
+  UART5-RSRECR (+ BASE-UART0 (hex "1A04")) # 32
+  UART5-FR     (+ BASE-UART0 (hex "1A18")) # Flag register 32
+  UART5-ILPR   (+ BASE-UART0 (hex "1A20")) # not in use 32
+  UART5-IBRD   (+ BASE-UART0 (hex "1A24")) # Integer Baud rate divisor 32
+  UART5-FBRD   (+ BASE-UART0 (hex "1A28")) # Fractional Baud rate divisor 32
+  UART5-LCRH   (+ BASE-UART0 (hex "1A2C")) # Line Control register 32
+  UART5-CR     (+ BASE-UART0 (hex "1A30")) # Control register 32
+  UART5-IFLS   (+ BASE-UART0 (hex "1A34")) # Interrupt FIFO Level Select Register 32
+  UART5-IMSC   (+ BASE-UART0 (hex "1A38")) # Interrupt Mask Set Clear Register 32
+  UART5-RIS    (+ BASE-UART0 (hex "1A3C")) # Raw Interrupt Status Register 32
+  UART5-MIS    (+ BASE-UART0 (hex "1A40")) # Masked Interrupt Status Register 32
+  UART5-ICR    (+ BASE-UART0 (hex "1A44")) # Interrupt Clear Register 32
+  UART5-DMACR  (+ BASE-UART0 (hex "1A48")) # DMA Control Register 32
+  UART5-ITCR   (+ BASE-UART0 (hex "1A80")) # Test Control register 32
+  UART5-ITIP   (+ BASE-UART0 (hex "1A84")) # Integration test input reg 32
+  UART5-ITOP   (+ BASE-UART0 (hex "1A88")) # Integration test output reg 32
+  UART5-TDR    (+ BASE-UART0 (hex "1A8C")) # Test Data reg 32
+)
+
+
+
+(local)
 (IRQ-CORE-N-HP-TIMER
  IRQ-CORE-N-V-TIMER
  IRQ-LEGACY-FIQn
@@ -483,229 +710,3 @@
   IRQ-USB0-XHCI-0          (+ 160 48)
 
   IRQ-MAX   1024)
-
-
-(local)
-(UART-TXE
- UART-RXF
- UART-TXF
- UART-RXE
- UART-BUS
- UART-DCD
- UART-DSR
- UART-CTS)
-
-(equ
-  UART-TXE       (>> -7 1)
-  UART-RXF       (>> -6 1)
-  UART-TXF       (>> -5 1)
-  UART-RXE       (>> -4 1)
-  UART-BUS       (>> -3 1)
-  UART-DCD       (>> -2 1)
-  UART-DSR       (>> -1 1)
-  UART-CTS       (>> -0 1))
-
-# UART0: 0x7E20 1000
-# UART2: 0x7E20 1400
-# UART3: 0x7E20 1600
-# UART4: 0x7E20 1800
-# UART5: 0x7E20 1A00
-
-#UART-DR        (+ BASE-PERI (hex "00201000"))
-#UART-FR        (+ BASE-PERI (hex "00201018"))
-
-(local)
-(BASE-UART0
- UART0-DR
- UART0-RSRECR
- UART0-FR
- UART0-ILPR
- UART0-IBRD
- UART0-FBRD
- UART0-LCRH
- UART0-CR
- UART0-IFLS
- UART0-IMSC
- UART0-RIS
- UART0-MIS
- UART0-ICR
- UART0-DMACR
- UART0-ITCR
- UART0-ITIP
- UART0-ITOP
- UART0-TDR
-
- UART2-DR
- UART2-RSRECR
- UART2-FR
- UART2-ILPR
- UART2-IBRD
- UART2-FBRD
- UART2-LCRH
- UART2-CR
- UART2-IFLS
- UART2-IMSC
- UART2-RIS
- UART2-MIS
- UART2-ICR
- UART2-DMACR
- UART2-ITCR
- UART2-ITIP
- UART2-ITOP
- UART2-TDR
-
- UART3-DR
- UART3-RSRECR
- UART3-FR
- UART3-ILPR
- UART3-IBRD
- UART3-FBRD
- UART3-LCRH
- UART3-CR
- UART3-IFLS
- UART3-IMSC
- UART3-RIS
- UART3-MIS
- UART3-ICR
- UART3-DMACR
- UART3-ITCR
- UART3-ITIP
- UART3-ITOP
- UART3-TDR
-
- UART4-DR
- UART4-RSRECR
- UART4-FR
- UART4-ILPR
- UART4-IBRD
- UART4-FBRD
- UART4-LCRH
- UART4-CR
- UART4-IFLS
- UART4-IMSC
- UART4-RIS
- UART4-MIS
- UART4-ICR
- UART4-DMACR
- UART4-ITCR
- UART4-ITIP
- UART4-ITOP
- UART4-TDR
-
- UART5-DR
- UART5-RSRECR
- UART5-FR
- UART5-ILPR
- UART5-IBRD
- UART5-FBRD
- UART5-LCRH
- UART5-CR
- UART5-IFLS
- UART5-IMSC
- UART5-RIS
- UART5-MIS
- UART5-ICR
- UART5-DMACR
- UART5-ITCR
- UART5-ITIP
- UART5-ITOP
- UART5-TDR)
-
-(equ
-  BASE-UART0   (+ BASE-PERI (hex "00200000"))
-
-  UART0-DR     (+ BASE-UART0 (hex "1000")) # Data Register 32
-  UART0-RSRECR (+ BASE-UART0 (hex "1004")) # 32
-  UART0-FR     (+ BASE-UART0 (hex "1018")) # Flag register 32
-  UART0-ILPR   (+ BASE-UART0 (hex "1020")) # not in use 32
-  UART0-IBRD   (+ BASE-UART0 (hex "1024")) # Integer Baud rate divisor 32
-  UART0-FBRD   (+ BASE-UART0 (hex "1028")) # Fractional Baud rate divisor 32
-  UART0-LCRH   (+ BASE-UART0 (hex "102C")) # Line Control register 32
-  UART0-CR     (+ BASE-UART0 (hex "1030")) # Control register 32
-  UART0-IFLS   (+ BASE-UART0 (hex "1034")) # Interrupt FIFO Level Select Register 32
-  UART0-IMSC   (+ BASE-UART0 (hex "1038")) # Interrupt Mask Set Clear Register 32
-  UART0-RIS    (+ BASE-UART0 (hex "103C")) # Raw Interrupt Status Register 32
-  UART0-MIS    (+ BASE-UART0 (hex "1040")) # Masked Interrupt Status Register 32
-  UART0-ICR    (+ BASE-UART0 (hex "1044")) # Interrupt Clear Register 32
-  UART0-DMACR  (+ BASE-UART0 (hex "1048")) # DMA Control Register 32
-  UART0-ITCR   (+ BASE-UART0 (hex "1080")) # Test Control register 32
-  UART0-ITIP   (+ BASE-UART0 (hex "1084")) # Integration test input reg 32
-  UART0-ITOP   (+ BASE-UART0 (hex "1088")) # Integration test output reg 32
-  UART0-TDR    (+ BASE-UART0 (hex "108C")) # Test Data reg 32
-
-  UART2-DR     (+ BASE-UART0 (hex "1400")) # Data Register 32
-  UART2-RSRECR (+ BASE-UART0 (hex "1404")) # 32
-  UART2-FR     (+ BASE-UART0 (hex "1418")) # Flag register 32
-  UART2-ILPR   (+ BASE-UART0 (hex "1420")) # not in use 32
-  UART2-IBRD   (+ BASE-UART0 (hex "1424")) # Integer Baud rate divisor 32
-  UART2-FBRD   (+ BASE-UART0 (hex "1428")) # Fractional Baud rate divisor 32
-  UART2-LCRH   (+ BASE-UART0 (hex "142C")) # Line Control register 32
-  UART2-CR     (+ BASE-UART0 (hex "1430")) # Control register 32
-  UART2-IFLS   (+ BASE-UART0 (hex "1434")) # Interrupt FIFO Level Select Register 32
-  UART2-IMSC   (+ BASE-UART0 (hex "1438")) # Interrupt Mask Set Clear Register 32
-  UART2-RIS    (+ BASE-UART0 (hex "143C")) # Raw Interrupt Status Register 32
-  UART2-MIS    (+ BASE-UART0 (hex "1440")) # Masked Interrupt Status Register 32
-  UART2-ICR    (+ BASE-UART0 (hex "1444")) # Interrupt Clear Register 32
-  UART2-DMACR  (+ BASE-UART0 (hex "1448")) # DMA Control Register 32
-  UART2-ITCR   (+ BASE-UART0 (hex "1480")) # Test Control register 32
-  UART2-ITIP   (+ BASE-UART0 (hex "1484")) # Integration test input reg 32
-  UART2-ITOP   (+ BASE-UART0 (hex "1488")) # Integration test output reg 32
-  UART2-TDR    (+ BASE-UART0 (hex "148C")) # Test Data reg 32
-
-  UART3-DR     (+ BASE-UART0 (hex "1600")) # Data Register 32
-  UART3-RSRECR (+ BASE-UART0 (hex "1604")) # 32
-  UART3-FR     (+ BASE-UART0 (hex "1618")) # Flag register 32
-  UART3-ILPR   (+ BASE-UART0 (hex "1620")) # not in use 32
-  UART3-IBRD   (+ BASE-UART0 (hex "1624")) # Integer Baud rate divisor 32
-  UART3-FBRD   (+ BASE-UART0 (hex "1628")) # Fractional Baud rate divisor 32
-  UART3-LCRH   (+ BASE-UART0 (hex "162C")) # Line Control register 32
-  UART3-CR     (+ BASE-UART0 (hex "1630")) # Control register 32
-  UART3-IFLS   (+ BASE-UART0 (hex "1634")) # Interrupt FIFO Level Select Register 32
-  UART3-IMSC   (+ BASE-UART0 (hex "1638")) # Interrupt Mask Set Clear Register 32
-  UART3-RIS    (+ BASE-UART0 (hex "163C")) # Raw Interrupt Status Register 32
-  UART3-MIS    (+ BASE-UART0 (hex "1640")) # Masked Interrupt Status Register 32
-  UART3-ICR    (+ BASE-UART0 (hex "1644")) # Interrupt Clear Register 32
-  UART3-DMACR  (+ BASE-UART0 (hex "1648")) # DMA Control Register 32
-  UART3-ITCR   (+ BASE-UART0 (hex "1680")) # Test Control register 32
-  UART3-ITIP   (+ BASE-UART0 (hex "1684")) # Integration test input reg 32
-  UART3-ITOP   (+ BASE-UART0 (hex "1688")) # Integration test output reg 32
-  UART3-TDR    (+ BASE-UART0 (hex "168C")) # Test Data reg 32
-
-  UART4-DR     (+ BASE-UART0 (hex "1800")) # Data Register 32
-  UART4-RSRECR (+ BASE-UART0 (hex "1804")) # 32
-  UART4-FR     (+ BASE-UART0 (hex "1818")) # Flag register 32
-  UART4-ILPR   (+ BASE-UART0 (hex "1820")) # not in use 32
-  UART4-IBRD   (+ BASE-UART0 (hex "1824")) # Integer Baud rate divisor 32
-  UART4-FBRD   (+ BASE-UART0 (hex "1828")) # Fractional Baud rate divisor 32
-  UART4-LCRH   (+ BASE-UART0 (hex "182C")) # Line Control register 32
-  UART4-CR     (+ BASE-UART0 (hex "1830")) # Control register 32
-  UART4-IFLS   (+ BASE-UART0 (hex "1834")) # Interrupt FIFO Level Select Register 32
-  UART4-IMSC   (+ BASE-UART0 (hex "1838")) # Interrupt Mask Set Clear Register 32
-  UART4-RIS    (+ BASE-UART0 (hex "183C")) # Raw Interrupt Status Register 32
-  UART4-MIS    (+ BASE-UART0 (hex "1840")) # Masked Interrupt Status Register 32
-  UART4-ICR    (+ BASE-UART0 (hex "1844")) # Interrupt Clear Register 32
-  UART4-DMACR  (+ BASE-UART0 (hex "1848")) # DMA Control Register 32
-  UART4-ITCR   (+ BASE-UART0 (hex "1880")) # Test Control register 32
-  UART4-ITIP   (+ BASE-UART0 (hex "1884")) # Integration test input reg 32
-  UART4-ITOP   (+ BASE-UART0 (hex "1888")) # Integration test output reg 32
-  UART4-TDR    (+ BASE-UART0 (hex "188C")) # Test Data reg 32
-
-  UART5-DR     (+ BASE-UART0 (hex "1A00")) # Data Register 32
-  UART5-RSRECR (+ BASE-UART0 (hex "1A04")) # 32
-  UART5-FR     (+ BASE-UART0 (hex "1A18")) # Flag register 32
-  UART5-ILPR   (+ BASE-UART0 (hex "1A20")) # not in use 32
-  UART5-IBRD   (+ BASE-UART0 (hex "1A24")) # Integer Baud rate divisor 32
-  UART5-FBRD   (+ BASE-UART0 (hex "1A28")) # Fractional Baud rate divisor 32
-  UART5-LCRH   (+ BASE-UART0 (hex "1A2C")) # Line Control register 32
-  UART5-CR     (+ BASE-UART0 (hex "1A30")) # Control register 32
-  UART5-IFLS   (+ BASE-UART0 (hex "1A34")) # Interrupt FIFO Level Select Register 32
-  UART5-IMSC   (+ BASE-UART0 (hex "1A38")) # Interrupt Mask Set Clear Register 32
-  UART5-RIS    (+ BASE-UART0 (hex "1A3C")) # Raw Interrupt Status Register 32
-  UART5-MIS    (+ BASE-UART0 (hex "1A40")) # Masked Interrupt Status Register 32
-  UART5-ICR    (+ BASE-UART0 (hex "1A44")) # Interrupt Clear Register 32
-  UART5-DMACR  (+ BASE-UART0 (hex "1A48")) # DMA Control Register 32
-  UART5-ITCR   (+ BASE-UART0 (hex "1A80")) # Test Control register 32
-  UART5-ITIP   (+ BASE-UART0 (hex "1A84")) # Integration test input reg 32
-  UART5-ITOP   (+ BASE-UART0 (hex "1A88")) # Integration test output reg 32
-  UART5-TDR    (+ BASE-UART0 (hex "1A8C")) # Test Data reg 32
-)

@@ -998,6 +998,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
   (set
       $Peri   (box64 BASE-PERI)
       $Irq    $Nil)
+
   (set $Gic
       (cons (cons (mkStr ($ "DIST-CTLR"))       (box64 DIST-CTLR      ))
       (cons (cons (mkStr ($ "DIST-TYPER"))      (box64 DIST-TYPER     ))
@@ -1107,82 +1108,203 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (cons (cons (mkStr ($ "UART0-ITOP"))   (box64 UART0-ITOP  )) # Integration test output reg 32
       (cons (cons (mkStr ($ "UART0-TDR"))    (box64 UART0-TDR   )) # Test Data reg 32
 
-      (cons (cons (mkStr ($ "UART2-DR"))     (box64 UART2-DR    )) # Data Register 32
-      (cons (cons (mkStr ($ "UART2-RSRECR")) (box64 UART2-RSRECR)) # 32
-      (cons (cons (mkStr ($ "UART2-FR"))     (box64 UART2-FR    )) # Flag register 32
-      (cons (cons (mkStr ($ "UART2-ILPR"))   (box64 UART2-ILPR  )) # not in use 32
-      (cons (cons (mkStr ($ "UART2-IBRD"))   (box64 UART2-IBRD  )) # Integer Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART2-FBRD"))   (box64 UART2-FBRD  )) # Fractional Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART2-LCRH"))   (box64 UART2-LCRH  )) # Line Control register 32
-      (cons (cons (mkStr ($ "UART2-CR"))     (box64 UART2-CR    )) # Control register 32
-      (cons (cons (mkStr ($ "UART2-IFLS"))   (box64 UART2-IFLS  )) # Interrupt FIFO Level Select Register 32
-      (cons (cons (mkStr ($ "UART2-IMSC"))   (box64 UART2-IMSC  )) # Interrupt Mask Set Clear Register 32
-      (cons (cons (mkStr ($ "UART2-RIS"))    (box64 UART2-RIS   )) # Raw Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART2-MIS"))    (box64 UART2-MIS   )) # Masked Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART2-ICR"))    (box64 UART2-ICR   )) # Interrupt Clear Register 32
-      (cons (cons (mkStr ($ "UART2-DMACR"))  (box64 UART2-DMACR )) # DMA Control Register 32
-      (cons (cons (mkStr ($ "UART2-ITCR"))   (box64 UART2-ITCR  )) # Test Control register 32
-      (cons (cons (mkStr ($ "UART2-ITIP"))   (box64 UART2-ITIP  )) # Integration test input reg 32
-      (cons (cons (mkStr ($ "UART2-ITOP"))   (box64 UART2-ITOP  )) # Integration test output reg 32
-      (cons (cons (mkStr ($ "UART2-TDR"))    (box64 UART2-TDR   )) # Test Data reg 32
+      (cons (cons (mkStr ($ "UART2-DR"))     (box64 UART2-DR    ))
+      (cons (cons (mkStr ($ "UART2-RSRECR")) (box64 UART2-RSRECR))
+      (cons (cons (mkStr ($ "UART2-FR"))     (box64 UART2-FR    ))
+      (cons (cons (mkStr ($ "UART2-ILPR"))   (box64 UART2-ILPR  ))
+      (cons (cons (mkStr ($ "UART2-IBRD"))   (box64 UART2-IBRD  ))
+      (cons (cons (mkStr ($ "UART2-FBRD"))   (box64 UART2-FBRD  ))
+      (cons (cons (mkStr ($ "UART2-LCRH"))   (box64 UART2-LCRH  ))
+      (cons (cons (mkStr ($ "UART2-CR"))     (box64 UART2-CR    ))
+      (cons (cons (mkStr ($ "UART2-IFLS"))   (box64 UART2-IFLS  ))
+      (cons (cons (mkStr ($ "UART2-IMSC"))   (box64 UART2-IMSC  ))
+      (cons (cons (mkStr ($ "UART2-RIS"))    (box64 UART2-RIS   ))
+      (cons (cons (mkStr ($ "UART2-MIS"))    (box64 UART2-MIS   ))
+      (cons (cons (mkStr ($ "UART2-ICR"))    (box64 UART2-ICR   ))
+      (cons (cons (mkStr ($ "UART2-DMACR"))  (box64 UART2-DMACR ))
+      (cons (cons (mkStr ($ "UART2-ITCR"))   (box64 UART2-ITCR  ))
+      (cons (cons (mkStr ($ "UART2-ITIP"))   (box64 UART2-ITIP  ))
+      (cons (cons (mkStr ($ "UART2-ITOP"))   (box64 UART2-ITOP  ))
+      (cons (cons (mkStr ($ "UART2-TDR"))    (box64 UART2-TDR   ))
 
-      (cons (cons (mkStr ($ "UART3-DR"))     (box64 UART3-DR    )) # Data Register 32
-      (cons (cons (mkStr ($ "UART3-RSRECR")) (box64 UART3-RSRECR)) # 32
-      (cons (cons (mkStr ($ "UART3-FR"))     (box64 UART3-FR    )) # Flag register 32
-      (cons (cons (mkStr ($ "UART3-ILPR"))   (box64 UART3-ILPR  )) # not in use 32
-      (cons (cons (mkStr ($ "UART3-IBRD"))   (box64 UART3-IBRD  )) # Integer Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART3-FBRD"))   (box64 UART3-FBRD  )) # Fractional Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART3-LCRH"))   (box64 UART3-LCRH  )) # Line Control register 32
-      (cons (cons (mkStr ($ "UART3-CR"))     (box64 UART3-CR    )) # Control register 32
-      (cons (cons (mkStr ($ "UART3-IFLS"))   (box64 UART3-IFLS  )) # Interrupt FIFO Level Select Register 32
-      (cons (cons (mkStr ($ "UART3-IMSC"))   (box64 UART3-IMSC  )) # Interrupt Mask Set Clear Register 32
-      (cons (cons (mkStr ($ "UART3-RIS"))    (box64 UART3-RIS   )) # Raw Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART3-MIS"))    (box64 UART3-MIS   )) # Masked Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART3-ICR"))    (box64 UART3-ICR   )) # Interrupt Clear Register 32
-      (cons (cons (mkStr ($ "UART3-DMACR"))  (box64 UART3-DMACR )) # DMA Control Register 32
-      (cons (cons (mkStr ($ "UART3-ITCR"))   (box64 UART3-ITCR  )) # Test Control register 32
-      (cons (cons (mkStr ($ "UART3-ITIP"))   (box64 UART3-ITIP  )) # Integration test input reg 32
-      (cons (cons (mkStr ($ "UART3-ITOP"))   (box64 UART3-ITOP  )) # Integration test output reg 32
-      (cons (cons (mkStr ($ "UART3-TDR"))    (box64 UART3-TDR   )) # Test Data reg 32
+      (cons (cons (mkStr ($ "UART3-DR"))     (box64 UART3-DR    ))
+      (cons (cons (mkStr ($ "UART3-RSRECR")) (box64 UART3-RSRECR))
+      (cons (cons (mkStr ($ "UART3-FR"))     (box64 UART3-FR    ))
+      (cons (cons (mkStr ($ "UART3-ILPR"))   (box64 UART3-ILPR  ))
+      (cons (cons (mkStr ($ "UART3-IBRD"))   (box64 UART3-IBRD  ))
+      (cons (cons (mkStr ($ "UART3-FBRD"))   (box64 UART3-FBRD  ))
+      (cons (cons (mkStr ($ "UART3-LCRH"))   (box64 UART3-LCRH  ))
+      (cons (cons (mkStr ($ "UART3-CR"))     (box64 UART3-CR    ))
+      (cons (cons (mkStr ($ "UART3-IFLS"))   (box64 UART3-IFLS  ))
+      (cons (cons (mkStr ($ "UART3-IMSC"))   (box64 UART3-IMSC  ))
+      (cons (cons (mkStr ($ "UART3-RIS"))    (box64 UART3-RIS   ))
+      (cons (cons (mkStr ($ "UART3-MIS"))    (box64 UART3-MIS   ))
+      (cons (cons (mkStr ($ "UART3-ICR"))    (box64 UART3-ICR   ))
+      (cons (cons (mkStr ($ "UART3-DMACR"))  (box64 UART3-DMACR ))
+      (cons (cons (mkStr ($ "UART3-ITCR"))   (box64 UART3-ITCR  ))
+      (cons (cons (mkStr ($ "UART3-ITIP"))   (box64 UART3-ITIP  ))
+      (cons (cons (mkStr ($ "UART3-ITOP"))   (box64 UART3-ITOP  ))
+      (cons (cons (mkStr ($ "UART3-TDR"))    (box64 UART3-TDR   ))
 
-      (cons (cons (mkStr ($ "UART4-DR"))     (box64 UART4-DR    )) # Data Register 32
-      (cons (cons (mkStr ($ "UART4-RSRECR")) (box64 UART4-RSRECR)) # 32
-      (cons (cons (mkStr ($ "UART4-FR"))     (box64 UART4-FR    )) # Flag register 32
-      (cons (cons (mkStr ($ "UART4-ILPR"))   (box64 UART4-ILPR  )) # not in use 32
-      (cons (cons (mkStr ($ "UART4-IBRD"))   (box64 UART4-IBRD  )) # Integer Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART4-FBRD"))   (box64 UART4-FBRD  )) # Fractional Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART4-LCRH"))   (box64 UART4-LCRH  )) # Line Control register 32
-      (cons (cons (mkStr ($ "UART4-CR"))     (box64 UART4-CR    )) # Control register 32
-      (cons (cons (mkStr ($ "UART4-IFLS"))   (box64 UART4-IFLS  )) # Interrupt FIFO Level Select Register 32
-      (cons (cons (mkStr ($ "UART4-IMSC"))   (box64 UART4-IMSC  )) # Interrupt Mask Set Clear Register 32
-      (cons (cons (mkStr ($ "UART4-RIS"))    (box64 UART4-RIS   )) # Raw Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART4-MIS"))    (box64 UART4-MIS   )) # Masked Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART4-ICR"))    (box64 UART4-ICR   )) # Interrupt Clear Register 32
-      (cons (cons (mkStr ($ "UART4-DMACR"))  (box64 UART4-DMACR )) # DMA Control Register 32
-      (cons (cons (mkStr ($ "UART4-ITCR"))   (box64 UART4-ITCR  )) # Test Control register 32
-      (cons (cons (mkStr ($ "UART4-ITIP"))   (box64 UART4-ITIP  )) # Integration test input reg 32
-      (cons (cons (mkStr ($ "UART4-ITOP"))   (box64 UART4-ITOP  )) # Integration test output reg 32
-      (cons (cons (mkStr ($ "UART4-TDR"))    (box64 UART4-TDR   )) # Test Data reg 32
+      (cons (cons (mkStr ($ "UART4-DR"))     (box64 UART4-DR    ))
+      (cons (cons (mkStr ($ "UART4-RSRECR")) (box64 UART4-RSRECR))
+      (cons (cons (mkStr ($ "UART4-FR"))     (box64 UART4-FR    ))
+      (cons (cons (mkStr ($ "UART4-ILPR"))   (box64 UART4-ILPR  ))
+      (cons (cons (mkStr ($ "UART4-IBRD"))   (box64 UART4-IBRD  ))
+      (cons (cons (mkStr ($ "UART4-FBRD"))   (box64 UART4-FBRD  ))
+      (cons (cons (mkStr ($ "UART4-LCRH"))   (box64 UART4-LCRH  ))
+      (cons (cons (mkStr ($ "UART4-CR"))     (box64 UART4-CR    ))
+      (cons (cons (mkStr ($ "UART4-IFLS"))   (box64 UART4-IFLS  ))
+      (cons (cons (mkStr ($ "UART4-IMSC"))   (box64 UART4-IMSC  ))
+      (cons (cons (mkStr ($ "UART4-RIS"))    (box64 UART4-RIS   ))
+      (cons (cons (mkStr ($ "UART4-MIS"))    (box64 UART4-MIS   ))
+      (cons (cons (mkStr ($ "UART4-ICR"))    (box64 UART4-ICR   ))
+      (cons (cons (mkStr ($ "UART4-DMACR"))  (box64 UART4-DMACR ))
+      (cons (cons (mkStr ($ "UART4-ITCR"))   (box64 UART4-ITCR  ))
+      (cons (cons (mkStr ($ "UART4-ITIP"))   (box64 UART4-ITIP  ))
+      (cons (cons (mkStr ($ "UART4-ITOP"))   (box64 UART4-ITOP  ))
+      (cons (cons (mkStr ($ "UART4-TDR"))    (box64 UART4-TDR   ))
 
-      (cons (cons (mkStr ($ "UART5-DR"))     (box64 UART5-DR    )) # Data Register 32
-      (cons (cons (mkStr ($ "UART5-RSRECR")) (box64 UART5-RSRECR)) # 32
-      (cons (cons (mkStr ($ "UART5-FR"))     (box64 UART5-FR    )) # Flag register 32
-      (cons (cons (mkStr ($ "UART5-ILPR"))   (box64 UART5-ILPR  )) # not in use 32
-      (cons (cons (mkStr ($ "UART5-IBRD"))   (box64 UART5-IBRD  )) # Integer Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART5-FBRD"))   (box64 UART5-FBRD  )) # Fractional Baud rate divisor 32
-      (cons (cons (mkStr ($ "UART5-LCRH"))   (box64 UART5-LCRH  )) # Line Control register 32
-      (cons (cons (mkStr ($ "UART5-CR"))     (box64 UART5-CR    )) # Control register 32
-      (cons (cons (mkStr ($ "UART5-IFLS"))   (box64 UART5-IFLS  )) # Interrupt FIFO Level Select Register 32
-      (cons (cons (mkStr ($ "UART5-IMSC"))   (box64 UART5-IMSC  )) # Interrupt Mask Set Clear Register 32
-      (cons (cons (mkStr ($ "UART5-RIS"))    (box64 UART5-RIS   )) # Raw Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART5-MIS"))    (box64 UART5-MIS   )) # Masked Interrupt Status Register 32
-      (cons (cons (mkStr ($ "UART5-ICR"))    (box64 UART5-ICR   )) # Interrupt Clear Register 32
-      (cons (cons (mkStr ($ "UART5-DMACR"))  (box64 UART5-DMACR )) # DMA Control Register 32
-      (cons (cons (mkStr ($ "UART5-ITCR"))   (box64 UART5-ITCR  )) # Test Control register 32
-      (cons (cons (mkStr ($ "UART5-ITIP"))   (box64 UART5-ITIP  )) # Integration test input reg 32
-      (cons (cons (mkStr ($ "UART5-ITOP"))   (box64 UART5-ITOP  )) # Integration test output reg 32
-      (cons (cons (mkStr ($ "UART5-TDR"))    (box64 UART5-TDR   )) # Test Data reg 32
-            $Nil))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+      (cons (cons (mkStr ($ "UART5-DR"))     (box64 UART5-DR    ))
+      (cons (cons (mkStr ($ "UART5-RSRECR")) (box64 UART5-RSRECR))
+      (cons (cons (mkStr ($ "UART5-FR"))     (box64 UART5-FR    ))
+      (cons (cons (mkStr ($ "UART5-ILPR"))   (box64 UART5-ILPR  ))
+      (cons (cons (mkStr ($ "UART5-IBRD"))   (box64 UART5-IBRD  ))
+      (cons (cons (mkStr ($ "UART5-FBRD"))   (box64 UART5-FBRD  ))
+      (cons (cons (mkStr ($ "UART5-LCRH"))   (box64 UART5-LCRH  ))
+      (cons (cons (mkStr ($ "UART5-CR"))     (box64 UART5-CR    ))
+      (cons (cons (mkStr ($ "UART5-IFLS"))   (box64 UART5-IFLS  ))
+      (cons (cons (mkStr ($ "UART5-IMSC"))   (box64 UART5-IMSC  ))
+      (cons (cons (mkStr ($ "UART5-RIS"))    (box64 UART5-RIS   ))
+      (cons (cons (mkStr ($ "UART5-MIS"))    (box64 UART5-MIS   ))
+      (cons (cons (mkStr ($ "UART5-ICR"))    (box64 UART5-ICR   ))
+      (cons (cons (mkStr ($ "UART5-DMACR"))  (box64 UART5-DMACR ))
+      (cons (cons (mkStr ($ "UART5-ITCR"))   (box64 UART5-ITCR  ))
+      (cons (cons (mkStr ($ "UART5-ITIP"))   (box64 UART5-ITIP  ))
+      (cons (cons (mkStr ($ "UART5-ITOP"))   (box64 UART5-ITOP  ))
+      (cons (cons (mkStr ($ "UART5-TDR"))    (box64 UART5-TDR   ))
+            $Nil)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
+  (set $Irq
+      (cons (cons (mkStr ($ "IRQ-CORE-N-HP-TIMER"))      (box64 IRQ-CORE-N-HP-TIMER     ))
+      (cons (cons (mkStr ($ "IRQ-CORE-N-V-TIMER"))       (box64 IRQ-CORE-N-V-TIMER      ))
+      (cons (cons (mkStr ($ "IRQ-LEGACY-FIQn"))          (box64 IRQ-LEGACY-FIQn         ))
+      (cons (cons (mkStr ($ "IRQ-CORE-N-PS-TIMER"))      (box64 IRQ-CORE-N-PS-TIMER     ))
+      (cons (cons (mkStr ($ "IRQ-CORE-N-PNS-TIMER"))     (box64 IRQ-CORE-N-PNS-TIMER    ))
+      (cons (cons (mkStr ($ "IRQ-LEGACY-IRQn"))          (box64 IRQ-LEGACY-IRQn         ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-0"))            (box64 IRQ-MAILBOX-0           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-1"))            (box64 IRQ-MAILBOX-1           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-2"))            (box64 IRQ-MAILBOX-2           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-3"))            (box64 IRQ-MAILBOX-3           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-4"))            (box64 IRQ-MAILBOX-4           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-5"))            (box64 IRQ-MAILBOX-5           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-6"))            (box64 IRQ-MAILBOX-6           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-7"))            (box64 IRQ-MAILBOX-7           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-8"))            (box64 IRQ-MAILBOX-8           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-9"))            (box64 IRQ-MAILBOX-9           ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-10"))           (box64 IRQ-MAILBOX-10          ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-11"))           (box64 IRQ-MAILBOX-11          ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-12"))           (box64 IRQ-MAILBOX-12          ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-13"))           (box64 IRQ-MAILBOX-13          ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-14"))           (box64 IRQ-MAILBOX-14          ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX-15"))           (box64 IRQ-MAILBOX-15          ))
+      (cons (cons (mkStr ($ "IRQ-CORE-0-PMU"))           (box64 IRQ-CORE-0-PMU          ))
+      (cons (cons (mkStr ($ "IRQ-CORE-1-PMU"))           (box64 IRQ-CORE-1-PMU          ))
+      (cons (cons (mkStr ($ "IRQ-CORE-2-PMU"))           (box64 IRQ-CORE-2-PMU          ))
+      (cons (cons (mkStr ($ "IRQ-CORE-3-PMU"))           (box64 IRQ-CORE-3-PMU          ))
+      (cons (cons (mkStr ($ "IRQ-AXIERR"))               (box64 IRQ-AXIERR              ))
+      (cons (cons (mkStr ($ "IRQ-LOCAL-TIMER"))          (box64 IRQ-LOCAL-TIMER         ))
+      (cons (cons (mkStr ($ "IRQ-TIMER"))                (box64 IRQ-TIMER               ))
+      (cons (cons (mkStr ($ "IRQ-MAILBOX"))              (box64 IRQ-MAILBOX             ))
+      (cons (cons (mkStr ($ "IRQ-DOORBELL-0"))           (box64 IRQ-DOORBELL-0          ))
+      (cons (cons (mkStr ($ "IRQ-DOORBELL-1"))           (box64 IRQ-DOORBELL-1          ))
+      (cons (cons (mkStr ($ "IRQ-VPU0-HALTED"))          (box64 IRQ-VPU0-HALTED         ))
+      (cons (cons (mkStr ($ "IRQ-VPU1-HALTED"))          (box64 IRQ-VPU1-HALTED         ))
+      (cons (cons (mkStr ($ "IRQ-ARM-ADDRESS-ERROR"))    (box64 IRQ-ARM-ADDRESS-ERROR   ))
+      (cons (cons (mkStr ($ "IRQ-ARM-AXI-ERROR"))        (box64 IRQ-ARM-AXI-ERROR       ))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-0")) (box64 IRQ-SOFTWARE-INTERRUPT-0))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-1")) (box64 IRQ-SOFTWARE-INTERRUPT-1))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-2")) (box64 IRQ-SOFTWARE-INTERRUPT-2))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-3")) (box64 IRQ-SOFTWARE-INTERRUPT-3))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-4")) (box64 IRQ-SOFTWARE-INTERRUPT-4))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-5")) (box64 IRQ-SOFTWARE-INTERRUPT-5))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-6")) (box64 IRQ-SOFTWARE-INTERRUPT-6))
+      (cons (cons (mkStr ($ "IRQ-SOFTWARE-INTERRUPT-7")) (box64 IRQ-SOFTWARE-INTERRUPT-7))
+      (cons (cons (mkStr ($ "IRQ-TIMER-0"))              (box64 IRQ-TIMER-0             ))
+      (cons (cons (mkStr ($ "IRQ-TIMER-1"))              (box64 IRQ-TIMER-1             ))
+      (cons (cons (mkStr ($ "IRQ-TIMER-2"))              (box64 IRQ-TIMER-2             ))
+      (cons (cons (mkStr ($ "IRQ-TIMER-3"))              (box64 IRQ-TIMER-3             ))
+      (cons (cons (mkStr ($ "IRQ-H264-0"))               (box64 IRQ-H264-0              ))
+      (cons (cons (mkStr ($ "IRQ-H264-1"))               (box64 IRQ-H264-1              ))
+      (cons (cons (mkStr ($ "IRQ-H264-2"))               (box64 IRQ-H264-2              ))
+      (cons (cons (mkStr ($ "IRQ-JPEG"))                 (box64 IRQ-JPEG                ))
+      (cons (cons (mkStr ($ "IRQ-ISP"))                  (box64 IRQ-ISP                 ))
+      (cons (cons (mkStr ($ "IRQ-USB"))                  (box64 IRQ-USB                 ))
+      (cons (cons (mkStr ($ "IRQ-V3D"))                  (box64 IRQ-V3D                 ))
+      (cons (cons (mkStr ($ "IRQ-TRANSPOSER"))           (box64 IRQ-TRANSPOSER          ))
+      (cons (cons (mkStr ($ "IRQ-MULTICORE-SYNC-0"))     (box64 IRQ-MULTICORE-SYNC-0    ))
+      (cons (cons (mkStr ($ "IRQ-MULTICORE-SYNC-1"))     (box64 IRQ-MULTICORE-SYNC-1    ))
+      (cons (cons (mkStr ($ "IRQ-MULTICORE-SYNC-2"))     (box64 IRQ-MULTICORE-SYNC-2    ))
+      (cons (cons (mkStr ($ "IRQ-MULTICORE-SYNC-3"))     (box64 IRQ-MULTICORE-SYNC-3    ))
+      (cons (cons (mkStr ($ "IRQ-DMA-0"))                (box64 IRQ-DMA-0               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-1"))                (box64 IRQ-DMA-1               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-2"))                (box64 IRQ-DMA-2               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-3"))                (box64 IRQ-DMA-3               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-4"))                (box64 IRQ-DMA-4               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-5"))                (box64 IRQ-DMA-5               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-6"))                (box64 IRQ-DMA-6               ))
+      (cons (cons (mkStr ($ "IRQ-DMA-7&8"))              (box64 IRQ-DMA-7&8             ))
+      (cons (cons (mkStr ($ "IRQ-DMA-9&10"))             (box64 IRQ-DMA-9&10            ))
+      (cons (cons (mkStr ($ "IRQ-DMA-11"))               (box64 IRQ-DMA-11              ))
+      (cons (cons (mkStr ($ "IRQ-DMA-12"))               (box64 IRQ-DMA-12              ))
+      (cons (cons (mkStr ($ "IRQ-DMA-13"))               (box64 IRQ-DMA-13              ))
+      (cons (cons (mkStr ($ "IRQ-DMA-14"))               (box64 IRQ-DMA-14              ))
+      (cons (cons (mkStr ($ "IRQ-AUX"))                  (box64 IRQ-AUX                 ))
+      (cons (cons (mkStr ($ "IRQ-ARM"))                  (box64 IRQ-ARM                 ))
+      (cons (cons (mkStr ($ "IRQ-DMA-15"))               (box64 IRQ-DMA-15              ))
+      (cons (cons (mkStr ($ "IRQ-HDMI-CEC"))             (box64 IRQ-HDMI-CEC            ))
+      (cons (cons (mkStr ($ "IRQ-HVS"))                  (box64 IRQ-HVS                 ))
+      (cons (cons (mkStr ($ "IRQ-RPIVID"))               (box64 IRQ-RPIVID              ))
+      (cons (cons (mkStr ($ "IRQ-SDC"))                  (box64 IRQ-SDC                 ))
+      (cons (cons (mkStr ($ "IRQ-DSI-0"))                (box64 IRQ-DSI-0               ))
+      (cons (cons (mkStr ($ "IRQ-PIXEL-VALVE-2"))        (box64 IRQ-PIXEL-VALVE-2       ))
+      (cons (cons (mkStr ($ "IRQ-CAMERA-0"))             (box64 IRQ-CAMERA-0            ))
+      (cons (cons (mkStr ($ "IRQ-CAMERA-1"))             (box64 IRQ-CAMERA-1            ))
+      (cons (cons (mkStr ($ "IRQ-HDMI-0"))               (box64 IRQ-HDMI-0              ))
+      (cons (cons (mkStr ($ "IRQ-HDMI-1"))               (box64 IRQ-HDMI-1              ))
+      (cons (cons (mkStr ($ "IRQ-PIXEL-VALVE-3"))        (box64 IRQ-PIXEL-VALVE-3       ))
+      (cons (cons (mkStr ($ "IRQ-SPI/BSC-SLAVE"))        (box64 IRQ-SPI/BSC-SLAVE       ))
+      (cons (cons (mkStr ($ "IRQ-DSI-1"))                (box64 IRQ-DSI-1               ))
+      (cons (cons (mkStr ($ "IRQ-PIXEL-VALVE-0"))        (box64 IRQ-PIXEL-VALVE-0       ))
+      (cons (cons (mkStr ($ "IRQ-PIXEL-VALVE-1&4"))      (box64 IRQ-PIXEL-VALVE-1&4     ))
+      (cons (cons (mkStr ($ "IRQ-CPR"))                  (box64 IRQ-CPR                 ))
+      (cons (cons (mkStr ($ "IRQ-SMI"))                  (box64 IRQ-SMI                 ))
+      (cons (cons (mkStr ($ "IRQ-GPIO-0"))               (box64 IRQ-GPIO-0              ))
+      (cons (cons (mkStr ($ "IRQ-GPIO-1"))               (box64 IRQ-GPIO-1              ))
+      (cons (cons (mkStr ($ "IRQ-GPIO-2"))               (box64 IRQ-GPIO-2              ))
+      (cons (cons (mkStr ($ "IRQ-GPIO-3"))               (box64 IRQ-GPIO-3              ))
+      (cons (cons (mkStr ($ "IRQ-I2C-ALL"))              (box64 IRQ-I2C-ALL             ))
+      (cons (cons (mkStr ($ "IRQ-SPI-ALL"))              (box64 IRQ-SPI-ALL             ))
+      (cons (cons (mkStr ($ "IRQ-PCM/I2S"))              (box64 IRQ-PCM/I2S             ))
+      (cons (cons (mkStr ($ "IRQ-SDHOST"))               (box64 IRQ-SDHOST              ))
+      (cons (cons (mkStr ($ "IRQ-PL011-UART-ALL"))       (box64 IRQ-PL011-UART-ALL      ))
+      (cons (cons (mkStr ($ "IRQ-ETH-PCIe-L2-ALL"))      (box64 IRQ-ETH-PCIe-L2-ALL     ))
+      (cons (cons (mkStr ($ "IRQ-VEC"))                  (box64 IRQ-VEC                 ))
+      (cons (cons (mkStr ($ "IRQ-CPG"))                  (box64 IRQ-CPG                 ))
+      (cons (cons (mkStr ($ "IRQ-RNG"))                  (box64 IRQ-RNG                 ))
+      (cons (cons (mkStr ($ "IRQ-EMMC&2"))               (box64 IRQ-EMMC&2              ))
+      (cons (cons (mkStr ($ "IRQ-ETH-PCIe-SECURE"))      (box64 IRQ-ETH-PCIe-SECURE     ))
+      (cons (cons (mkStr ($ "IRQ-AVS"))                  (box64 IRQ-AVS                 ))
+      (cons (cons (mkStr ($ "IRQ-PCIE-0-INTA"))          (box64 IRQ-PCIE-0-INTA         ))
+      (cons (cons (mkStr ($ "IRQ-PCIE-0-INTB"))          (box64 IRQ-PCIE-0-INTB         ))
+      (cons (cons (mkStr ($ "IRQ-PCIE-0-INTC"))          (box64 IRQ-PCIE-0-INTC         ))
+      (cons (cons (mkStr ($ "IRQ-PCIE-0-INTD"))          (box64 IRQ-PCIE-0-INTD         ))
+      (cons (cons (mkStr ($ "IRQ-PCIE-0-MSI"))           (box64 IRQ-PCIE-0-MSI          ))
+      (cons (cons (mkStr ($ "IRQ-GENET-0-A"))            (box64 IRQ-GENET-0-A           ))
+      (cons (cons (mkStr ($ "IRQ-GENET-0-B"))            (box64 IRQ-GENET-0-B           ))
+      (cons (cons (mkStr ($ "IRQ-USB0-XHCI-0"))          (box64 IRQ-USB0-XHCI-0         ))
+            $Nil)))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+
 
 (de void main ()
 
