@@ -265,7 +265,7 @@ selectErr)
                         (call $PutBin (i8 N)) ) ) ) ) ) ) ) )
 
 (de void pr (X)
-   (set $PutBin (fun (void i8) _putOutUART1))
+   (set $PutBin (fun (void i8) _putUART1))
    (tailcall (binPrint X)) )
 
 (local) (popInFiles tosInFile popOutFiles tosOutFile popErrFiles popCtlFiles)
@@ -287,7 +287,7 @@ selectErr)
 (de read0 (i1))
 
 # rename to mini, make uart0
-(de i32 _getInUART1 ()
+(de i32 _getUART1 ()
   (loop
     (let X (val (i32* (any AUX-MU-LSR-REG)))
       (? (n0 (& X (hex "01")))) @))
@@ -1048,7 +1048,7 @@ selectErr)
       (? (=0 (& X (hex "20")))) @))
   (set (i32* (any UART0-DR)) (i32 B)))
 
-(de void _putOutUART1 ((i8 . B))
+(de void _putUART1 ((i8 . B))
   # mini
   (loop
     (let X (val (i32* (any AUX-MU-LSR-REG)))
@@ -1382,7 +1382,7 @@ selectErr)
    (let X (cdr Exe)
       (loop
          (let N (eval (++ X))
-            (_putOutUART1 (i8 (int N)))
+            (_putUART1 (i8 (int N)))
             (? (atom X) N) ) ) ) )
 
 (local) (getParse parse)

@@ -68,7 +68,7 @@
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
       (set
          $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putOutUART1) )
+         $Put (fun (void i8) _putUART1) )
       (outWord N)
       (when X
          (space)
@@ -270,7 +270,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (set $Jam NO) )
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
-         (set $Get (fun (i32) _getInUART1))
+         (set $Get (fun (i32) _getUART1))
          (repl 0 ($ "? ") $Nil))
       (unwind null)
       (set
@@ -1323,8 +1323,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $QuitRst (hex "4000090")
       $Heap    (hex "4000490")
       $Limit   (hex "4000490")
-      $Put     (fun (void i8) _putOutUART1)
-      $Get     (fun (i32) _getInUART1))
+      $Put     (fun (void i8) _putUART1)
+      $Get     (fun (i32) _getUART1))
 
    (newline)
    (outString ($ "$MBox="))    (outWord (hex "4000000")) (newline)

@@ -8,7 +8,7 @@
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
       (set
          $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putOutUART1) )
+         $Put (fun (void i8) _putUART1) )
       (outString ($ "# "))
       (print Sym)
       (when Sym2
@@ -1411,7 +1411,7 @@
          (let (Out (val $OutFile)  Put (val (i8** $Put)))
             (set
                $OutFile (val 3 (val $OutFiles))  # Stderr
-               $Put (fun (void i8) _putOutUART1) )
+               $Put (fun (void i8) _putUART1) )
             (let (Y (++ X)  Z (++ X))
                (trace (set $Trace (inc (val $Trace))) Y)
                (outString ($ " :"))
@@ -1434,7 +1434,7 @@
                   (run X)
                   (set
                      $OutFile (val 3 (val $OutFiles))  # Stderr
-                     $Put (fun (void i8) _putOutUART1) )
+                     $Put (fun (void i8) _putUART1) )
                   (let I (val $Trace)
                      (trace I Y)
                      (set $Trace (dec I)) )
