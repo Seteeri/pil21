@@ -8,7 +8,7 @@
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
       (set
          $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putOutMini) )
+         $Put (fun (void i8) _putOutUART1) )
       (outString ($ "# "))
       (print Sym)
       (when Sym2
@@ -1061,7 +1061,7 @@
             (let Ca: (caFrame Ca)
                (when (or (t? (Ca: tag)) (== Tag (Ca: tag)))
                   (unwind Ca)
-                  (set $Ret R)              
+                  (set $Ret R)
                   (longjmp (Ca: (rst)) 1) )
                (setq Ca (Ca: link)) ) ) )
       (err Exe Tag ($ "Tag not found") null) ) )
@@ -1411,7 +1411,7 @@
          (let (Out (val $OutFile)  Put (val (i8** $Put)))
             (set
                $OutFile (val 3 (val $OutFiles))  # Stderr
-               $Put (fun (void i8) _putOutMini) )
+               $Put (fun (void i8) _putOutUART1) )
             (let (Y (++ X)  Z (++ X))
                (trace (set $Trace (inc (val $Trace))) Y)
                (outString ($ " :"))
@@ -1434,7 +1434,7 @@
                   (run X)
                   (set
                      $OutFile (val 3 (val $OutFiles))  # Stderr
-                     $Put (fun (void i8) _putOutMini) )
+                     $Put (fun (void i8) _putOutUART1) )
                   (let I (val $Trace)
                      (trace I Y)
                      (set $Trace (dec I)) )

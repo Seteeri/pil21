@@ -68,7 +68,7 @@
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
       (set
          $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putOutMini) )
+         $Put (fun (void i8) _putOutUART1) )
       (outWord N)
       (when X
          (space)
@@ -270,7 +270,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (set $Jam NO) )
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
-         (set $Get (fun (i32) _getStdin))
+         (set $Get (fun (i32) _getInUART1))
          (repl 0 ($ "? ") $Nil))
       (unwind null)
       (set
@@ -1323,10 +1323,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $QuitRst (hex "4000090")
       $Heap    (hex "4000490")
       $Limit   (hex "4000490")
-      $Put     (fun (void i8) _putOutMini)
-      $Get     (fun (i32) _getStdin))
+      $Put     (fun (void i8) _putOutUART1)
+      $Get     (fun (i32) _getInUART1))
 
    (newline)
+   (outString ($ "$MBox="))    (outWord (hex "4000000")) (newline)
    (outString ($ "$QuitRst=")) (outWord (any $QuitRst)) (newline)
    (outString ($ "$Heap="))    (outWord (val $Heap))    (newline)
    (outString ($ "$Limit="))   (outWord (val $Limit))   (newline)
@@ -1375,91 +1376,75 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 (de _wfi (Exe) (wfi) $Nil)
 (de _wfe (Exe) (wfe) $Nil)
 
+# r/w, 64-bit
 (de _daif (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (daif)))
-        (let N (evCnt Exe X)
-          (daif N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (daif (int @)) @)
+      ((big? @) (daif (val (dig @))) @)
+      (T (box64 (any (cntv-cval))))) )
 
 (de _daif2 (Exe)
   (if (nil? (eval (cadr Exe)))
-      (prog (daif2) $Nil)
-      (prog (daif2 T) $T)))
+      (prog (daif2) @)
+      (prog (daif2 T) @)))
 
-# r/o
+# r/o, 32-bit
 (de _cnt-frq (Exe)
-   (cnt
-    (any (cnt-frq))))
+   (cnt (any (cnt-frq))))
 
 # virt
 
-# r/w
+# r/w, 32-bit
 (de _cntv-ctl (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntv-ctl)))
-        (let N (evCnt Exe X)
-          (cntv-ctl N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntv-ctl (int @)) @)
+      ((big? @) (cntv-ctl (val (dig @))) @)
+      (T (box64 (any (cntv-ctl))))) )
 
-# r/w
+# r/w, 64-bit
 (de _cntv-cval (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntv-cval)))
-        (let N (evCnt Exe X)
-          (cntv-cval N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntv-cval (int @)) @)
+      ((big? @) (cntv-cval (val (dig @))) @)
+      (T (box64 (any (cntv-cval))))) )
 
-# r/w
+# r/w, 32-bit
 (de _cntv-tval (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntv-tval)))
-        (let N (evCnt Exe X)
-          (cntv-tval N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntv-tval (int @)) @)
+      ((big? @) (cntv-tval (val (dig @))) @)
+      (T (box64 (any (cntv-tval))))) )
 
-# r/o
+# r/o, 64-bit
 (de _cntvct (Exe)
-   (cnt
-    (any (cntvct))))
+   (box64 (any (cntvct))))
 
 
 # phys
 
-# r/w
+# r/w, 32-bit
 (de _cntp-ctl (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntp-ctl)))
-        (let N (evCnt Exe X)
-          (cntp-ctl N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntp-ctl (int @)) @)
+      ((big? @) (cntp-ctl (val (dig @))) @)
+      (T (box64 (any (cntp-ctl))))) )
 
-# r/w
+# r/w, 64-bit
 (de _cntp-cval (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntp-cval)))
-        (let N (evCnt Exe X)
-          (cntp-cval N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntp-cval (int @)) @)
+      ((big? @) (cntp-cval (val (dig @))) @)
+      (T (box64 (any (cntp-cval))))) )
 
-# r/w
+# r/w, 32-bit
 (de _cntp-tval (Exe)
-  (let X (cdr Exe)
-    (if (atom X)
-        (cnt (any (cntp-tval)))
-        (let N (evCnt Exe X)
-          (cntp-tval N)
-          (cnt N)))))
+   (cond
+      ((cnt? (eval (cadr Exe))) (cntp-tval (int @)) @)
+      ((big? @) (cntp-tval (val (dig @))) @)
+      (T (box64 (any (cntp-tval))))) )
 
-# r/o
+# r/o, 64-bit
 (de _cntpct (Exe)
-   (cnt
-    (any (cntpct))))
+   (box64 (any (cntpct))))
 
 (end "base.map")
