@@ -1353,6 +1353,14 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (setPeri)
 
+   # set $Getc/$Putc
+   # '(NIL ((quote . 271949)))
+   (set
+      $Get  (fun (i32) getParse)
+      $Putc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Get))))) $Nil) $Nil))
+      $Getc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Put))))) $Nil) $Nil))
+      $Get  (fun (i32) _getUART1))
+
    # timestamp?
 
    # load kern

@@ -1385,7 +1385,17 @@ selectErr)
             (_putUART1 (i8 (int N)))
             (? (atom X) N) ) ) ) )
 
-(local) (getParse parse)
+(local) (getChr getParse parse)
+
+(de i32 getChr ()
+   # check val?
+   (if (nil? (val $Getc))
+        (val $Chr)
+        (set $Chr
+              (i32
+                  (if (cnt? (exec (val $Getc)))
+                    (int @)
+                    (val (dig @)) ) ) )))
 
 (de i32 getParse ()
    (let P (val $Parser)
