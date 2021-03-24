@@ -835,12 +835,12 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                (int @)
                (val (dig @)) ) ) )
       (if (atom X)
-         (cnt (i64 (val P))) # get val
+         (box64 (i64 (val P))) # get val
          (let # set/get val
             (Y (needCnt Exe (eval (car X)))
                N (int @) )
             (set P
-               (any (if (sign? Y) (- N) N)))
+               (i64 (any (if (sign? Y) (- N) N))))
             Y ) ) ) )
 
 # (env ['lst] | ['sym 'val] ..) -> lst
