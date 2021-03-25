@@ -1318,6 +1318,7 @@
    ($Aux   "*Aux"   $Nil)
    ($Uart  "*Uart"  $Nil)
    ($Putc  "*Putc"  $Nil)
+   ($Ch    "*Ch"    $Nil)
    ($Getc  "*Getc"  $Nil)
    ($Complete "complete" $Nil)
    # Garbage collection

@@ -248,7 +248,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                            (shift Tag) ) ) )
                   (setq Ca (Ca: link)) ) ) ) )
       # Should not go here...
-      (outString ($ "pil21 loop wfe"))
+      (outString ($ "pil21 err loop wfe"))
       (loop (wfe))))
 
 (de NIL stkErr (Exe)
