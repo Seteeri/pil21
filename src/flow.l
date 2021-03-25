@@ -17,41 +17,14 @@
       (outString ($ " redefined\n"))
       (set (i8** $Put) Put  $OutFile Out) ) )
 
-(de void putSrc (Sym Key)
-   (unless
-      (or
-         (nil? (val $Dbg))
-         (sym? (val (tail Sym))) )
-      (let In: (inFile (val $InFile))
-         (when (and (In:) (In: name))
-            (let
-               (Dbg (get Sym $Dbg)
-                  Src
-                  (cons
-                     (cnt (i64 (In: src)))
-                     (cons (mkStr (In: name)) (val $Intern)) ) )
-               (cond
-                  ((=0 Key)
-                     (if (nil? Dbg)
-                        (put Sym $Dbg (cons Src $Nil))  # Put initial '*Dbg' properties
-                        (set Dbg Src) ) )  # Set first '*Dbg' property
-                  ((nil? Dbg)
-                     (put Sym $Dbg (cons $Nil (cons Src $Nil))) )
-                  (T
-                     (let X Dbg
-                        (loop
-                           (? (atom (shift X))
-                              (set 2 Dbg (cons (cons Key Src) (cdr Dbg))) )
-                           (? (== (caar X) Key)
-                              (set 2 (car X) Src) ) ) ) ) ) ) ) ) ) )
-
 (de void redefine (Exe Sym Val)
    (needChkVar Exe Sym)
    (let V (val Sym)
       (unless (or (nil? V) (== V Sym) (equal V Val))
          (redefMsg Sym 0) ) )
    (set Sym Val)
-   (putSrc Sym 0) )
+   #(putSrc Sym 0)
+   )
 
 # (quote . any) -> any
 (de _quote (Exe)
@@ -134,7 +107,8 @@
                (unless (or (nil? V) (equal V Val))
                   (redefMsg Sym Y) ) )
             (put Sym Y Val)
-            (putSrc Sym Y) )
+            #(putSrc Sym Y)
+            )
          (chkVar Exe Sym)
          (when (sym? (val (tail Sym)))
             (dbTouch Exe Sym) )
@@ -142,7 +116,8 @@
             (unless (or (nil? V) (== V Sym) (equal V Y))
                (redefMsg Sym 0) ) )
          (set Sym Y)
-         (putSrc Sym 0) )
+         #(putSrc Sym 0)
+         )
       Sym ) )
 
 # (de sym . any) -> sym
@@ -196,7 +171,7 @@
                      (redefMsg Msg Cls) )
                   (set 2 Z Fun) ) )
             (shift L) ) )
-      (putSrc Cls Msg)
+      #(putSrc Cls Msg)
       Msg ) )
 
 # Apply METH to CDR of list
