@@ -19,10 +19,7 @@
 (var $ContPrmt i8* null)               # REPL continue prompt
 (var $Ret 0)                           # Secondary return value
 
-(var $InFiles i8** null)               # Input files
-(var $InFDs i32 0)                     # Number of input files
 (var $OutFiles i8** null)              # Output files
-(var $InFile i8* null)                 # Input file
 (var $OutFile i8* null)                # Output file
 
 (var $Chr i32 0)                       # Single-char look ahead
