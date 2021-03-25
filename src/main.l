@@ -64,19 +64,6 @@
          (run Prg)
          (set $At At) ) ) )
 
-(de dbg ((i64 . N) X)
-   (let (Out (val $OutFile)  Put (val (i8** $Put)))
-      #(set
-      #   $OutFile (val 3 (val $OutFiles))  # Stderr
-      #   $Put (fun (void i8) _putUART1) )
-      (outWord N)
-      (when X
-         (space)
-         (print X) )
-      (newline)
-      (set (i8** $Put) Put  $OutFile Out) )
-   X )
-
 
 (local) (tosInFile popInFiles tosOutFile popOutFiles popErrFiles popCtlFiles)
 

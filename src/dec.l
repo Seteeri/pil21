@@ -120,9 +120,8 @@ memcmp strchr2 setjmp longjmp)
 ### Forward references ###
 
 # main.l
-(local) (dbg equal compare evList)
+(local) (equal compare evList)
 
-(de dbg (i64 any))
 (de i1 equal (any any))
 (de i64 compare (any any))
 (de evList (any))
@@ -254,8 +253,8 @@ box64 eval run)
       (loop
          (let X (++ Prg)
             (? (atom Prg) (eval X))
-            (and (pair X) (evList X)) ) ) ) )    
-         
+            (and (pair X) (evList X)) ) ) ) )
+
 # Runtime checks
 (local) (stkChk sigChk)
 
