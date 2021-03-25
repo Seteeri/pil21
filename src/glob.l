@@ -19,9 +19,6 @@
 (var $ContPrmt i8* null)               # REPL continue prompt
 (var $Ret 0)                           # Secondary return value
 
-(var $OutFiles i8** null)              # Output files
-(var $OutFile i8* null)                # Output file
-
 (var $Chr i32 0)                       # Single-char look ahead
 (var $Put (void i8) null)              # Character output function
 (var $Get (i32) null)                  # Character input function
