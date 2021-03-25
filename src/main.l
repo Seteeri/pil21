@@ -66,9 +66,9 @@
 
 (de dbg ((i64 . N) X)
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
-      (set
-         $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putUART1) )
+      #(set
+      #   $OutFile (val 3 (val $OutFiles))  # Stderr
+      #   $Put (fun (void i8) _putUART1) )
       (outWord N)
       (when X
          (space)
@@ -270,7 +270,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             (set $Jam NO) )
          #(unless (and (isatty 0) (isatty 1))
          #   (bye 1) )
-         (set $Get (fun (i32) _getUART1))
+         #(set $Get (fun (i32) _getUART1))
          (repl 0 ($ "? ") $Nil))
       (unwind null)
       (set
@@ -966,10 +966,12 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (let
           (Nm (name (val (tail (val $Kern))))
             Chr (val $Chr)
+            Put (val (i8** $Put))
             Get (val (i8** $Get))
             Pars (val $Parser) )
 
           (set
+            $Put (fun (void i8) putChr)
             $Get (fun (i32) getChr) # getParse
             $Parser (push 0 (save Nm) 0) )
 
@@ -981,6 +983,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
           (set
               $Parser Pars
+              (i8** $Put) Put
               (i8** $Get) Get
               $Chr Chr ) )
 
@@ -1353,27 +1356,15 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (setPeri)
 
-   # set $Getc/$Putc
-   # '(NIL ((quote . 271949)))
-   #(set
-   #   $Get  (fun (i32) getParse)
-   #   $Putc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Get))))) $Nil) $Nil))
-   #   $Getc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Put))))) $Nil) $Nil))
-   #   $Get  (fun (i32) _getUART1))
-
    # timestamp?
 
    # load kern
    # on uncaught err or bye/exit:
-   * reload
-   * hang
-   * call *repl
-   #(setjmp $QuitRst)
+   # * reload
+   # * hang
+   # * call *repl
    (set $Kern (mkStr $Kerns))
    (loadKern)
-
-   #(setjmp $QuitRst)
-   #(repl 0 ($ ": ") $Nil)
 
    (outString ($ "pil21 loop wfe")))
 

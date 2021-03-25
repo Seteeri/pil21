@@ -6,9 +6,9 @@
 
 (de void redefMsg (Sym Sym2)
    (let (Out (val $OutFile)  Put (val (i8** $Put)))
-      (set
-         $OutFile (val 3 (val $OutFiles))  # Stderr
-         $Put (fun (void i8) _putUART1) )
+      #(set
+      #   $OutFile (val 3 (val $OutFiles))  # Stderr
+      #   $Put (fun (void i8) _putUART1) )
       (outString ($ "# "))
       (print Sym)
       (when Sym2
@@ -1409,9 +1409,9 @@
       (if (nil? (val $Dbg))
          (run (cddr X))
          (let (Out (val $OutFile)  Put (val (i8** $Put)))
-            (set
-               $OutFile (val 3 (val $OutFiles))  # Stderr
-               $Put (fun (void i8) _putUART1) )
+            #(set
+            #   $OutFile (val 3 (val $OutFiles))  # Stderr
+            #   $Put (fun (void i8) _putUART1) )
             (let (Y (++ X)  Z (++ X))
                (trace (set $Trace (inc (val $Trace))) Y)
                (outString ($ " :"))
@@ -1432,9 +1432,9 @@
                (set (i8** $Put) Put  $OutFile Out)
                (prog1
                   (run X)
-                  (set
-                     $OutFile (val 3 (val $OutFiles))  # Stderr
-                     $Put (fun (void i8) _putUART1) )
+                  #(set
+                  #   $OutFile (val 3 (val $OutFiles))  # Stderr
+                  #   $Put (fun (void i8) _putUART1) )
                   (let I (val $Trace)
                      (trace I Y)
                      (set $Trace (dec I)) )

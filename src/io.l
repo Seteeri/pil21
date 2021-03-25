@@ -265,7 +265,7 @@ selectErr)
                         (call $PutBin (i8 N)) ) ) ) ) ) ) ) )
 
 (de void pr (X)
-   (set $PutBin (fun (void i8) _putUART1))
+   (set $PutBin (fun (void i8) putChr)) # _putUART1
    (tailcall (binPrint X)) )
 
 (local) (popInFiles tosInFile popOutFiles tosOutFile popErrFiles popCtlFiles)
@@ -1055,6 +1055,16 @@ selectErr)
       (? (n0 (& X (hex "20")))) @))
   (set (i32* (any AUX-MU-IO-REG)) (i32 B)))
 
+(de void putChr ((i8 . B))
+   # if *Getc/*Putc nil, call getParse, else exec
+   (if (nil? (val $Putc))
+        (_putUART1 B) # or do nothing
+        (set $Chr
+              (i32
+                  (if (cnt? (eval (val $Putc)))
+                    (int @)
+                    (val (dig @)) ) ) )))
+
 (local) (newline space)
 
 (de void newline ()
@@ -1397,8 +1407,7 @@ selectErr)
                (if C (i32 (i8 C)) -1) ) ) ) ) )
 
 (de i32 getChr ()
-   # if *Getc/*Putc are nil, call getParse
-   # else exec
+   # if *Getc/*Putc nil, call getParse, else exec
    (if (nil? (val $Getc))
         (getParse)
         (set $Chr
