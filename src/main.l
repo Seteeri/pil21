@@ -247,42 +247,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                               (longjmp (Ca: (rst)) 1) )
                            (shift Tag) ) ) )
                   (setq Ca (Ca: link)) ) ) ) )
-
       # Should not go here...
-
-      (set $Chr (set $ExtN 0))
-      (set $Break 0)
-      #(set $LinePtr null)
-      #(set $Alarm (set $Sigio $Nil))
-      (when Exe
-         (outString ($ "!? "))
-         (print Exe)
-         (newline) )
-      (when X
-         (print X)
-         (outString ($ " -- ")) )
-      (when (val Msg)
-         (outString Msg)
-         (newline)
-         (unless (or (nil? (val $Err)) (val $Jam))
-            (set $Jam YES)
-            (execAt (val $Err))
-            (set $Jam NO) )
-         #(unless (and (isatty 0) (isatty 1))
-         #   (bye 1) )
-         #(set $Get (fun (i32) _getUART1))
-         (repl 0 ($ "? ") $Nil))
-      (unwind null)
-      (set
-         $Link 0
-         $Protect 0
-         $Next $Nil
-         $Make 0
-         $Yoke 0
-         $Trace 0 )
-      # (loop (wfe))
-      (longjmp $QuitRst 1)
-      ) )
+      (outString ($ "pil21 loop wfe"))
+      (loop (wfe))))
 
 (de NIL stkErr (Exe)
    (set $StkLimit null)
@@ -1364,9 +1331,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    # * hang
    # * call *repl
    (set $Kern (mkStr $Kerns))
-   (loadKern)
-
-   (outString ($ "pil21 loop wfe")))
+   (loadKern))
 
 
 (de _kern (Exe) (loadKern))
