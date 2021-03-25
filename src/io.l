@@ -1333,7 +1333,7 @@ selectErr)
 (de _rd (Exe)
    (let X (save (eval (cadr Exe)))
       (cond
-         ((lt0 ((inFile (val $InFile)) fd)) $Nil)
+         #((lt0 ((inFile (val $InFile)) fd)) $Nil)
          ((num? X)
             (let
                (P (push 3 NIL ZERO NIL)  # [cnt last name link]
@@ -1385,27 +1385,27 @@ selectErr)
             (_putUART1 (i8 (int N)))
             (? (atom X) N) ) ) ) )
 
-(local) (getChr getParse parse)
-
-(de i32 getChr ()
-   # check val?
-   (if (nil? (val $Getc))
-        (val $Chr)
-        (set $Chr
-              (i32
-                  (if (cnt? (exec (val $Getc)))
-                    (int @)
-                    (val (dig @)) ) ) )))
+(local) (getParse getChr parse)
 
 (de i32 getParse ()
    (let P (val $Parser)
       (set $Chr
          (if (i32 (symByte P))
             @
-            (let C (val 3 P) # term chars
-               #(outString ($ "getParse: ")) (outWord C) (newline)
+            (let C (val 3 P) # done so check end hex
                (set 3 P (shr C 8))
                (if C (i32 (i8 C)) -1) ) ) ) ) )
+
+(de i32 getChr ()
+   # if *Getc/*Putc are nil, call getParse
+   # else exec
+   (if (nil? (val $Getc))
+        (getParse)
+        (set $Chr
+              (i32
+                  (if (cnt? (eval (val $Getc)))
+                    (int @)
+                    (val (dig @)) ) ) )))
 
 (de parse (Nm (i1 . Skip) Eof Set)
    (let

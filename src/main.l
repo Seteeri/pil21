@@ -970,7 +970,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
             Pars (val $Parser) )
 
           (set
-            $Get (fun (i32) getParse)
+            $Get (fun (i32) getChr) # getParse
             $Parser (push 0 (save Nm) 0) )
 
           (loop
@@ -1355,11 +1355,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    # set $Getc/$Putc
    # '(NIL ((quote . 271949)))
-   (set
-      $Get  (fun (i32) getParse)
-      $Putc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Get))))) $Nil) $Nil))
-      $Getc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Put))))) $Nil) $Nil))
-      $Get  (fun (i32) _getUART1))
+   #(set
+   #   $Get  (fun (i32) getParse)
+   #   $Putc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Get))))) $Nil) $Nil))
+   #   $Getc (cons $Nil (cons (cons (cons $Quote (box64 (any (val (i8** $Put))))) $Nil) $Nil))
+   #   $Get  (fun (i32) _getUART1))
 
    # timestamp?
 
