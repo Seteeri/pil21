@@ -73,17 +73,6 @@
    (env (env T) i8)     # Saved environment
    (rst 0 i8) )         # Restart jmp_buf (JmpBufSize)
 
-# Family IPC
-(local) child
-
-(struct child
-   (buf 8 i8*)          # Buffer
-   (ofs 4 i32)          # Buffer offset
-   (cnt 4 i32)          # Buffer byte count
-   (pid 4 i32)          # Process ID
-   (hear 4 i32)         # Hear pipe
-   (tell 4 i32) )       # Tell pipe
-
 # libc
 (local) (malloc realloc free
 putc_unlocked getc_unlocked
@@ -105,17 +94,6 @@ memcmp strchr2 setjmp longjmp)
 
 (de T i32 setjmp (i8*))
 (de T NIL longjmp (i8* i32))
-
-# Signals
-(local) (Sig SigDfl SigIgn)
-
-(var Sig i32 0)
-(var SigDfl i8* null)
-(var SigIgn i8* null)
-
-(local) (nErrno gErrno)
-(de i32 nErrno () 0)
-(de i32 gErrno () 0)
 
 ### Forward references ###
 

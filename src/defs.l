@@ -173,6 +173,7 @@
   # DIST-CTLR       (+ (hex "FF840000") (hex "1000"))
 (equ
   BASE-GIC        (+ BASE-PERI (hex "1840000"))
+
   DIST-CTLR       (+ BASE-GIC  (hex "1000"))
   DIST-TYPER      (+ BASE-GIC  (hex "1004"))
   DIST-IIDR       (+ BASE-GIC  (hex "1008"))

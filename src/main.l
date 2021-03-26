@@ -163,23 +163,54 @@
   #
   # volatile
 
-  # disable interrupt
+  # An IRQ is taken from inactive to pending when it is asserted by its device.
+  # The IRQ is then taken from pending to active when the CPU reads the Interrupt Acknowledge Register.
+  # Finally, the IRQ is fully retired and the EOI signal is sent, when the CPU writes to the End of Interrupt register.
+
   (let Ia (val (i32* (any CPUI-IAR)))
 
-    (set (i32* (any DIST-ICENABLER))
-      (i32 (shl 1 (% (i64 Ia) 32))))
+    #(newline)
+    #(outString ($ "dist-icenabler/cpendr: "))
+    #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
+    #(outString ($ ", "))
+    #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
+    #(newline)
 
-    (newline)
-    (outString ($ "sig: ")) (outWord (i64 Ia))
-    (newline)
+    (when (== Ia 1023)
+      (newline)
+      (outString ($ "sig: ")) (outWord (i64 Ia))
+      (newline)
+      (loop Ia))
 
-    (set $Signal (+ (val $Signal) 1))
+    (unless (== Ia 1023)
 
-    # need to shift to get id...
-    (let P (ofs $Signal (+ Ia 1))
-      (set P (+ (val P) 1)) )
+      (set (i32* (any DIST-ICENABLER))
+        (i32 (shl 1 (% (i64 Ia) 32))))
 
-    (set (i32* (any CPUI-EOIR)) Ia))
+      (set $Signal (+ (val $Signal) 1))
+
+      # need to shift to get id...
+      (let P (ofs $Signal (+ Ia 1))
+        (set P (+ (val P) 1)) )
+
+      #(outString ($ "dist-icenabler/cpendr: "))
+      #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
+      #(outString ($ ", "))
+      #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
+      #(newline)
+
+      # only when Ia not 1023
+      # write will be ignored
+      (set (i32* (any CPUI-EOIR)) Ia)
+
+      #(outString ($ "dist-icenabler/cpendr: "))
+      #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
+      #(outString ($ ", "))
+      #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
+      #(newline)
+      ))
+
+  # timer will keep asserting since it is not disabled...
 
   null)
 
@@ -199,6 +230,7 @@
                     (set P (dec @))
                     (set $Signal (dec (val $Signal)))
                     (set $IntID (cnt (- N 1))) # cons needed?
+                    (outString ($ "\nsighandler\n"))
                     (execAt (val $Int)) )
                 (inc 'N)
                 (? (== N IRQ-MAX)) ) )
@@ -1332,7 +1364,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
    (cond
       ((cnt? (eval (cadr Exe))) (daif (int @)) @)
       ((big? @) (daif (val (dig @))) @)
-      (T (box64 (any (cntv-cval))))) )
+      (T (box64 (any (daif))))) )
 
 (de _daif2 (Exe)
   (if (nil? (eval (cadr Exe)))

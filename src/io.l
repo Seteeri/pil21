@@ -1057,17 +1057,10 @@ selectErr)
 
 (de void putChr ((i8 . B))
    # if *Getc/*Putc nil, call putUART1, else exec
+   (set $Ch (cnt (i64 B)))
    (if (nil? (val $Putc))
         (_putUART1 B) # or do nothing
-        (prog
-          # TODO: wr byte to sym (reuse cell)...
-          (set
-            $Ch (cnt (i64 B)))
-            $Chr
-             (i32
-                 (if (cnt? (eval (val $Putc)))
-                   (int @)
-                   (val (dig @)) ) ) )))
+        (execAt (val $Putc))))
 
 (local) (newline space)
 
