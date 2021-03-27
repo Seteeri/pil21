@@ -74,9 +74,11 @@
    (rst 0 i8) )         # Restart jmp_buf (JmpBufSize)
 
 # libc
-(local) (malloc realloc free
+(local) (_end malloc realloc free
 putc_unlocked getc_unlocked
 memcmp strchr2 setjmp longjmp)
+
+(var _end i8* null)
 
 (de i8* malloc        () null)
 (de i8* realloc       () null)

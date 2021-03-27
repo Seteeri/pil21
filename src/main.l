@@ -1308,6 +1308,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (set
       $USec    (any (cntvct))
+      $EndL    (box64 (i64 _end))
       $MBox    (box64 (hex "4000000"))
       $QuitRst (hex "4000090")
       $Heap    (hex "4000490")
