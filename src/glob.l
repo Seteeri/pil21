@@ -1302,7 +1302,7 @@
    ($Uni "*Uni" $Nil)
    ($Dbg "*Dbg" $Nil)
    # Platform/Board/Sys
-   ($EndL  "*End"   $Nil)
+   ($EndLd  "*End"   $Nil)
    ($Kern  "*Kern"  $Nil)
    ($MBox  "*MBox"  $Nil)
    ($IntID "*IntID" $Nil)

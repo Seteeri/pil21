@@ -180,6 +180,7 @@
       (newline)
       (outString ($ "sig: ")) (outWord (i64 Ia))
       (newline)
+      # Dump e
       (loop Ia))
 
     (unless (== Ia 1023)
@@ -1094,6 +1095,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (cons (cons (mkStr ($ "UART0-ITOP"))   (box64 UART0-ITOP  )) # Integration test output reg 32
       (cons (cons (mkStr ($ "UART0-TDR"))    (box64 UART0-TDR   )) # Test Data reg 32
 
+      # UART1 = AUX
+
       (cons (cons (mkStr ($ "UART2-DR"))     (box64 UART2-DR    ))
       (cons (cons (mkStr ($ "UART2-RSRECR")) (box64 UART2-RSRECR))
       (cons (cons (mkStr ($ "UART2-FR"))     (box64 UART2-FR    ))
@@ -1308,7 +1311,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
 
    (set
       $USec    (any (cntvct))
-      $EndL    (box64 (i64 _end))
+      $EndLd   (box64 (i64 _end))
       $MBox    (box64 (hex "4000000"))
       $QuitRst (hex "4000090")
       $Heap    (hex "4000490")
