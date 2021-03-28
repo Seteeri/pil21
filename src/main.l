@@ -356,25 +356,6 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                            0 ) )
                      (? (not (nil? Y)) 0) ) ) ) ) ) ) )
 
-# (tty . prg) -> any
-(de _tty (Exe) (outString ($ "tty\n")) $Nil)
-
-# (raw ['flg]) -> flg
-(de _raw (Exe) (outString ($ "raw\n")) $Nil)
-
-# (alarm 'cnt . prg) -> cnt
-(de _alarm (Exe)
-   (let X (cdr Exe)
-      (prog #prog1
-         #(cnt (i64 (alarm (i32 (evCnt Exe X)))))
-         (set $Alarm (cdr X)) ) ) )
-
-# (sigio 'cnt . prg) -> cnt
-(de _sigio (Exe) (outString ($ "sigio\n")) $Nil)
-
-# (kids) -> lst
-(de _kids (Exe) (outString ($ "kids\n")) $Nil)
-
 # (protect . prg) -> any
 (de _protect (Exe)
    (let X (cdr Exe)
@@ -417,13 +398,11 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (ofs ((coroutine Crt) lim) (- Old New)) ) )
             (cnt N) ) ) ) )
 
+(load "gc.l" "big.l" "sym.l")
+
 # (usec ['flg]) -> num
 (de _usec (Exe)
-  # need date for flg
-   (cnt
-    (- (any (cntvct)) (val $USec))))
-
-(load "gc.l" "big.l" "sym.l")
+    (box64 (- (any (cntvct)) (val $USec))))
 
 # Comparisons
 (local) (equalBig equal compare)
