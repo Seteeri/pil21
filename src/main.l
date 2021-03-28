@@ -150,9 +150,10 @@
 
     (when (== Ia 1023)
       (newline)
-      (outString ($ "sig: ")) (outWord (i64 Ia))
+      (outString ($ "sig ia: ")) (outWord (i64 Ia))
       (newline)
-      # Dump e
+      # get type from E[0]
+      (outString ($ "sig E[0]: ")) (outWord (i64 (val E)))
       (loop Ia))
 
     (unless (== Ia 1023)
