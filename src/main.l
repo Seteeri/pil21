@@ -64,16 +64,6 @@
          (run Prg)
          (set $At At) ) ) )
 
-
-(local) (tosInFile popInFiles tosOutFile popOutFiles popErrFiles popCtlFiles)
-
-(de void tosInFile ())
-(de void popInFiles ())
-(de void tosOutFile ())
-(de void popOutFiles ())
-(de void popErrFiles ())
-(de void popCtlFiles ())
-
 (local) (stop unwind)
 
 # Stop coroutine
@@ -108,25 +98,8 @@
          (setq Bnd (val 3 Bnd)) )
       (set $Bind 0) ) )
 
-# Exit
-(local) (finish giveup bye execErr)
-
-(de NIL finish ((i32 . N)) (outString ($ "finish\n")))
-
-(de NIL giveup ((i8* . Fmt) (i8* . Msg))
-   (outString Fmt) (space) (outString Msg) (newline)
-   (finish 1) )
-
-(de NIL bye ((i32 . N)) (outString ($ "bye\n")))
-
-(de NIL execErr ((i8* . Cmd))
-   (outString ($ "%s: Can't exec\n")) (space) (outString Cmd) (newline)
-   (outString ($ "exit\n")) )
-
 # Signals
-(local) (sig sigTerm sighandler)
-
-(de void sigTerm ((i32 . N)) (outString ($ "sigTerm\n")))
+(local) (sig sighandler)
 
 (de void sig ((i8* . E))
 
