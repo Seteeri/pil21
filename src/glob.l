@@ -13,10 +13,6 @@
 (var $StkSize i64 STACK)               # Coroutine stack segment size
 (var $StkLimit i8* null)               # Stack limit: StackN-Size+4096
 
-(var $Stdin i8* null)                  # Stdin frame
-(var $Stdout i8* null)                 # Stdout frame
-(var $ReplPrmt i8* null)               # REPL console prompt
-(var $ContPrmt i8* null)               # REPL continue prompt
 (var $Ret 0)                           # Secondary return value
 
 (var $Chr i32 0)                       # Single-char look ahead
@@ -29,9 +25,6 @@
 (var $USec i64 0)                      # Startup microseconds
 (var $Ptr i8* null)                    # Byte buffer pointer
 (var $End i8* null)                    # Buffer end pointer
-(var $BufX i8* null)                   # Exchange buffer
-(var $PtrX i8* null)                   # Exchange buffer pointer
-(var $EndX i8* null)                   # Exchange end pointer
 (var $ExtN i32 0)                      # External symbol offset
 (var $Extn i32 0)
 (var $StrP i64* null)                  # String status
@@ -1748,10 +1741,6 @@
    (char "T") )
 
 # Booleans
-(var $Repl  i1 NO)               # REPL flag
-(var $PRepl i1 NO)               # Parent REPL
-(var $Jam   i1 NO)               # Error jam
-(var $InBye i1 NO)               # Exit status
 
 # Strings
 (str $Empty "")
