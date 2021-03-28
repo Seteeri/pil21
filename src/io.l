@@ -268,20 +268,6 @@ selectErr)
    (set $PutBin (fun (void i8) putChr)) # _putUART1
    (tailcall (binPrint X)) )
 
-(local) (popInFiles tosInFile popOutFiles tosOutFile popErrFiles popCtlFiles)
-
-(de void popInFiles () (outString ($ "popInFiles\n")))
-
-(de void tosInFile ()  (outString ($ "tosInFile\n")))
-
-(de void popOutFiles () (outString ($ "popOutFiles\n")))
-
-(de void tosOutFile ()  (outString ($ "tosOutFile\n")))
-
-(de void popErrFiles ()  (outString ($ "popErrFiles\n")))
-
-(de void popCtlFiles ()  (outString ($ "popCtlFiles\n")))
-
 (local) (read0 getChar skipc comment skip testEsc anonymous rdAtom rdl rdList)
 
 (de read0 (i1))
@@ -1041,7 +1027,7 @@ selectErr)
                (drop P)
                $Nil ) ) ) ) )
 
-(de void _putOutUART0 ((i8 . B))
+(de void _putUART0 ((i8 . B))
   # pl011
   (loop
     (let X (val (i32* (any UART0-FR)))
