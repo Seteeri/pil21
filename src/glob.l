@@ -1721,10 +1721,6 @@
    ($Catch i8* null)             # Catch frames
    ($Current i8* null)           # Current coroutine
    ($Coroutines i8* null)        # Coroutines
-   ($InFrames i8* null)          # Input frames
-   ($OutFrames i8* null)         # Output frames
-   ($ErrFrames i8* null)         # Error frames
-   ($CtlFrames i8* null)         # Control frames
    ($Parser i64* null)           # String parser
    ($Intern $Pico1)              # Current namespaces of internal symbols
    ($Next $Nil)                  # Next vararg

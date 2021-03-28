@@ -97,20 +97,6 @@
             (while (and Bnd (<> Bnd (Ca: (env $Bind any))))
                (set (val 2 Bnd) (val Bnd))  # Restore values
                (setq Bnd (val 3 Bnd)) )
-            (until (== (val $CtlFrames) (Ca: (env $CtlFrames i8*)))
-               (popCtlFiles) )
-            (until (== (val $ErrFrames) (Ca: (env $ErrFrames i8*)))
-               (popErrFiles) )
-            (unless (== (val $OutFrames) (Ca: (env $OutFrames i8*)))
-               (loop
-                  (popOutFiles)
-                  (? (== (val $OutFrames) (Ca: (env $OutFrames i8*)))) )
-               (tosOutFile) )
-            (unless (== (val $InFrames) (Ca: (env $InFrames i8*)))
-               (loop
-                  (popInFiles)
-                  (? (== (val $InFrames) (Ca: (env $InFrames i8*)))) )
-               (tosInFile) )
             (memcpy2 (env) (Ca: (env)) (env T))
             (eval (Ca: fin))  # Evaluate 'finally' expression
             (set $Catch (Ca: link))
@@ -120,21 +106,7 @@
       (while Bnd
          (set (val 2 Bnd) (val Bnd))  # Restore values
          (setq Bnd (val 3 Bnd)) )
-      (set $Bind 0)
-      (while (val $CtlFrames)
-         (popCtlFiles) )
-      (while (val $ErrFrames)
-         (popErrFiles) )
-      (unless (== (val $OutFrames) (val $Stdout))
-         (loop
-            (popOutFiles)
-            (? (== (val $OutFrames) (val $Stdout))) )
-         (tosOutFile) )
-      (unless (== (val $InFrames) (val $Stdin))
-         (loop
-            (popInFiles)
-            (? (== (val $InFrames) (val $Stdin))) )
-         (tosInFile) ) ) )
+      (set $Bind 0) ) )
 
 # Exit
 (local) (finish giveup bye execErr)

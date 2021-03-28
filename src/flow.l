@@ -1052,18 +1052,12 @@
 (de void saveCoEnv ((i8* . Crt))
    (let Crt: (coroutine Crt)
       (Crt: at (val $At))  # Not running
-      #((ioFrame (val $OutFrames)) fun (val (i8** $Put)))
-      #(let Io: (ioFrame (val $InFrames))
-      #   (Io: fun (val (i8** $Get)))
-      #   ((inFile (Io: file)) chr (val $Chr)) )
       (memcpy2 (Crt: (env)) (env) (env T)) ) )
 
 (de loadCoEnv ((i8* . Crt))
    (let Crt: (coroutine (set $Current Crt))
       (set $StkLimit (+ (Crt: lim) 4096))
       (memcpy2 (env) (Crt: (env)) (env T))
-      #(tosInFile)
-      #(tosOutFile)
       (set $At (Crt: at))
       (Crt: at 0)  # Running
       (val $Ret) ) )
@@ -1122,10 +1116,6 @@
                   (Dst: bnd
                      (set $Bind (push ZERO $At (val $Bind) Exe)) )  # [0 @ LINK exe]
                   (Dst: ca (val $Catch))
-                  (Dst: in (val $InFrames))
-                  (Dst: out (val $OutFrames))
-                  (Dst: err (val $ErrFrames))
-                  (Dst: ctl (val $CtlFrames))
                   (memcpy2 (Dst: (env)) (env) (env T))
                   (set  # Init local env
                      $Next $Nil
@@ -1176,11 +1166,7 @@
          (let
             (Lnk (any 0)
                Bnd (any 0)
-               Ca (i8* null)
-               In (val $Stdin)
-               Out (val $Stdout)
-               Err (i8* null)
-               Ctl (i8* null) )
+               Ca (i8* null) )
             (unless (t? (Src: tag))
                (let P (val $Link)  # Reverse Stack(s)
                   (until (== P (Src: lnk))
@@ -1205,72 +1191,12 @@
                         (setq P (Ca: link))
                         (Ca: link Ca)
                         (setq Ca (Ca:)) ) )
-                  (set $Catch Ca) )
-               (let P (val $InFrames)  # Reverse InFrames
-                  (until (== P (Src: in))
-                     (let In: (ioFrame P)
-                        (setq P (In: link))
-                        (In: link In)
-                        (setq In (In:)) ) )
-                  (set $InFrames In) )
-               (let P (val $OutFrames)  # Reverse OutFrames
-                  (until (== P (Src: out))
-                     (let Out: (ioFrame P)
-                        (setq P (Out: link))
-                        (Out: link Out)
-                        (setq Out (Out:)) ) )
-                  (set $OutFrames Out) )
-               (let P (val $ErrFrames)  # Reverse ErrFrames
-                  (until (== P (Src: err))
-                     (let Err: (ioFrame P)
-                        (setq P (Err: link))
-                        (Err: link Err)
-                        (setq Err (Err:)) ) )
-                  (set $ErrFrames Err) )
-               (let P (val $CtlFrames)  # Reverse CtlFrames
-                  (until (== P (Src: ctl))
-                     (let Ctl: (ioFrame P)
-                        (setq P (Ctl: link))
-                        (Ctl: link Ctl)
-                        (setq Ctl (Ctl:)) ) )
-                  (set $CtlFrames Ctl) ) )
+                  (set $Catch Ca) ) )
             (saveCoEnv (Src:))
             (unless (setjmp (Src: (rst)))
                (set $Ret Val)
                (longjmp (Dst: (rst)) 1) )
             (unless (t? (Src: tag))
-               (let P (val $CtlFrames)  # Restore CtlFrames
-                  (Src: ctl P)
-                  (while Ctl
-                     (let Ctl: (ioFrame Ctl)
-                        (setq Ctl (Ctl: link))
-                        (Ctl: link P)
-                        (setq P (Ctl:)) ) )
-                  (Src: (env $CtlFrames i8*) P) )
-               (let P (val $ErrFrames)  # Restore ErrFrames
-                  (Src: err P)
-                  (while Err
-                     (let Err: (ioFrame Err)
-                        (setq Err (Err: link))
-                        (Err: link P)
-                        (setq P (Err:)) ) )
-                  (Src: (env $ErrFrames i8*) P) )
-               (let P (val $OutFrames)  # Restore OutFrames
-                  (Src: out P)
-                  (until (== Out (val $Stdout))
-                     (let Out: (ioFrame Out)
-                        (setq Out (Out: link))
-                        (Out: link P)
-                        (setq P (Out:)) ) )
-                  (Src: (env $OutFrames i8*) P) )
-               (let P (val $InFrames)  # Restore InFrames
-                  (Src: in P)
-                  (until (== In (val $Stdin))
-                     (let In: (ioFrame In)
-                        (setq In (In: link))
-                        (In: link P)
-                        (setq P (In:)) ) )
-                  (Src: (env $InFrames i8*) P) )
                (let P (val $Catch)  # Restore CaFrames
                   (Src: ca P)
                   (while Ca
@@ -1343,12 +1269,11 @@
             $Dbg $Nil
             $Run (val P)
             $At (val (val 3 (val 3 P))) )
-         (let (In: (ioFrame (val $InFrames))  Out: (ioFrame (val $OutFrames)))
-            (prog1
-               (if (pair (cdr Exe))
-                  (run @)
-                  (eval (val $Up)) )
-               (set $Run Run  $At At  $Dbg Dbg) ) ) ) ) )
+         (prog1
+             (if (pair (cdr Exe))
+               (run @)
+               (eval (val $Up)) )
+             (set $Run Run  $At At  $Dbg Dbg) ) ) ) )
 
 (local) trace
 

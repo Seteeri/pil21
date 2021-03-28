@@ -2,34 +2,7 @@
 
 (symbols '(llvm))
 
-(local) (inFile outFile dbFile ioFrame)
-
-# I/O
-(struct inFile
-   (name 8 i8*)         # File name
-   (fd 4 i32)           # File descriptor
-   (chr 4 i32)          # Next character
-   (line 4 i32)         # Current line number
-   (src 4 i32)          # Source start line
-   (ix 4 i32)           # Buffer index
-   (cnt 4 i32)          # Buffer byte count
-   (buf BUFSIZ i8) )    # Buffer
-
-(struct outFile
-   (fd 4 i32)           # File descriptor
-   (ix 4 i32)           # Buffer index
-   (buf BUFSIZ i8)      # Buffer
-   (tty 1 i1) )         # TTY flag
-
-(struct ioFrame
-   (link 8 i8*)         # Frame link
-   (file 8 i8*)         # File structure
-   (fun 8 i8*)          # I/O function
-   (pid 4 i32) )        # Process ID
-
-(struct ctFrame
-   (link 8 i8*)         # Frame link
-   (fd 4 i32) )         # File descriptor
+(local) (dbFile)
 
 (struct dbFile
    (fd 4 i32)           # File descriptor
