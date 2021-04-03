@@ -62,6 +62,7 @@
    (mark (val $Intern))  # Current namespaces
    (let P (val $Link)  # Stack(s)
       (while P
+         # print stack pointer
          (mark (val P))  # Mark item
          (shift P) ) )
    (let P (val $Bind)  # Bind frames
@@ -231,7 +232,7 @@
                      (setq Heap (val (setq H (ofs Heap HEAP))))  # Next heap
                      (setq Avail A  Heap (val (inc HEAP) Heap))  # Reset avail list
                      #(free (i8* (val H)))  # Free empty heap
-                     (newline) (outString ($ "gc:free=")) (outWord H) (newline) # poss relink?
+                     #(newline) (outString ($ "gc:free=")) (outWord H) (newline) # poss relink?
                      (set H Heap) ) )  # Store next heap in list link
                (? (=0 Heap)) )
             (set $Avail Avail) )

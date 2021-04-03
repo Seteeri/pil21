@@ -633,7 +633,7 @@
   IRQ-SOFTWARE-INTERRUPT-6 78
   IRQ-SOFTWARE-INTERRUPT-7 79
 
-
+  # -32
   IRQ-TIMER-0              96
   IRQ-TIMER-1              97
   IRQ-TIMER-2              98

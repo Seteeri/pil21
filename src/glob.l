@@ -1653,55 +1653,6 @@
 (table gcData
    ($Transient $Nil)    # Short transient names
    (NIL $Nil)           # Long transient names
-   ($Alarm $Nil)        # Alarm handler
-   ($Sigio $Nil)        # Sigio handler
-   ($Lisp $Nil)         # Lisp callbacks: tag+fun
-   (NIL $Nil)
-   (NIL $Nil)           # 2
-   (NIL $Nil)
-   (NIL $Nil)           # 3
-   (NIL $Nil)
-   (NIL $Nil)           # 4
-   (NIL $Nil)
-   (NIL $Nil)           # 5
-   (NIL $Nil)
-   (NIL $Nil)           # 6
-   (NIL $Nil)
-   (NIL $Nil)           # 7
-   (NIL $Nil)
-   (NIL $Nil)           # 8
-   (NIL $Nil)
-   (NIL $Nil)           # 9
-   (NIL $Nil)
-   (NIL $Nil)           # 10
-   (NIL $Nil)
-   (NIL $Nil)           # 11
-   (NIL $Nil)
-   (NIL $Nil)           # 12
-   (NIL $Nil)
-   (NIL $Nil)           # 13
-   (NIL $Nil)
-   (NIL $Nil)           # 14
-   (NIL $Nil)
-   (NIL $Nil)           # 15
-   (NIL $Nil)
-   (NIL $Nil)           # 16
-   (NIL $Nil)
-   (NIL $Nil)           # 17
-   (NIL $Nil)
-   (NIL $Nil)           # 18
-   (NIL $Nil)
-   (NIL $Nil)           # 19
-   (NIL $Nil)
-   (NIL $Nil)           # 20
-   (NIL $Nil)
-   (NIL $Nil)           # 21
-   (NIL $Nil)
-   (NIL $Nil)           # 22
-   (NIL $Nil)
-   (NIL $Nil)           # 23
-   (NIL $Nil)
-   (NIL $Nil)           # 24
    ($LispEnd $Nil) )
 
 # Environment

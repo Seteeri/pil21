@@ -1042,11 +1042,13 @@ selectErr)
   (set (i32* (any AUX-MU-IO-REG)) (i32 B)))
 
 (de void putChr ((i8 . B))
-   # if *Getc/*Putc nil, call putUART1, else exec
-   (set $Ch (cnt (i64 B)))
-   (if (nil? (val $Putc))
-        (_putUART1 B) # or do nothing
-        (execAt (val $Putc))))
+  (_putUART1 B))
+
+#   # if *Getc/*Putc nil, call putUART1, else exec
+#   (set $Ch (cnt (i64 B)))
+#   (if (nil? (val $Putc))
+#        (_putUART1 B) # or do nothing
+#        (execAt (val $Putc))))
 
 (local) (newline space)
 
@@ -1375,7 +1377,7 @@ selectErr)
    (let X (cdr Exe)
       (loop
          (let N (eval (++ X))
-            (_putUART1 (i8 (int N)))
+            (call $Put (i8 (int N)))
             (? (atom X) N) ) ) ) )
 
 (local) (getParse getChr parse)

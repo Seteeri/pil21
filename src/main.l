@@ -112,54 +112,28 @@
   # The IRQ is then taken from pending to active when the CPU reads the Interrupt Acknowledge Register.
   # Finally, the IRQ is fully retired and the EOI signal is sent, when the CPU writes to the End of Interrupt register.
 
+  # Poss store E values in syms
+
+  # bl causes stack corruption...
+
   (let Ia (val (i32* (any CPUI-IAR)))
 
-    #(newline)
-    #(outString ($ "dist-icenabler/cpendr: "))
-    #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
-    #(outString ($ ", "))
-    #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
-    #(newline)
-
-    (when (== Ia 1023)
-      (newline)
-      (outString ($ "sig ia: ")) (outWord (i64 Ia))
-      (newline)
+    (if (== Ia 1023)
       # get type from E[0]
-      (outString ($ "sig E[0]: ")) (outWord (i64 (val E)))
-      (loop Ia))
+      (prog
+        (outString ($ "sig E[0]: ")) (outWord (i64 (val E)))
+        (loop Ia))
 
-    (unless (== Ia 1023)
-
-      (set (i32* (any DIST-ICENABLER))
+      (set (ofs (i32* (any DIST-ICENABLER)) (/ Ia 32))
         (i32 (shl 1 (% (i64 Ia) 32))))
 
       (set $Signal (+ (val $Signal) 1))
-
-      # need to shift to get id...
-      (let P (ofs $Signal (+ Ia 1))
-        (set P (+ (val P) 1)) )
-
-      #(outString ($ "dist-icenabler/cpendr: "))
-      #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
-      #(outString ($ ", "))
-      #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
-      #(newline)
+      (let P (ofs $Signal (+ Ia 1)) # need to shift to get id...
+        (set P (+ (val P) 1)))
 
       # only when Ia not 1023
       # write will be ignored
-      (set (i32* (any CPUI-EOIR)) Ia)
-
-      #(outString ($ "dist-icenabler/cpendr: "))
-      #(outWord (i64 (val (i32* (any DIST-ICENABLER)))))
-      #(outString ($ ", "))
-      #(outWord (i64 (val (i32* (any DIST-ICPENDR)))))
-      #(newline)
-      ))
-
-  # timer will keep asserting since it is not disabled...
-
-  null)
+      (set (i32* (any CPUI-EOIR)) Ia))))
 
 
 (de void sighandler (Exe)
@@ -177,7 +151,6 @@
                     (set P (dec @))
                     (set $Signal (dec (val $Signal)))
                     (set $IntID (cnt (- N 1))) # cons needed?
-                    (outString ($ "\nsighandler\n"))
                     (execAt (val $Int)) )
                 (inc 'N)
                 (? (== N IRQ-MAX)) ) )
@@ -215,6 +188,9 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
                   (setq Ca (Ca: link)) ) ) ) )
       # Should not go here...
       (outString ($ "pil21 err loop wfe"))
+      (newline)
+      (print (mkStr Msg))
+      (newline)
       (loop (wfe))))
 
 (de NIL stkErr (Exe)
@@ -923,7 +899,7 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (cons (cons (mkStr ($ "DIST-ISACTIVER"))  (box64 DIST-ISACTIVER ))
       (cons (cons (mkStr ($ "DIST-ICACTIVER"))  (box64 DIST-ICACTIVER ))
       (cons (cons (mkStr ($ "DIST-IPRIORITYR")) (box64 DIST-IPRIORITYR))
-      (cons (cons (mkStr ($ "DIST-ITARGETS"))   (box64 DIST-ITARGETSR ))
+      (cons (cons (mkStr ($ "DIST-ITARGETSR"))  (box64 DIST-ITARGETSR ))
       (cons (cons (mkStr ($ "DIST-ICFGR"))      (box64 DIST-ICFGR     ))
       (cons (cons (mkStr ($ "DIST-PPISR"))      (box64 DIST-PPISR     ))
       (cons (cons (mkStr ($ "DIST-SPISR"))      (box64 DIST-SPISR     ))
@@ -1245,7 +1221,8 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Get     (fun (i32) _getUART1))
 
    (newline)
-   (outString ($ "$MBox="))    (outWord (hex "4000000")) (newline)
+   (outString ($ "$EndLd="))   (outWord (i64 _end)) (newline)
+   (outString ($ "$MBox="))    (outWord (i64 (val (dig $MBox)))) (newline)
    (outString ($ "$QuitRst=")) (outWord (any $QuitRst)) (newline)
    (outString ($ "$Heap="))    (outWord (val $Heap))    (newline)
    (outString ($ "$Limit="))   (outWord (val $Limit))   (newline)

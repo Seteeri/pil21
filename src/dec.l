@@ -51,7 +51,7 @@
 putc_unlocked getc_unlocked
 memcmp strchr2 setjmp longjmp)
 
-(var _end i8* null)
+(var _end i8 0)
 
 (de i8* malloc        () null)
 (de i8* realloc       () null)
