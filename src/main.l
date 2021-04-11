@@ -116,15 +116,16 @@
 
   # bl causes stack corruption...
 
-  (let Ia (val (i32* (any CPUI-IAR)))
+  (let Ia (valv (i32* (any CPUI-IAR)))
 
     (if (== Ia 1023)
       # get type from E[0]
       (prog
-        (outString ($ "sig E[0]: ")) (outWord (i64 (val E)))
-        (loop Ia))
+        (outString ($ "sig sp: ")) (outWord (i64 E))
+        #(loop Ia)
+        )
 
-      (set (ofs (i32* (any DIST-ICENABLER)) (/ Ia 32))
+      (setv (ofs (i32* (any DIST-ICENABLER)) (/ Ia 32))
         (i32 (shl 1 (% (i64 Ia) 32))))
 
       (set $Signal (+ (val $Signal) 1))
@@ -133,7 +134,7 @@
 
       # only when Ia not 1023
       # write will be ignored
-      (set (i32* (any CPUI-EOIR)) Ia))))
+      (setv (i32* (any CPUI-EOIR)) Ia))))
 
 
 (de void sighandler (Exe)
@@ -950,30 +951,32 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       (cons (cons (mkStr ($ "AUX-MU-CNTL-REG"))     (box64 AUX-MU-CNTL-REG))     # Mini UART Extra Control 8
       (cons (cons (mkStr ($ "AUX-MU-STAT-REG"))     (box64 AUX-MU-STAT-REG))     # Mini UART Extra Status 32
       (cons (cons (mkStr ($ "AUX-MU-BAUD-REG"))     (box64 AUX-MU-BAUD-REG))     # Mini UART Baudrate 16
+
       (cons (cons (mkStr ($ "AUX-SPI1-CNTL0-REG"))  (box64 AUX-SPI1-CNTL0-REG))  # SPI 1 Control register 0 32
       (cons (cons (mkStr ($ "AUX-SPI1-CNTL1-REG"))  (box64 AUX-SPI1-CNTL1-REG))  # SPI 1 Control register 1 8
       (cons (cons (mkStr ($ "AUX-SPI1-STAT-REG"))   (box64 AUX-SPI1-STAT-REG))   # SPI 1 Status 32
       (cons (cons (mkStr ($ "AUX-SPI1-PEEK-REG"))   (box64 AUX-SPI1-PEEK-REG))   # SPI 1 Peek 16
-      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-IO-REG"))     (box64 AUX-SPI1-IO-REG))     # SPI 1 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD-REG")) (box64 AUX-SPI1-TXHOLD-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO0-REG"))     (box64 AUX-SPI1-IO0-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO1-REG"))     (box64 AUX-SPI1-IO1-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO2-REG"))     (box64 AUX-SPI1-IO2-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-IO3-REG"))     (box64 AUX-SPI1-IO3-REG))     # SPI 1 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD0-REG")) (box64 AUX-SPI1-TXHOLD0-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD1-REG")) (box64 AUX-SPI1-TXHOLD1-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD2-REG")) (box64 AUX-SPI1-TXHOLD2-REG)) # SPI 1 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI1-TXHOLD3-REG")) (box64 AUX-SPI1-TXHOLD3-REG)) # SPI 1 Extended Data 32
+
       (cons (cons (mkStr ($ "AUX-SPI2-CNTL0-REG"))  (box64 AUX-SPI2-CNTL0-REG))  # SPI 2 Control register 0 32
       (cons (cons (mkStr ($ "AUX-SPI2-CNTL1-REG"))  (box64 AUX-SPI2-CNTL1-REG))  # SPI 2 Control register 1 8
       (cons (cons (mkStr ($ "AUX-SPI2-STAT-REG"))   (box64 AUX-SPI2-STAT-REG))   # SPI 2 Status 32
       (cons (cons (mkStr ($ "AUX-SPI2-PEEK-REG"))   (box64 AUX-SPI2-PEEK-REG))   # SPI 2 Peek 16
-      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-IO-REG"))     (box64 AUX-SPI2-IO-REG))     # SPI 2 Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
-      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD-REG")) (box64 AUX-SPI2-TXHOLD-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO0-REG"))     (box64 AUX-SPI2-IO0-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO1-REG"))     (box64 AUX-SPI2-IO1-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO2-REG"))     (box64 AUX-SPI2-IO2-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-IO3-REG"))     (box64 AUX-SPI2-IO3-REG))     # SPI 2 Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD0-REG")) (box64 AUX-SPI2-TXHOLD0-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD1-REG")) (box64 AUX-SPI2-TXHOLD1-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD2-REG")) (box64 AUX-SPI2-TXHOLD2-REG)) # SPI 2 Extended Data 32
+      (cons (cons (mkStr ($ "AUX-SPI2-TXHOLD3-REG")) (box64 AUX-SPI2-TXHOLD3-REG)) # SPI 2 Extended Data 32
             $Nil))))))))))))))))))))))))))))))))))))))
 
   (set $Uart
@@ -1220,17 +1223,17 @@ atomErr pairErr lstErr varErr itemErr protErr lockErr forkErr symNspErr)
       $Put     (fun (void i8) _putUART1)
       $Get     (fun (i32) _getUART1))
 
-   (newline)
-   (outString ($ "$EndLd="))   (outWord (i64 _end)) (newline)
-   (outString ($ "$MBox="))    (outWord (i64 (val (dig $MBox)))) (newline)
-   (outString ($ "$QuitRst=")) (outWord (any $QuitRst)) (newline)
-   (outString ($ "$Heap="))    (outWord (val $Heap))    (newline)
-   (outString ($ "$Limit="))   (outWord (val $Limit))   (newline)
+   #(newline)
+   #(outString ($ "$EndLd="))   (outWord (i64 _end)) (newline)
+   #(outString ($ "$MBox="))    (outWord (i64 (val (dig $MBox)))) (newline)
+   #(outString ($ "$QuitRst=")) (outWord (any $QuitRst)) (newline)
+   #(outString ($ "$Heap="))    (outWord (val $Heap))    (newline)
+   #(outString ($ "$Limit="))   (outWord (val $Limit))   (newline)
 
-   (outString ($ "Call heapAlloc...\n"))
+   #(outString ($ "Call heapAlloc...\n"))
    (heapAlloc)
 
-   (outString ($ "Init internal symbols...\n"))
+   #(outString ($ "Init internal symbols...\n"))
    (let P $Nil
       (loop
          (let Nm (val (tail P))

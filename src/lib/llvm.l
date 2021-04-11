@@ -18,7 +18,7 @@ struct $Nil $T $Link drop)
 
 (local) (*Map *Map2 putMap *Shared *Strings *Ssa *Lbl *Log *Curr *Exit *Bind
 *Phi *Call *Ret log asm ssa phi +phi br label +lbl +bind type func ptr pointee
-store A B C I L M N P Q V X Y Exe Prg Typ Sym Ret Args Ext Table Body Var Val
+store storev A B C I L M N P Q V X Y Exe Prg Typ Sym Ret Args Ext Table Body Var Val
 Lst Lbl Flg Skip True False Beg End Safe *Safe)
 
 (off *Map *Map2)
@@ -246,6 +246,33 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
          (link (pack "store i64 " X ", i64* %" *Ssa)) )
       (NIL
          (link (pack "store i64 " X ", i64* " P)) ) )
+   X )
+
+(de storev (X P Ofs)
+   (nond
+      ((memq (val P) '(i64 any))
+         (when (num? X)
+            (setq X (def (format X) (pointee (val P)))) )
+         (ifn Ofs
+            (link
+               (pack "store volatile " (type (val X)) " " X ", "
+                  (type (val P)) (and (pair (val P)) "*")
+                  " " P ) )
+            (ssa (inc '*Ssa) "getelementptr "
+               (type (val X)) ", "
+               (type (val P)) (and (pair (val P)) "*")
+               " " P ", i32 " Ofs )
+            (link
+               (pack "store volatile " (type (val X)) " " X ", "
+                  (type (val P)) (and (pair (val P)) "*")
+                  " %" *Ssa ) ) ) )
+      ((pre? "@" P)
+         (ssa (inc '*Ssa) "inttoptr i64 " P " to i64*")
+         (when Ofs
+            (ssa (inc '*Ssa) "getelementptr i64, i64* %" (dec *Ssa) ", i32 " Ofs) )
+         (link (pack "store volatile i64 " X ", i64* %" *Ssa)) )
+      (NIL
+         (link (pack "store volatile i64 " X ", i64* " P)) ) )
    X )
 
 (de $ (Str)
@@ -1427,7 +1454,7 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
 (asm ()
    (() (link "call void asm \"wfe\",\"\"()"))
    (llvm~wfe) )
-   
+
 (asm ()
    (() (link "call void asm \"wfi\",\"\"()"))
    (llvm~wfi) )
@@ -1436,18 +1463,18 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
    ((P)
     (if P
         (link (pack "call void asm \"msr DAIF, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, DAIF\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~daif) )
-   
+
 (asm ()
    ((P)
     (if P
         (link "call void asm \"msr DAIFClr, #2\",\"\"()")
         (link "call void asm \"msr DAIFSet, #2\",\"\"()")))
-   (llvm~daif2) )   
-   
+   (llvm~daif2) )
+
 # timers
 
 # https://github.com/tianocore/edk2/blob/master/ArmPkg/Library/ArmLib/AArch64/AArch64ArchTimerSupport.S
@@ -1457,7 +1484,7 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
 
 (asm ()
    ((P)
-    (ssa (inc '*Ssa) 
+    (ssa (inc '*Ssa)
       (pack "call i32* asm \"mrs $0, cntfrq_el0\",\"=r\"()"))
     (def (pack "%" *Ssa) 'i32*) )
    (llvm~cnt-frq) )
@@ -1468,7 +1495,7 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
    ((P)
     (if P
         (link (pack "call void asm \"msr cntv_ctl_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntv_ctl_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntv-ctl) )
@@ -1477,35 +1504,35 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
    ((P)
     (if P
         (link (pack "call void asm \"msr cntv_cval_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntv_cval_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntv-cval) )
-   
+
 (asm ()
    ((P)
     (if P
         (link (pack "call void asm \"msr cntv_tval_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntv_tval_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntv-tval) )
-   
+
 (asm ()
    ((P)
-    (ssa (inc '*Ssa) 
+    (ssa (inc '*Ssa)
       (pack "call i64* asm \"mrs $0, cntvct_el0\",\"=r\"()"))
     (def (pack "%" *Ssa) 'i64*) )
    (llvm~cntvct) )
 
-   
+
 # phys
 
 (asm ()
    ((P)
     (if P
         (link (pack "call void asm \"msr cntp_ctl_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntp_ctl_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntp-ctl) )
@@ -1514,28 +1541,60 @@ Lst Lbl Flg Skip True False Beg End Safe *Safe)
    ((P)
     (if P
         (link (pack "call void asm \"msr cntp_cval_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntp_cval_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntp-cval) )
-   
+
 (asm ()
    ((P)
     (if P
         (link (pack "call void asm \"msr cntp_tval_el0, $0\",\"r\"(i64 " P ")"))
-        (ssa (inc '*Ssa) 
+        (ssa (inc '*Ssa)
           (pack "call i64* asm \"mrs $0, cntp_tval_el0\",\"=r\"()"))
         (def (pack "%" *Ssa) 'i64*) ))
    (llvm~cntp-tval) )
-   
+
 (asm ()
    ((P)
-    (ssa (inc '*Ssa) 
+    (ssa (inc '*Ssa)
       (pack "call i64* asm \"mrs $0, cntpct_el0\",\"=r\"()"))
     (def (pack "%" *Ssa) 'i64*) )
    (llvm~cntpct) )
 
-   
+(asm ()
+   (@
+      (let (X (next)  Ofs)
+         (when (num? X)
+            (setq Ofs (dec X)  X (next)) )
+         (casq (val X)
+            (any
+               (if (pre? "@" X)
+                  (ssa (inc '*Ssa) "load volatile " "i64, i64* " X)
+                  (ssa (inc '*Ssa) "inttoptr i64 " X " to i64*")
+                  (when Ofs
+                     (ssa (inc '*Ssa) "getelementptr i64, i64* %" (dec *Ssa) ", i32 " Ofs) )
+                  (ssa (inc '*Ssa) "load volatile " "i64, i64* %" (dec *Ssa)) )
+               (def (pack "%" *Ssa) 'any) )
+            ((i1* i1** i8* i8** i8*** i16* i16** i32* i32** i64* i64**)
+               (let Typ (pointee (val X))
+                  (ifn Ofs
+                     (ssa (inc '*Ssa) "load volatile " Typ ", " (val X) " " X)
+                     (ssa (inc '*Ssa) "getelementptr " Typ ", " (val X) " " X ", i32 " Ofs)
+                     (ssa (inc '*Ssa) "load volatile " Typ ", " (val X) " %" (dec *Ssa)) )
+                  (def (pack "%" *Ssa) Typ) ) )
+            (T (quit "Bad type" (val X))) ) ) )
+   (llvm~valv) )
+
+(asm ()
+   (Args
+      (while Args
+         (let (A (eval (++ Args) 1)  B (eval (++ Args) 1))
+            (ifn (num? A)
+               (storev B A)
+               (storev (eval (++ Args) 1) B (dec A)) ) ) ) )
+   (llvm~setv) )
+
 ### Composite ###
 (symbols '(llvm cross pico))
 

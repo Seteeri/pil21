@@ -81,43 +81,43 @@
  AUX-SPI2-TXHOLD-REG)
 
 (equ
-  AUX-IRQ             (+ BASE-PERI (hex "00215000")) # Auxiliary Interrupt status 3
-  AUX-ENABLES         (+ BASE-PERI (hex "00215004")) # Auxiliary enables 3
-  AUX-MU-IO-REG       (+ BASE-PERI (hex "00215040")) # Mini UART I/O Data 8
-  AUX-MU-IER-REG      (+ BASE-PERI (hex "00215044")) # Mini UART Interrupt Enable 8
-  AUX-MU-IIR-REG      (+ BASE-PERI (hex "00215048")) # Mini UART Interrupt Identify 8
-  AUX-MU-LCR-REG      (+ BASE-PERI (hex "0021504C")) # Mini UART Line Control 8
-  AUX-MU-MCR-REG      (+ BASE-PERI (hex "00215050")) # Mini UART Modem Control 8
-  AUX-MU-LSR-REG      (+ BASE-PERI (hex "00215054")) # Mini UART Line Status 8
-  AUX-MU-MSR-REG      (+ BASE-PERI (hex "00215058")) # Mini UART Modem Status 8
-  AUX-MU-SCRATCH      (+ BASE-PERI (hex "0021505C")) # Mini UART Scratch 8
-  AUX-MU-CNTL-REG     (+ BASE-PERI (hex "00215060")) # Mini UART Extra Control 8
-  AUX-MU-STAT-REG     (+ BASE-PERI (hex "00215064")) # Mini UART Extra Status 32
-  AUX-MU-BAUD-REG     (+ BASE-PERI (hex "00215068")) # Mini UART Baudrate 16
-  AUX-SPI1-CNTL0-REG  (+ BASE-PERI (hex "00215080")) # SPI 1 Control register 0 32
-  AUX-SPI1-CNTL1-REG  (+ BASE-PERI (hex "00215084")) # SPI 1 Control register 1 8
-  AUX-SPI1-STAT-REG   (+ BASE-PERI (hex "00215088")) # SPI 1 Status 32
-  AUX-SPI1-PEEK-REG   (+ BASE-PERI (hex "0021508C")) # SPI 1 Peek 16
-  AUX-SPI1-IO-REG     (+ BASE-PERI (hex "002150A0")) # SPI 1 Data 32
-  AUX-SPI1-IO-REG     (+ BASE-PERI (hex "002150A4")) # SPI 1 Data 32
-  AUX-SPI1-IO-REG     (+ BASE-PERI (hex "002150A8")) # SPI 1 Data 32
-  AUX-SPI1-IO-REG     (+ BASE-PERI (hex "002150AC")) # SPI 1 Data 32
-  AUX-SPI1-TXHOLD-REG (+ BASE-PERI (hex "002150B0")) # SPI 1 Extended Data 32
-  AUX-SPI1-TXHOLD-REG (+ BASE-PERI (hex "002150B4")) # SPI 1 Extended Data 32
-  AUX-SPI1-TXHOLD-REG (+ BASE-PERI (hex "002150B8")) # SPI 1 Extended Data 32
-  AUX-SPI1-TXHOLD-REG (+ BASE-PERI (hex "002150BC")) # SPI 1 Extended Data 32
-  AUX-SPI2-CNTL0-REG  (+ BASE-PERI (hex "002150C0")) # SPI 2 Control register 0 32
-  AUX-SPI2-CNTL1-REG  (+ BASE-PERI (hex "002150C4")) # SPI 2 Control register 1 8
-  AUX-SPI2-STAT-REG   (+ BASE-PERI (hex "002150C8")) # SPI 2 Status 32
-  AUX-SPI2-PEEK-REG   (+ BASE-PERI (hex "002150CC")) # SPI 2 Peek 16
-  AUX-SPI2-IO-REG     (+ BASE-PERI (hex "002150E0")) # SPI 2 Data 32
-  AUX-SPI2-IO-REG     (+ BASE-PERI (hex "002150E4")) # SPI 2 Data 32
-  AUX-SPI2-IO-REG     (+ BASE-PERI (hex "002150E8")) # SPI 2 Data 32
-  AUX-SPI2-IO-REG     (+ BASE-PERI (hex "002150EC")) # SPI 2 Data 32
-  AUX-SPI2-TXHOLD-REG (+ BASE-PERI (hex "002150F0")) # SPI 2 Extended Data 32
-  AUX-SPI2-TXHOLD-REG (+ BASE-PERI (hex "002150F4")) # SPI 2 Extended Data 32
-  AUX-SPI2-TXHOLD-REG (+ BASE-PERI (hex "002150F8")) # SPI 2 Extended Data 32
-  AUX-SPI2-TXHOLD-REG (+ BASE-PERI (hex "002150FC")) # SPI 2 Extended Data 32
+  AUX-IRQ              (+ BASE-PERI (hex "00215000")) # Auxiliary Interrupt status 3
+  AUX-ENABLES          (+ BASE-PERI (hex "00215004")) # Auxiliary enables 3
+  AUX-MU-IO-REG        (+ BASE-PERI (hex "00215040")) # Mini UART I/O Data 8
+  AUX-MU-IER-REG       (+ BASE-PERI (hex "00215044")) # Mini UART Interrupt Enable 8
+  AUX-MU-IIR-REG       (+ BASE-PERI (hex "00215048")) # Mini UART Interrupt Identify 8
+  AUX-MU-LCR-REG       (+ BASE-PERI (hex "0021504C")) # Mini UART Line Control 8
+  AUX-MU-MCR-REG       (+ BASE-PERI (hex "00215050")) # Mini UART Modem Control 8
+  AUX-MU-LSR-REG       (+ BASE-PERI (hex "00215054")) # Mini UART Line Status 8
+  AUX-MU-MSR-REG       (+ BASE-PERI (hex "00215058")) # Mini UART Modem Status 8
+  AUX-MU-SCRATCH       (+ BASE-PERI (hex "0021505C")) # Mini UART Scratch 8
+  AUX-MU-CNTL-REG      (+ BASE-PERI (hex "00215060")) # Mini UART Extra Control 8
+  AUX-MU-STAT-REG      (+ BASE-PERI (hex "00215064")) # Mini UART Extra Status 32
+  AUX-MU-BAUD-REG      (+ BASE-PERI (hex "00215068")) # Mini UART Baudrate 16
+  AUX-SPI1-CNTL0-REG   (+ BASE-PERI (hex "00215080")) # SPI 1 Control register 0 32
+  AUX-SPI1-CNTL1-REG   (+ BASE-PERI (hex "00215084")) # SPI 1 Control register 1 8
+  AUX-SPI1-STAT-REG    (+ BASE-PERI (hex "00215088")) # SPI 1 Status 32
+  AUX-SPI1-PEEK-REG    (+ BASE-PERI (hex "0021508C")) # SPI 1 Peek 16
+  AUX-SPI1-IO0-REG     (+ BASE-PERI (hex "002150A0")) # SPI 1 Data 32
+  AUX-SPI1-IO1-REG     (+ BASE-PERI (hex "002150A4")) # SPI 1 Data 32
+  AUX-SPI1-IO2-REG     (+ BASE-PERI (hex "002150A8")) # SPI 1 Data 32
+  AUX-SPI1-IO3-REG     (+ BASE-PERI (hex "002150AC")) # SPI 1 Data 32
+  AUX-SPI1-TXHOLD0-REG (+ BASE-PERI (hex "002150B0")) # SPI 1 Extended Data 32
+  AUX-SPI1-TXHOLD1-REG (+ BASE-PERI (hex "002150B4")) # SPI 1 Extended Data 32
+  AUX-SPI1-TXHOLD2-REG (+ BASE-PERI (hex "002150B8")) # SPI 1 Extended Data 32
+  AUX-SPI1-TXHOLD3-REG (+ BASE-PERI (hex "002150BC")) # SPI 1 Extended Data 32
+  AUX-SPI2-CNTL0-REG   (+ BASE-PERI (hex "002150C0")) # SPI 2 Control register 0 32
+  AUX-SPI2-CNTL1-REG   (+ BASE-PERI (hex "002150C4")) # SPI 2 Control register 1 8
+  AUX-SPI2-STAT-REG    (+ BASE-PERI (hex "002150C8")) # SPI 2 Status 32
+  AUX-SPI2-PEEK-REG    (+ BASE-PERI (hex "002150CC")) # SPI 2 Peek 16
+  AUX-SPI2-IO0-REG     (+ BASE-PERI (hex "002150E0")) # SPI 2 Data 32
+  AUX-SPI2-IO1-REG     (+ BASE-PERI (hex "002150E4")) # SPI 2 Data 32
+  AUX-SPI2-IO2-REG     (+ BASE-PERI (hex "002150E8")) # SPI 2 Data 32
+  AUX-SPI2-IO3-REG     (+ BASE-PERI (hex "002150EC")) # SPI 2 Data 32
+  AUX-SPI2-TXHOLD0-REG (+ BASE-PERI (hex "002150F0")) # SPI 2 Extended Data 32
+  AUX-SPI2-TXHOLD1-REG (+ BASE-PERI (hex "002150F4")) # SPI 2 Extended Data 32
+  AUX-SPI2-TXHOLD2-REG (+ BASE-PERI (hex "002150F8")) # SPI 2 Extended Data 32
+  AUX-SPI2-TXHOLD3-REG (+ BASE-PERI (hex "002150FC")) # SPI 2 Extended Data 32
 )
 
 
